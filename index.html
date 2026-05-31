@@ -301,14 +301,29 @@ body, header, .card, .modal-content, .theme-toggle, .weight-wrap,
   overflow: hidden;
   transition: max-height .28s cubic-bezier(.4,0,.2,1), padding .28s;
   padding: 0;
+  /* máscara de fade nas bordas indicando scroll */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 16px, black calc(100% - 40px), transparent 100%);
+  mask-image:         linear-gradient(to right, transparent 0, black 16px, black calc(100% - 40px), transparent 100%);
 }
 .filters-panel.open {
-  max-height: 220px;    /* espaço para 4–5 linhas de chips */
-  padding: 10px 0 4px;
+  max-height: 60px;   /* exatamente 1 linha de chips */
+  padding: 10px 0 6px;
 }
+/* Linha única com scroll horizontal — sem wrap */
 .filters {
-  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;       /* ← linha única */
+  align-items: center;
+  overflow-x: auto;        /* ← scroll horizontal */
+  overflow-y: hidden;
+  padding: 2px 40px 4px 20px;  /* padding-right cobre o fade */
+  scrollbar-width: none;   /* Firefox */
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
+.filters::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 .filter-label {
   font-family: var(--mono); font-size: 11px; color: var(--text-3);
   letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px;
