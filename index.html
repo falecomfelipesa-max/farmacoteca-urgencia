@@ -183,6 +183,31 @@ header {
 [data-theme="light"] .theme-toggle .theme-icon-light { display: inline; }
 [data-theme="light"] .theme-toggle .theme-icon-dark { display: none; }
 
+/* Filters toggle button */
+.filters-toggle {
+  display: flex; align-items: center; gap: 6px;
+  height: 38px; padding: 0 12px;
+  background: var(--bg-2); border: 1px solid var(--border-strong);
+  border-radius: 6px; cursor: pointer; color: var(--text-1);
+  font-size: 13px; font-family: var(--mono);
+  transition: background .15s, border-color .15s, color .15s;
+  flex-shrink: 0; white-space: nowrap;
+}
+.filters-toggle:hover { background: var(--bg-hover); border-color: var(--accent); color: var(--text-0); }
+.filters-toggle[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); background: var(--bg-hover); }
+.filters-toggle-icon { font-size: 14px; }
+.filters-toggle-label { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
+.filters-toggle-badge {
+  background: var(--accent); color: var(--bg-0);
+  font-size: 10px; font-weight: 700; font-family: var(--mono);
+  padding: 1px 6px; border-radius: 10px; letter-spacing: .02em;
+}
+.filters-toggle-arrow {
+  font-size: 10px; opacity: .6;
+  transition: transform .25s;
+}
+.filters-toggle[aria-expanded="true"] .filters-toggle-arrow { transform: rotate(180deg); }
+
 /* Transição suave entre temas */
 body, header, .card, .modal-content, .theme-toggle, .weight-wrap,
 .search-input, .filter-chip, .stats, .calc-section {
@@ -270,6 +295,17 @@ body, header, .card, .modal-content, .theme-toggle, .weight-wrap,
 .calc-table td .vol { color: var(--accent); }
 
 /* Filter chips */
+/* Painel de filtros colapsível */
+.filters-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .28s cubic-bezier(.4,0,.2,1), padding .28s;
+  padding: 0;
+}
+.filters-panel.open {
+  max-height: 120px;    /* altura generosa para 2 linhas de chips */
+  padding: 10px 0 4px;
+}
 .filters {
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
@@ -588,10 +624,18 @@ footer strong { color: var(--warning); }
         <span class="theme-icon-dark">☾</span>
         <span class="theme-icon-light">☀</span>
       </button>
+      <button class="filters-toggle" id="filters-toggle" aria-expanded="false" title="Filtrar por cenário clínico (F)">
+        <span class="filters-toggle-icon">⊞</span>
+        <span class="filters-toggle-label">Cenário</span>
+        <span class="filters-toggle-badge" id="filters-badge" hidden></span>
+        <span class="filters-toggle-arrow">▾</span>
+      </button>
     </div>
-    <div class="filters" id="filters">
-      <span class="filter-label">Cenário:</span>
-      <!-- filtros inseridos via JS -->
+    <div class="filters-panel" id="filters-panel">
+      <div class="filters" id="filters">
+        <span class="filter-label">Cenário:</span>
+        <!-- filtros inseridos via JS -->
+      </div>
     </div>
   </div>
 </header>
@@ -2830,6 +2874,17 @@ function renderFiltros() {
     });
     cont.appendChild(reset);
   }
+  // Atualizar badge do botão de toggle
+  const badge = document.getElementById("filters-badge");
+  if (badge) {
+    if (estadoFiltro !== "todos") {
+      const nomeAtivo = CATEGORIAS.find(c => c.id === estadoFiltro)?.nome || estadoFiltro;
+      badge.textContent = nomeAtivo;
+      badge.removeAttribute("hidden");
+    } else {
+      badge.setAttribute("hidden", "");
+    }
+  }
 }
 
 function filtrarMeds() {
@@ -3863,7 +3918,33 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     alternarTema();
   }
+  if ((e.key === "f" || e.key === "F") && document.activeElement.tagName !== "INPUT") {
+    e.preventDefault();
+    alternarPainelFiltros();
+  }
 });
+
+// ============================================================
+// PAINEL DE FILTROS — colapsível
+// ============================================================
+function alternarPainelFiltros() {
+  const btn = document.getElementById("filters-toggle");
+  const painel = document.getElementById("filters-panel");
+  const aberto = painel.classList.toggle("open");
+  btn.setAttribute("aria-expanded", aberto ? "true" : "false");
+  localStorage.setItem("farmaco-filters-open", aberto ? "1" : "0");
+}
+document.getElementById("filters-toggle").addEventListener("click", alternarPainelFiltros);
+
+// Restaurar estado do painel ao carregar
+(function initPainel() {
+  const salvo = localStorage.getItem("farmaco-filters-open");
+  // Padrão: fechado (salvo=null) para economizar espaço
+  if (salvo === "1") {
+    document.getElementById("filters-panel").classList.add("open");
+    document.getElementById("filters-toggle").setAttribute("aria-expanded", "true");
+  }
+})();
 
 // ============================================================
 // TEMA CLARO / ESCURO — persistido em localStorage
