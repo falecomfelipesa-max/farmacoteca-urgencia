@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmacoteca de Urgência e Emergência</title>
+<style>
+:root {
+  --bg-0: #0a0e14;
+  --bg-1: #11161e;
+  --bg-2: #1a212c;
+  --bg-3: #232c39;
+  --bg-hover: #2a3441;
+  --border: #2a3441;
+  --border-strong: #3a4656;
+  --text-0: #e6edf3;
+  --text-1: #b8c2cc;
+  --text-2: #7d8896;
+  --text-3: #5a6470;
+  --accent: #4fc3f7;
+  --accent-dim: #2196f3;
+  --critical: #ef5350;
+  --warning: #ffa726;
+  --safe: #66bb6a;
+  --gest: #ba68c8;
+  --ped: #4fc3f7;
+  --shadow: 0 8px 32px rgba(0,0,0,.5);
+  --mono: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg-0);
+  color: var(--text-0);
+  line-height: 1.5;
+  min-height: 100vh;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(79, 195, 247, .03) 0%, transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(239, 83, 80, .02) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position: relative; z-index: 1; }
+
+/* Header */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10, 14, 20, .92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto; padding: 14px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 12px; }
+.brand-mark {
+  font-family: var(--mono); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.18em; color: var(--critical);
+  text-transform: uppercase;
+}
+.brand-title {
+  font-family: var(--serif); font-size: 22px; font-weight: 600;
+  color: var(--text-0); letter-spacing: -0.01em;
+}
+.brand-sub {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.05em;
+}
+.search-wrap {
+  position: relative; flex: 1; min-width: 240px; max-width: 520px;
+}
+.search-input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-0);
+  padding: 10px 14px 10px 38px;
+  font-family: var(--mono); font-size: 14px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color .15s, background .15s;
+}
+.search-input:focus { border-color: var(--accent); background: var(--bg-1); }
+.search-input::placeholder { color: var(--text-3); }
+.search-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-2); pointer-events: none;
+}
+.kbd {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+  background: var(--bg-3); padding: 2px 6px; border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+/* Weight input */
+.weight-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-2); border: 1px solid var(--border-strong);
+  border-radius: 6px; padding: 0 6px 0 12px;
+  height: 38px; min-width: 165px;
+}
+.weight-wrap.active {
+  border-color: var(--gest); box-shadow: 0 0 0 1px rgba(186, 104, 200, .25);
+}
+.weight-label {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.weight-input {
+  flex: 1; min-width: 50px;
+  background: transparent; border: none; outline: none;
+  color: var(--text-0); font-family: var(--mono); font-size: 14px;
+  text-align: right; padding: 0;
+}
+.weight-input::-webkit-outer-spin-button,
+.weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.weight-unit {
+  font-family: var(--mono); font-size: 12px; color: var(--text-2);
+}
+.weight-clear {
+  background: none; border: none; color: var(--text-3); cursor: pointer;
+  font-size: 14px; padding: 0 4px; opacity: 0; transition: opacity .15s;
+}
+.weight-wrap.active .weight-clear { opacity: 1; }
+.weight-clear:hover { color: var(--critical); }
+
+/* Calculator section in modal */
+.calc-section {
+  background: linear-gradient(135deg, rgba(186, 104, 200, .06), rgba(79, 195, 247, .04));
+  border: 1px solid rgba(186, 104, 200, .25);
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-top: 22px;
+}
+.calc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+}
+.calc-title {
+  font-family: var(--mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--gest); font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.calc-title::before {
+  content: '⚡'; font-size: 13px;
+}
+.calc-weight {
+  font-family: var(--mono); font-size: 12px; color: var(--text-1);
+  background: var(--bg-3); padding: 3px 10px; border-radius: 3px;
+}
+.calc-weight strong { color: var(--gest); }
+.calc-list {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.calc-item {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gest);
+  border-radius: 4px;
+  padding: 11px 14px;
+}
+.calc-item-label {
+  font-size: 12px; color: var(--text-2);
+  margin-bottom: 6px; font-weight: 500;
+}
+.calc-item-result {
+  font-family: var(--mono); font-size: 15px;
+  color: var(--text-0); line-height: 1.5;
+}
+.calc-item-result .num {
+  color: #66ffb2; font-weight: 600; font-size: 16px;
+}
+.calc-item-result .vol {
+  color: var(--accent); font-weight: 600;
+}
+.calc-item-result .max {
+  color: var(--warning); font-size: 12px; margin-left: 6px;
+}
+.calc-item-obs {
+  font-size: 11px; color: var(--text-3); margin-top: 6px;
+  font-family: var(--mono); line-height: 1.5;
+}
+.calc-empty {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--text-3); text-align: center;
+  padding: 14px; font-style: italic;
+}
+.calc-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 12.5px;
+  margin-top: 6px;
+}
+.calc-table th, .calc-table td {
+  padding: 6px 10px; text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+.calc-table th {
+  color: var(--text-3); font-weight: 500; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  text-align: center; background: var(--bg-3);
+}
+.calc-table td:first-child { text-align: left; color: var(--text-2); }
+.calc-table td .num { color: #66ffb2; font-weight: 600; }
+.calc-table td .vol { color: var(--accent); }
+
+/* Filter chips */
+.filters {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.filter-label {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px;
+}
+.chip {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 5px 11px;
+  font-size: 12px;
+  font-family: var(--mono);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--bg-hover); color: var(--text-0); border-color: var(--border-strong); }
+.chip.active {
+  background: var(--accent);
+  color: var(--bg-0);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.chip.reset {
+  background: transparent;
+  border-style: dashed;
+  color: var(--text-2);
+}
+.chip.reset:hover { color: var(--critical); border-color: var(--critical); background: transparent; }
+
+/* Stats line */
+.stats {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  padding: 0 20px; max-width: 1400px; margin: 16px auto 4px;
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+.stats span strong { color: var(--accent); font-weight: 600; }
+
+/* Grid */
+main {
+  max-width: 1400px; margin: 0 auto; padding: 12px 20px 80px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+/* Card */
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all .18s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent); opacity: 0; transition: opacity .18s;
+}
+.card:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-2);
+  transform: translateY(-1px);
+}
+.card:hover::before { opacity: 1; }
+.card-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; margin-bottom: 10px;
+}
+.card-name {
+  font-family: var(--serif); font-size: 18px; font-weight: 600;
+  color: var(--text-0); line-height: 1.2;
+}
+.card-syn {
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+  margin-top: 3px; letter-spacing: 0.04em;
+}
+.card-class {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 3px 8px; border-radius: 3px;
+  background: var(--bg-3); color: var(--text-1);
+  white-space: nowrap; flex-shrink: 0;
+}
+.card-tags {
+  display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px;
+}
+.tag {
+  font-family: var(--mono); font-size: 10px;
+  padding: 2px 7px; border-radius: 3px;
+  background: rgba(79, 195, 247, .1);
+  color: var(--accent);
+  border: 1px solid rgba(79, 195, 247, .2);
+  letter-spacing: 0.02em;
+}
+.card-summary {
+  font-size: 13px; color: var(--text-1); margin-top: 8px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Modal */
+.modal-backdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0, 0, 0, .75);
+  backdrop-filter: blur(4px);
+  align-items: flex-start; justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.modal-backdrop.show { display: flex; }
+.modal {
+  background: var(--bg-1);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  max-width: 900px;
+  width: 100%;
+  margin: 20px auto;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: slideUp .25s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  position: sticky; top: 0; background: var(--bg-1); z-index: 2;
+}
+.modal-title {
+  font-family: var(--serif); font-size: 26px; font-weight: 600;
+  color: var(--text-0); line-height: 1.1;
+}
+.modal-syn { font-family: var(--mono); font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.modal-class {
+  display: inline-block; margin-top: 8px;
+  font-family: var(--mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.1em; padding: 3px 9px; border-radius: 3px;
+  background: var(--bg-3); color: var(--accent);
+}
+.close-btn {
+  background: var(--bg-3); border: 1px solid var(--border);
+  color: var(--text-1); width: 36px; height: 36px; border-radius: 6px;
+  cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.close-btn:hover { background: var(--critical); color: white; border-color: var(--critical); }
+.modal-body { padding: 20px 24px 28px; }
+.section {
+  margin-top: 22px; padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.section-title {
+  font-family: var(--mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--text-3); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; width: 4px; height: 4px; background: var(--accent); border-radius: 50%;
+}
+.section-content { color: var(--text-1); font-size: 14px; line-height: 1.65; }
+.section-content strong { color: var(--text-0); font-weight: 600; }
+.section-content code {
+  font-family: var(--mono); font-size: 13px;
+  background: var(--bg-3); color: var(--accent);
+  padding: 1px 6px; border-radius: 3px;
+}
+
+/* Dose blocks */
+.dose-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px; margin-top: 8px;
+}
+.dose-block {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 12px 14px; border-radius: 4px;
+}
+.dose-block.adulto { border-left-color: var(--safe); }
+.dose-block.ped { border-left-color: var(--ped); }
+.dose-block.gest { border-left-color: var(--gest); }
+.dose-label {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-3); margin-bottom: 6px; font-weight: 600;
+}
+.dose-block.adulto .dose-label { color: var(--safe); }
+.dose-block.ped .dose-label { color: var(--ped); }
+.dose-block.gest .dose-label { color: var(--gest); }
+.dose-text { font-size: 13.5px; color: var(--text-0); line-height: 1.55; font-family: var(--mono); }
+.dose-text em { font-style: normal; color: var(--text-2); font-size: 12px; display: block; margin-top: 4px; }
+
+/* Alert callouts */
+.callout {
+  margin-top: 12px;
+  padding: 10px 14px; border-radius: 4px;
+  font-size: 13px; line-height: 1.55;
+}
+.callout.critical {
+  background: rgba(239, 83, 80, .08);
+  border: 1px solid rgba(239, 83, 80, .25);
+  color: #ffb4b1;
+}
+.callout.warning {
+  background: rgba(255, 167, 38, .08);
+  border: 1px solid rgba(255, 167, 38, .25);
+  color: #ffd89e;
+}
+.callout strong { color: #fff; }
+.callout::before {
+  content: '⚠ '; font-weight: bold;
+}
+
+/* Indication list */
+.indic-list { list-style: none; }
+.indic-list li {
+  padding: 8px 0 8px 22px; position: relative;
+  border-bottom: 1px dashed var(--border);
+  font-size: 14px;
+}
+.indic-list li:last-child { border-bottom: none; }
+.indic-list li::before {
+  content: '▸'; position: absolute; left: 4px; color: var(--accent);
+  font-size: 12px; top: 9px;
+}
+.indic-list li strong { color: var(--text-0); }
+
+/* Sources */
+.sources {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  line-height: 1.7;
+}
+.sources a { color: var(--accent); text-decoration: none; }
+.sources a:hover { text-decoration: underline; }
+
+/* Empty state */
+.empty {
+  text-align: center; padding: 80px 20px;
+  color: var(--text-3); font-family: var(--mono);
+}
+.empty-title { font-size: 18px; color: var(--text-1); margin-bottom: 8px; }
+
+/* Footer */
+footer {
+  max-width: 1400px; margin: 0 auto; padding: 32px 20px 20px;
+  border-top: 1px solid var(--border); margin-top: 40px;
+  font-family: var(--mono); font-size: 11px; color: var(--text-3); line-height: 1.7;
+}
+footer strong { color: var(--warning); }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .brand-title { font-size: 18px; }
+  .header-top { gap: 10px; }
+  .grid { grid-template-columns: 1fr; }
+  .modal { margin: 0; border-radius: 8px; }
+  .modal-title { font-size: 22px; }
+  .modal-head, .modal-body { padding-left: 18px; padding-right: 18px; }
+  .dose-grid { grid-template-columns: 1fr; }
+  .filter-label { display: none; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Print */
+@media print {
+  body { background: white; color: black; }
+  header, footer, .filters, .stats { display: none; }
+  .card { break-inside: avoid; border: 1px solid #ccc; background: white; color: black; }
+  .modal-backdrop.show { position: static; background: white; padding: 0; }
+  .modal { box-shadow: none; max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="brand">
+        <span class="brand-mark">⚕ Rx</span>
+        <div>
+          <div class="brand-title">Farmacoteca de Urgência</div>
+          <div class="brand-sub">Pré-hospitalar &middot; Intra-hospitalar &middot; PCR &middot; Choque</div>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search" class="search-input" placeholder="Buscar medicamento, indicação ou sinônimo..." autocomplete="off">
+        <span class="kbd">/</span>
+      </div>
+      <div class="weight-wrap" id="weight-wrap">
+        <span class="weight-label">Peso</span>
+        <input type="number" id="weight" class="weight-input" placeholder="—" min="0.5" max="300" step="0.5" inputmode="decimal">
+        <span class="weight-unit">kg</span>
+        <button class="weight-clear" id="weight-clear" aria-label="Limpar peso">✕</button>
+      </div>
+    </div>
+    <div class="filters" id="filters">
+      <span class="filter-label">Cenário:</span>
+      <!-- filtros inseridos via JS -->
+    </div>
+  </div>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">
+    <div class="empty-title">Nenhum medicamento encontrado</div>
+    <div>Tente outro termo ou limpe os filtros.</div>
+  </div>
+</main>
+
+<footer>
+  <p><strong>AVISO MÉDICO:</strong> Esta ferramenta é um apoio de consulta rápida para profissionais médicos em cenários de urgência/emergência. As doses e condutas resumidas aqui derivam de protocolos brasileiros (SAMU 192, SBC, SBP, SBD, Diretrizes Einstein, MS) e bulas ANVISA. Sempre confirmar no contexto clínico individual, verificar bula atualizada do produto utilizado e ponderar fatores do paciente (peso, função renal/hepática, alergias, interações). Não substitui julgamento clínico.</p>
+  <p style="margin-top: 12px;">Compilação técnica baseada em fontes públicas. Última atualização: 2026. Use por sua conta e risco profissional.</p>
+</footer>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+</div>
+
+<script>
+// ============================================================
+// BASE DE DADOS - MEDICAMENTOS DE URGÊNCIA E EMERGÊNCIA
+// Fontes: SAMU 192 (vários estados), SBC, SBP, SBD, Diretrizes
+// Einstein, Protocolos MS, Bulas ANVISA, ACLS/PALS (AHA 2020).
+// ============================================================
+const MEDS = [
+{
+  id: "adrenalina",
+  nome: "Adrenalina",
+  sinonimos: "Epinefrina",
+  classe: "Simpaticomimético",
+  apresentacao: "Ampola 1 mg/mL (1 mL) — 1:1.000",
+  cenarios: ["pcr", "anafilaxia", "choque", "bronco", "bradicardia"],
+  tags: ["PCR", "Anafilaxia", "Choque"],
+  resumo: "Agonista α e β adrenérgico. Droga de 1ª linha em PCR, anafilaxia e choque refratário.",
+  mecanismo: "Agonista adrenérgico não seletivo (α1, α2, β1, β2). Aumenta resistência vascular sistêmica (α1), contratilidade e FC (β1), e broncodilata (β2). Em PCR, melhora pressão de perfusão coronariana.",
+  indicacoes: [
+    "<strong>PCR</strong> (ritmos chocáveis e não chocáveis)",
+    "<strong>Anafilaxia</strong> (droga de 1ª escolha, IM face anterolateral da coxa)",
+    "<strong>Bradicardia sintomática</strong> refratária à atropina (BIC)",
+    "<strong>Choque distributivo/anafilático</strong> refratário",
+    "<strong>Broncoespasmo</strong> grave refratário",
+    "Crupe (laringite estridulosa) — nebulização"
+  ],
+  doseAdulto: "<strong>PCR:</strong> 1 mg EV/IO em bolus a cada 3–5 min (após 2º choque em ritmo chocável; o quanto antes em assistolia/AESP). Flush 20 mL SF.<br><strong>Anafilaxia:</strong> 0,3–0,5 mg IM (0,3–0,5 mL da solução 1:1.000) face anterolateral da coxa. Repetir a cada 5–15 min se necessário.<br><strong>Bradicardia (BIC):</strong> 2–10 mcg/min (titular).<br><strong>Choque (BIC):</strong> 0,01–0,5 mcg/kg/min.",
+  dosePed: "<strong>PCR:</strong> 0,01 mg/kg EV/IO (0,1 mL/kg da solução 1:10.000 = 1 mL adrenalina + 9 mL SF). Máx 1 mg/dose. Repetir a cada 3–5 min.<br>Via endotraqueal: 0,1 mg/kg (1:1.000).<br><strong>Anafilaxia:</strong> 0,01 mg/kg IM (máx 0,3 mg <12a; 0,5 mg ≥12a).<br><strong>Crupe:</strong> 0,5 mg/kg (máx 5 mg) NBZ em 3 mL SF.<br><strong>BIC:</strong> 0,1–1 mcg/kg/min.",
+  doseGest: "Categoria C. <strong>Uso indicado sem hesitação</strong> em PCR e anafilaxia — risco materno > risco fetal. Mesmas doses do adulto.",
+  via: "EV, IO, IM, SC, NBZ, endotraqueal (ET)",
+  preparo: "Para BIC: 4 mg (4 ampolas) + 96 mL SF 0,9% = 40 mcg/mL. Em PCR usar pura sem diluir.",
+  precaucoes: "Cuidado em HAS, cardiopatia isquêmica, tireotoxicose. Pode causar taquiarritmia, IAM, hipertensão grave, edema agudo de pulmão. <strong>Não atrasar uso em anafilaxia</strong> — risco de morte por edema de glote.",
+  reacoes: "Taquicardia, palpitação, HAS, tremor, ansiedade, cefaleia, palidez, arritmias.",
+  fontes: "AHA ACLS/PALS 2020; SBP Anafilaxia 2023; SAMU-RS NT 08/2022; Bula ANVISA."
+},
+{
+  id: "agua-destilada",
+  nome: "Água Destilada",
+  sinonimos: "Água para injeção",
+  classe: "Diluente",
+  apresentacao: "Ampola 10 mL",
+  cenarios: ["diluicao"],
+  tags: ["Diluente"],
+  resumo: "Veículo estéril para diluição de medicamentos. Não usar EV pura (hipotônica → hemólise).",
+  mecanismo: "Veículo aquoso isento de solutos. Quando administrada pura por via EV, é hipotônica e causa hemólise pela diferença osmótica.",
+  indicacoes: [
+    "<strong>Diluição</strong> de fármacos para administração parenteral",
+    "Reconstituição de pós liofilizados (hidrocortisona, ceftriaxona, etc.)",
+    "Veículo para nebulização (uso menos comum — preferir SF 0,9%)"
+  ],
+  doseAdulto: "Conforme volume de diluição necessário para o medicamento. <strong>Nunca administrar pura EV ou IM em volumes significativos</strong>.",
+  dosePed: "Mesmo princípio. Volume de diluição ajustado por dose pediátrica.",
+  doseGest: "Sem restrição como diluente.",
+  via: "Diluente — administração conforme medicamento veiculado",
+  preparo: "Verificar compatibilidade com cada fármaco. Alguns medicamentos exigem SF 0,9% ou SG 5% e não AD.",
+  precaucoes: "<strong>Contraindicada em bolus EV pura</strong> — hemólise por hipotonicidade. Em IM, volumes >5 mL causam dor intensa.",
+  reacoes: "Quando usada inadvertidamente em volume EV: hemólise, hemoglobinúria, IRA.",
+  fontes: "Bula ANVISA; Farmacopeia Brasileira."
+},
+{
+  id: "aminofilina",
+  nome: "Aminofilina",
+  sinonimos: "Teofilina-etilenodiamina",
+  classe: "Metilxantina",
+  apresentacao: "Ampola 24 mg/mL (10 mL = 240 mg)",
+  cenarios: ["bronco"],
+  tags: ["Broncoespasmo", "Asma refratária"],
+  resumo: "Broncodilatador de 3ª linha em crise asmática/DPOC refratária. Uso restrito por janela terapêutica estreita.",
+  mecanismo: "Inibidor não seletivo da fosfodiesterase → ↑AMPc intracelular → broncodilatação. Também antagoniza receptores de adenosina e tem efeito anti-inflamatório fraco.",
+  indicacoes: [
+    "<strong>Crise asmática grave/refratária</strong> a β2-agonista + corticoide + ipratrópio (adjuvante)",
+    "<strong>Exacerbação grave de DPOC</strong> refratária (uso controverso)",
+    "Apneia neonatal (uso especializado)"
+  ],
+  doseAdulto: "<strong>Ataque:</strong> 5–6 mg/kg EV diluído em 100 mL SF 0,9% ou SG 5%, infundir em 20–30 min. Reduzir para 3 mg/kg se já em uso crônico.<br><strong>Manutenção:</strong> 0,5–0,9 mg/kg/h em BIC. Idoso/hepatopata: 0,3 mg/kg/h.<br><strong>Não recomendada de rotina</strong> — usar apenas se sem resposta ao tratamento padrão.",
+  dosePed: "<strong>Ataque:</strong> 5–6 mg/kg EV em 20 min (diluído).<br><strong>Manutenção:</strong> 0,9–1,1 mg/kg/h (1–9 anos); 0,7 mg/kg/h (>9a).<br>Nível sérico alvo: 10–20 mcg/mL.",
+  doseGest: "Categoria C. Atravessa placenta. Usar apenas se benefício > risco. Monitorar nível sérico (alvo 8–12 mcg/mL na gestação).",
+  via: "EV (sempre diluída, sempre em infusão)",
+  preparo: "Diluir em SF 0,9% ou SG 5% — 100 mL para ataque, 250–500 mL para manutenção. <strong>Nunca em bolus rápido</strong> (risco de PCR).",
+  precaucoes: "<strong>Janela terapêutica estreita.</strong> Toxicidade: náusea, vômito, taquiarritmia, convulsão, PCR. Interações graves: cimetidina, ciprofloxacino, eritromicina, anticoncepcional (aumentam nível); fenitoína, fenobarbital, tabagismo (reduzem).",
+  reacoes: "Náusea, vômito, taquicardia, arritmia, tremor, cefaleia, insônia, convulsão (toxicidade).",
+  fontes: "GINA 2023; Protocolo SES-DF Asma; Bula ANVISA; SBPT."
+},
+{
+  id: "amiodarona",
+  nome: "Amiodarona",
+  sinonimos: "Ancoron",
+  classe: "Antiarrítmico classe III",
+  apresentacao: "Ampola 50 mg/mL (3 mL = 150 mg)",
+  cenarios: ["pcr", "arritmia"],
+  tags: ["PCR (FV/TV)", "Arritmias"],
+  resumo: "Antiarrítmico de amplo espectro. 1ª escolha em FV/TVSP refratária a desfibrilação e em TV estável.",
+  mecanismo: "Bloqueia canais de K+ (classe III predominante), Na+ (I), Ca++ (IV) e antagoniza β-receptores. Prolonga período refratário e duração do potencial de ação.",
+  indicacoes: [
+    "<strong>FV/TVSP</strong> refratária após 3º choque + adrenalina (PCR)",
+    "<strong>TV monomórfica estável</strong>",
+    "<strong>FA/Flutter</strong> com instabilidade (reversão química)",
+    "Controle de FC em FA quando β-bloq/BCC contraindicados",
+    "Profilaxia de arritmias pós-IAM"
+  ],
+  doseAdulto: "<strong>PCR (FV/TVSP):</strong> 300 mg EV/IO em bolus (2 ampolas + 20 mL SG 5% — não diluir em SF). 2ª dose 150 mg após 3–5 min se persistir.<br><strong>TV estável/Arritmia:</strong> 150 mg EV em 10 min, seguido de 1 mg/min por 6 h (360 mg), depois 0,5 mg/min por 18 h (540 mg). Máx 2,2 g em 24 h.",
+  dosePed: "<strong>PCR:</strong> 5 mg/kg EV/IO em bolus (após 3º choque). Pode repetir até 2× (máx 15 mg/kg/dia ou 300 mg).<br><strong>Arritmia perfusional:</strong> 5 mg/kg em 20–60 min (não bolus).",
+  doseGest: "Categoria D. <strong>Evitar</strong> — atravessa placenta, risco de hipotireoidismo fetal, bradicardia, prematuridade. Usar apenas se arritmia ameaça vida materna sem alternativa.",
+  via: "EV, IO (em situações de emergência)",
+  preparo: "<strong>Diluir SEMPRE em SG 5%</strong> (incompatível com SF para infusões prolongadas). Bolus PCR pode ser feito puro. Para BIC: 900 mg (6 amp) + 500 mL SG 5%.",
+  precaucoes: "Pode causar hipotensão (infusão rápida), bradicardia, BAV. <strong>Não associar a outros drogas que prolongam QT</strong>. Toxicidade pulmonar, hepática e tireoidiana em uso crônico. Flebite — preferir veia central em infusão >1 h.",
+  reacoes: "Hipotensão, bradicardia, prolongamento QT, BAV, flebite, náusea, hepatite, fibrose pulmonar (crônico), disfunção tireoidiana.",
+  fontes: "AHA ACLS/PALS 2020; SBC Diretriz Arritmias 2016; SAMU-RS NT 08/2022; Bula ANVISA."
+},
+{
+  id: "atropina",
+  nome: "Atropina (Sulfato)",
+  sinonimos: "—",
+  classe: "Anticolinérgico (antimuscarínico)",
+  apresentacao: "Ampola 0,25 mg/mL (1 mL) ou 0,5 mg/mL",
+  cenarios: ["bradicardia", "intoxicacao"],
+  tags: ["Bradicardia", "Organofosforado"],
+  resumo: "Antagonista muscarínico. 1ª linha em bradicardia sintomática e em intoxicação por organofosforado/carbamato.",
+  mecanismo: "Antagonista competitivo dos receptores muscarínicos (M1–M5) → bloqueio do tônus vagal → aumenta FC e condução AV, reduz secreções, broncodilatação.",
+  indicacoes: [
+    "<strong>Bradicardia sintomática</strong> (1ª escolha)",
+    "<strong>Intoxicação por organofosforado/carbamato</strong> (doses altas)",
+    "Bloqueio AV (suprahissiano)",
+    "<strong>Não é mais rotina em PCR</strong> (assistolia/AESP) — removida em 2010",
+    "Pré-medicação para IOT pediátrica (controverso)",
+    "Bradicardia reflexa (manobras vagais)"
+  ],
+  doseAdulto: "<strong>Bradicardia:</strong> 0,5–1 mg EV em bolus a cada 3–5 min. Máx 3 mg.<br><strong>Organofosforado:</strong> 2–5 mg EV em bolus, dobrando a dose a cada 5 min até atropinização (secreções brônquicas secas, FC ≥80 bpm). Pode ultrapassar 100 mg/dia.",
+  dosePed: "<strong>Bradicardia:</strong> 0,02 mg/kg EV/IO (mín 0,1 mg para evitar bradicardia paradoxal; máx 0,5 mg/dose criança, 1 mg adolescente). Pode repetir 1×.<br><strong>Organofosforado:</strong> 0,02–0,05 mg/kg EV, dobrar a cada 5 min até atropinização.<br><strong>Pré-IOT:</strong> 0,01–0,02 mg/kg (controverso).",
+  doseGest: "Categoria C. Atravessa placenta — pode causar taquicardia fetal. Usar se benefício > risco (bradicardia materna sintomática, intoxicação).",
+  via: "EV (preferencial), IO, IM, SC, ET (2–3× a dose EV)",
+  preparo: "Pode ser administrada pura ou diluída em 10 mL SF para bolus.",
+  precaucoes: "<strong>Dose <0,5 mg em adulto pode causar bradicardia paradoxal</strong>. Cuidado em glaucoma de ângulo fechado, hipertrofia prostática, taquiarritmia, isquemia coronariana. Em organofosforado o objetivo é atropinização, não normalização da FC.",
+  reacoes: "Taquicardia, midríase, boca seca, retenção urinária, agitação, hipertermia (doses altas), íleo paralítico, glaucoma agudo.",
+  fontes: "AHA ACLS/PALS 2020; SBC Bradiarritmias; Protocolo SAMU-DF; Bula ANVISA."
+},
+{
+  id: "brometo-ipratropio",
+  nome: "Brometo de Ipratrópio",
+  sinonimos: "Atrovent",
+  classe: "Anticolinérgico inalatório",
+  apresentacao: "Solução para NBZ 0,25 mg/mL (frasco 20 mL); Spray 20 mcg/jato",
+  cenarios: ["bronco"],
+  tags: ["Asma", "DPOC"],
+  resumo: "Broncodilatador anticolinérgico inalatório. Adjuvante ao β2-agonista em crise asmática moderada/grave e exacerbação de DPOC.",
+  mecanismo: "Antagonista muscarínico de ação local na via aérea. Bloqueia tônus vagal nos brônquios → broncodilatação. Ação mais lenta e duradoura que β2-agonistas.",
+  indicacoes: [
+    "<strong>Crise asmática moderada/grave</strong> (adjuvante ao β2)",
+    "<strong>Exacerbação de DPOC</strong>",
+    "Bronquiolite (lactente — uso controverso)",
+    "Rinite alérgica (formulação nasal)"
+  ],
+  doseAdulto: "<strong>NBZ:</strong> 0,5 mg (40 gotas / 2 mL) + 3–5 mL SF 0,9% — repetir a cada 20 min nas primeiras 3 doses, depois 4–6/6 h.<br><strong>Spray:</strong> 4–8 jatos com espaçador a cada 20 min × 3 doses na 1ª hora.",
+  dosePed: "<strong>NBZ:</strong> &lt;6a: 0,125–0,25 mg (10–20 gotas) ou 1 gota/2 kg (máx 20 gotas) + 3 mL SF; ≥6a: 0,25–0,5 mg. Repetir a cada 20 min nas primeiras 3 doses.<br><strong>Spray:</strong> 2–4 jatos com espaçador a cada 20 min × 3 doses.",
+  doseGest: "Categoria B. <strong>Considerado seguro</strong> na gestação — uso preferencial sobre formulações orais. Mesmas doses do adulto.",
+  via: "Inalatória (NBZ ou aerossol dosimetrado com espaçador)",
+  preparo: "Diluir em 3–5 mL de SF 0,9% (nunca AD). Pode ser administrado junto com salbutamol/fenoterol na mesma NBZ.",
+  precaucoes: "Cuidado em glaucoma de ângulo fechado (proteger olhos durante NBZ — usar bocal preferencialmente, ou máscara bem ajustada). Pode causar broncoespasmo paradoxal (raro). Hipertrofia prostática, retenção urinária.",
+  reacoes: "Boca seca, gosto metálico, tosse, midríase (uso ocular acidental), cefaleia, retenção urinária.",
+  fontes: "GINA 2023; SBPT Diretrizes Asma 2021; Protocolo SES-DF Respiratório; Bula ANVISA."
+},
+{
+  id: "cloreto-potassio",
+  nome: "Cloreto de Potássio (KCl)",
+  sinonimos: "—",
+  classe: "Eletrólito",
+  apresentacao: "Ampola 10% (10 mL = 1.000 mg ≈ 13,4 mEq) ou 19,1% (10 mL ≈ 25 mEq)",
+  cenarios: ["eletrolito"],
+  tags: ["Hipocalemia"],
+  resumo: "Reposição de potássio. Solução hipertônica de alto risco — administração EV requer diluição obrigatória.",
+  mecanismo: "Cátion intracelular essencial. Repõe perdas (diuréticos, diarreia, CAD, hiperaldosteronismo, alcalose metabólica).",
+  indicacoes: [
+    "<strong>Hipocalemia</strong> sintomática ou K+ &lt;3,0 mEq/L",
+    "Reposição em CAD (após início da insulina, se K+ 3,3–5,2)",
+    "Arritmia ventricular associada à hipocalemia",
+    "Manutenção em paciente com perdas (NPO prolongado, sondas)"
+  ],
+  doseAdulto: "<strong>K+ leve (3,0–3,5):</strong> VO (xarope ou comprimido).<br><strong>K+ &lt;3,0 ou sintomático:</strong> 10–20 mEq/h EV em veia periférica (máx 40 mEq/L de diluição) ou até 20 mEq/h em veia central com monitorização ECG. Máx 200 mEq/dia.<br><strong>Em CAD:</strong> 20–30 mEq/h se K+ 3,3–5,2.",
+  dosePed: "<strong>Manutenção:</strong> 1–2 mEq/kg/dia.<br><strong>Hipocalemia sintomática:</strong> 0,5–1 mEq/kg em 1–2 h EV (máx 1 mEq/kg/h, e nunca >40 mEq/L em periférica). Monitor ECG contínuo se >0,5 mEq/kg/h.",
+  doseGest: "Categoria A/C. Reposição segura quando indicada — mesmos princípios. Atenção ao K+ em pré-eclâmpsia tratada com furosemida.",
+  via: "EV (sempre diluído), VO (preferencial se possível)",
+  preparo: "<strong>JAMAIS administrar em bolus EV — risco de PCR por hipercalemia aguda.</strong> Diluir: 40 mEq em 500–1.000 mL SF 0,9% (concentração máx em periférica: 40 mEq/L; em central: 60–80 mEq/L). Monitorizar ECG.",
+  precaucoes: "<strong>Medicamento potencialmente letal</strong>. Conferir 2× a prescrição e o preparo. Cuidado em IRA, IRC, uso de IECA/ARA, espironolactona, AINE. Sempre ECG durante reposição rápida. Flebite em periferica.",
+  reacoes: "Flebite, dor local, hipercalemia (parestesia, fraqueza, arritmia, onda T apiculada → fibrilação ventricular, PCR).",
+  fontes: "Protocolo ISMP-Brasil (medicamentos de alta vigilância); SBED CAD 2025; Bula ANVISA."
+},
+{
+  id: "cloreto-sodio",
+  nome: "Cloreto de Sódio 0,9% (SF)",
+  sinonimos: "Soro Fisiológico, NaCl 0,9%",
+  classe: "Cristaloide isotônico",
+  apresentacao: "Bolsa/frasco 100, 250, 500 e 1.000 mL",
+  cenarios: ["volume", "diluicao"],
+  tags: ["Reposição volêmica", "Diluente"],
+  resumo: "Cristaloide isotônico — solução padrão de expansão volêmica e diluente universal de fármacos EV.",
+  mecanismo: "Solução isotônica (308 mOsm/L) com Na+ 154 mEq/L e Cl– 154 mEq/L. Expande volume intravascular; meia-vida intravascular ~30–60 min (apenas ~25% permanece).",
+  indicacoes: [
+    "<strong>Reposição volêmica</strong> em choque (hipovolêmico, séptico, anafilático)",
+    "<strong>Manutenção</strong> hidroeletrolítica",
+    "Veículo de diluição de fármacos",
+    "Lavagem de feridas/cateteres",
+    "Hipercalemia (junto com glicose+insulina)"
+  ],
+  doseAdulto: "<strong>Choque/sepse:</strong> 30 mL/kg em 3 h (bolus iniciais de 500–1.000 mL em 15 min). <strong>Trauma:</strong> 1.000 mL inicialmente, reavaliar.<br><strong>Manutenção:</strong> 25–35 mL/kg/dia ajustada.",
+  dosePed: "<strong>Choque/desidratação grave:</strong> 20 mL/kg em bolus em 5–10 min, repetir até 60 mL/kg.<br><strong>Manutenção (Holliday-Segar):</strong> 100 mL/kg/dia (até 10 kg) + 50 mL/kg/dia (11–20 kg) + 20 mL/kg/dia (>20 kg).",
+  doseGest: "Sem restrição. Cuidado com sobrecarga em pré-eclâmpsia, ICC e cardiopatia.",
+  via: "EV (preferencial), SC (hipodermóclise em paliativo), oral (uso lavagem)",
+  preparo: "Pronto para uso. Para diluição de fármacos, verificar compatibilidade.",
+  precaucoes: "Em grandes volumes (>30 mL/kg): risco de <strong>acidose hiperclorêmica</strong>. Em pacientes com IRA, sepse e cirurgia preferir cristaloide balanceado (Ringer Lactato/Plasma-Lyte). Risco de sobrecarga em IC, IRC oligúrica.",
+  reacoes: "Sobrecarga volêmica (edema, EAP), acidose hiperclorêmica, hipernatremia (em altos volumes).",
+  fontes: "Surviving Sepsis Campaign 2021; ATLS 10ª ed; Bula ANVISA."
+},
+{
+  id: "deslanosideo",
+  nome: "Deslanosídeo",
+  sinonimos: "Cedilanide®",
+  classe: "Glicosídeo cardíaco",
+  apresentacao: "Ampola 0,2 mg/mL (2 mL = 0,4 mg)",
+  cenarios: ["arritmia", "ic"],
+  tags: ["FA com alta resposta", "IC"],
+  resumo: "Digitálico de ação parenteral rápida. Uso restrito atualmente — controle de FC em FA/Flutter quando β-bloq/BCC contraindicados.",
+  mecanismo: "Inibe Na+/K+ ATPase → ↑Na+ intracelular → ↑Ca++ intracelular via trocador Na+/Ca++ → inotropismo positivo. Também aumenta tônus vagal → cronotropismo e dromotropismo negativos no nó AV.",
+  indicacoes: [
+    "<strong>FA/Flutter com alta resposta ventricular</strong> + IC (controle de FC) quando β-bloq/BCC contraindicados",
+    "Taquicardia paroxística supraventricular (uso raro hoje)",
+    "<strong>ICC aguda descompensada</strong> (em desuso — preferir outras medidas)"
+  ],
+  doseAdulto: "<strong>Digitalização rápida (emergência):</strong> 0,8–1,6 mg (2–4 ampolas) EV em 24 h, fracionado em 1–4 doses. Habitualmente 0,4 mg (1 ampola) EV lento (2–4 min), repetir 0,2 mg a cada 2–4 h até resposta ou dose máxima.<br><strong>Manutenção:</strong> 0,2–0,6 mg/dia (preferir migrar para digoxina VO).",
+  dosePed: "<strong>Digitalização rápida:</strong> 0,02–0,04 mg/kg/dia EV ou IM, fracionado em 1–3 doses. Em desuso na pediatria — preferir digoxina ou outras estratégias.",
+  doseGest: "Categoria C. Atravessa placenta. Glicosídeos cardíacos são usados na gestação quando indicados (FA materna, taqui fetal) — preferir digoxina com nível sérico monitorado.",
+  via: "EV lento (2–4 min) ou IM",
+  preparo: "Pode ser administrado puro EV lento ou diluído em 10 mL SF/AD para melhor controle. Verificar K+ antes (hipocalemia potencializa toxicidade).",
+  precaucoes: "<strong>Contraindicações:</strong> BAV 2º/3º grau sem MP, bradicardia sinusal grave, WPW com FA, miocardiopatia hipertrófica obstrutiva, intoxicação digitálica prévia. <strong>Janela terapêutica estreita</strong>. Hipocalemia, hipomagnesemia e hipercalcemia potencializam toxicidade. Ajustar em IR.",
+  reacoes: "Bradicardia, BAV, arritmias ventriculares, anorexia, náusea, vômito, confusão, alterações visuais (xantopsia), ginecomastia (crônico). <strong>Intoxicação:</strong> taquicardia atrial com bloqueio, bidirecional, ESV.",
+  fontes: "Bula ANVISA Cedilanide®; Guia HSL/HSC; SBC IC 2018."
+},
+{
+  id: "dexametasona",
+  nome: "Dexametasona",
+  sinonimos: "Decadron®",
+  classe: "Corticoide (longa duração)",
+  apresentacao: "Ampola 4 mg/mL (2,5 mL) ou 2 mg/mL",
+  cenarios: ["anafilaxia", "bronco", "edema", "outros"],
+  tags: ["Crupe", "Edema cerebral", "Asma"],
+  resumo: "Corticoide sintético de longa duração e alto poder anti-inflamatório. Sem efeito mineralocorticoide.",
+  mecanismo: "Glicocorticoide sintético. Liga-se a receptores intracelulares → modula transcrição gênica → reduz fosfolipase A2, citocinas, prostaglandinas, leucotrienos. Estabiliza membranas lisossômicas. Potência ~25× hidrocortisona; efeito em 1–2 h; meia-vida biológica 36–72 h.",
+  indicacoes: [
+    "<strong>Crupe / laringite estridulosa</strong> (1ª escolha)",
+    "<strong>Crise asmática</strong> (alternativa a outros corticoides)",
+    "<strong>Edema cerebral</strong> (tumoral, abscesso, meningite bacteriana)",
+    "Profilaxia/tratamento de náuseas e vômitos pós-op e quimioterapia",
+    "Reação anafilática (adjuvante após adrenalina)",
+    "Choque séptico (controverso, doses baixas)",
+    "Maturação pulmonar fetal"
+  ],
+  doseAdulto: "<strong>Asma:</strong> 4–10 mg EV/IM dose única.<br><strong>Edema cerebral:</strong> ataque 10 mg EV, manutenção 4 mg EV 6/6 h.<br><strong>Meningite bacteriana:</strong> 0,15 mg/kg EV 6/6 h × 4 dias (antes ou junto da 1ª dose de ATB).<br><strong>Anafilaxia (adjuvante):</strong> 8–10 mg EV.<br><strong>Antiemético:</strong> 4–8 mg EV.",
+  dosePed: "<strong>Crupe:</strong> 0,15–0,6 mg/kg VO/IM/EV dose única (máx 16 mg). Dose habitual 0,6 mg/kg.<br><strong>Asma:</strong> 0,6 mg/kg VO/EV (máx 16 mg) dose única (alternativa à prednisolona 5 dias).<br><strong>Anafilaxia:</strong> 0,15–0,6 mg/kg EV/IM.<br><strong>Meningite:</strong> 0,15 mg/kg 6/6 h × 4 dias.",
+  doseGest: "Categoria C (D no 1º trimestre por risco teórico de fenda palatina). <strong>Betametasona/dexametasona</strong> 6 mg IM 12/12 h × 4 doses (24–34 semanas) para <strong>maturação pulmonar fetal</strong>. Em emergências maternas: usar sem hesitação se indicada.",
+  via: "EV, IM, VO, intra-articular, oftálmica",
+  preparo: "Pode ser administrada pura EV lento (1–4 min) ou diluída em 50–100 mL SF/SG 5%.",
+  precaucoes: "Hiperglicemia (cuidado em DM e CAD). Imunossupressão. Não interrompe abruptamente em uso >2 semanas. Pode mascarar infecção. Cuidado em úlcera péptica ativa, infecções sistêmicas não tratadas, ICC descompensada, transtornos psiquiátricos.",
+  reacoes: "Hiperglicemia, hipertensão, insônia, agitação, retenção hidrossalina (menor que outros corticoides), miopatia, osteoporose, supressão adrenal (uso prolongado).",
+  fontes: "SBP Crupe 2017; GINA 2023; SBC Sepse; Bula ANVISA; OMS lista de medicamentos essenciais."
+},
+{
+  id: "diazepam",
+  nome: "Diazepam",
+  sinonimos: "Valium®, Diempax®",
+  classe: "Benzodiazepínico",
+  apresentacao: "Ampola 5 mg/mL (2 mL = 10 mg)",
+  cenarios: ["convulsao", "agitacao", "sedacao"],
+  tags: ["Convulsão", "Sedação"],
+  resumo: "Benzodiazepínico de longa ação. 1ª linha (junto com midazolam) em crise convulsiva quando há acesso venoso.",
+  mecanismo: "Agonista alostérico do receptor GABA-A → ↑frequência de abertura do canal Cl– → hiperpolarização neuronal → sedação, hipnose, anticonvulsivante, miorrelaxante, ansiolítico.",
+  indicacoes: [
+    "<strong>Estado de mal epiléptico / crise convulsiva</strong> (1ª linha EV)",
+    "Síndrome de abstinência alcoólica (delirium tremens)",
+    "Sedação consciente para procedimentos",
+    "Ansiedade aguda grave (pré-operatório)",
+    "Espasticidade muscular (tétano, intoxicação por estricnina)"
+  ],
+  doseAdulto: "<strong>Crise convulsiva:</strong> 5–10 mg EV em bolus lento (2 mg/min). Repetir a cada 5–10 min até cessação ou máx 30 mg. Via retal: 10–20 mg.<br><strong>Abstinência alcoólica:</strong> 5–10 mg EV/VO 6/6 h, ajuste por CIWA.<br><strong>Sedação consciente:</strong> 2–5 mg EV.",
+  dosePed: "<strong>Crise convulsiva:</strong> 0,2–0,5 mg/kg EV (máx 10 mg) em bolus lento. <strong>Via retal:</strong> 0,5 mg/kg (sem acesso venoso) — máx 20 mg. Pode repetir após 5–10 min.<br><strong>Sedação:</strong> 0,1–0,3 mg/kg EV.",
+  doseGest: "Categoria D. <strong>Evitar no 1º trimestre</strong> (associação com fenda palatina). Próximo ao termo: risco de síndrome de abstinência neonatal e floppy infant. <strong>Em status epilepticus materno: usar sem hesitar</strong> — risco de hipóxia > risco fetal.",
+  via: "EV (preferencial), retal (sem acesso EV), IM (absorção errática — evitar), VO",
+  preparo: "Administrar puro EV lento (máx 2 mg/min em adulto, 2 mg/min em pediatria) por veia calibrosa. <strong>Não diluir em SF</strong> (precipita — usar AD se necessário).",
+  precaucoes: "<strong>Risco de depressão respiratória</strong>, especialmente com opioides ou álcool. IM tem absorção errática — não usar para convulsão. Cuidado em idoso, hepatopata, miastenia, glaucoma de ângulo fechado, apneia do sono. Antagonista: <strong>flumazenil</strong> 0,2 mg EV.",
+  reacoes: "Depressão respiratória, hipotensão, sedação prolongada, reação paradoxal (agitação em idoso/criança), flebite, amnésia anterógrada, dependência.",
+  fontes: "Diretrizes brasileiras de status epilepticus; Einstein Pathway Crise Epiléptica; Bula ANVISA."
+},
+{
+  id: "diclofenaco",
+  nome: "Diclofenaco de Sódio",
+  sinonimos: "Voltaren®, Cataflam®",
+  classe: "AINE",
+  apresentacao: "Ampola 75 mg/3 mL (IM)",
+  cenarios: ["dor"],
+  tags: ["Dor", "Cólica"],
+  resumo: "Anti-inflamatório não esteroide. Analgesia de dor leve a moderada, especialmente musculoesquelética e cólica renal.",
+  mecanismo: "Inibidor não seletivo de COX-1 e COX-2 → reduz síntese de prostaglandinas → ação analgésica, anti-inflamatória, antipirética e antiagregante.",
+  indicacoes: [
+    "<strong>Cólica renal</strong> (1ª escolha — superior a opioide)",
+    "Dor musculoesquelética aguda",
+    "Lombalgia / cervicalgia aguda",
+    "Dismenorreia",
+    "Pós-operatório (analgesia multimodal)",
+    "Febre (alternativa)"
+  ],
+  doseAdulto: "<strong>IM profundo:</strong> 75 mg dose única, podendo repetir após 8 h (máx 150 mg/dia). <strong>VO:</strong> 50 mg 8/8 h.",
+  dosePed: "<strong>Não recomendado &lt;14 anos por via parenteral.</strong> VO ≥6a: 0,5–2 mg/kg/dia divididos em 3 doses (máx 150 mg/dia).",
+  doseGest: "Categoria C (1º e 2º trim) / <strong>D no 3º trimestre — CONTRAINDICADO</strong>. Risco de fechamento precoce do canal arterial, oligoidrâmnio, IRA fetal. Evitar em toda gestação se possível — preferir paracetamol/dipirona.",
+  via: "IM profundo (glúteo), VO, retal, tópico",
+  preparo: "Pronto para uso. <strong>Não administrar EV</strong> (formulação no Brasil é para IM).",
+  precaucoes: "<strong>Contraindicações:</strong> úlcera péptica ativa, IRA/IRC (TFG <30), ICC NYHA III/IV, sangramento ativo, alergia a AINEs, asma sensível à aspirina, ICC descompensada. Cuidado em idoso, HAS, anticoagulado, desidratação. Aumenta risco cardiovascular em uso prolongado.",
+  reacoes: "Dor/abscesso no local IM, dispepsia, sangramento digestivo, HAS, retenção hídrica, IRA, broncoespasmo, reação alérgica, hepatotoxicidade.",
+  fontes: "Bula ANVISA; Diretrizes EAU Cólica Renal 2023; SBOT."
+},
+{
+  id: "dipirona",
+  nome: "Dipirona Sódica",
+  sinonimos: "Metamizol, Novalgina®",
+  classe: "Analgésico/antipirético não opioide",
+  apresentacao: "Ampola 500 mg/mL (2 mL = 1.000 mg)",
+  cenarios: ["dor", "febre"],
+  tags: ["Dor", "Febre"],
+  resumo: "Analgésico e antipirético potente, com efeito antiespasmódico leve. Amplamente usado no Brasil; banido em alguns países por risco raro de agranulocitose.",
+  mecanismo: "Mecanismo não completamente elucidado. Inibição de COX-3 central, modulação do sistema canabinoide endógeno e ativação de vias descendentes opioidérgicas. Efeito espasmolítico moderado em musculatura lisa.",
+  indicacoes: [
+    "<strong>Dor aguda</strong> leve a moderada",
+    "<strong>Febre</strong> (1ª linha em adulto e criança no Brasil)",
+    "Cólica (renal, biliar, intestinal)",
+    "Cefaleia",
+    "Analgesia multimodal pós-operatória"
+  ],
+  doseAdulto: "<strong>EV/IM:</strong> 1–2 g (2–4 mL) a cada 6 h. Máx 8 g/dia.<br>EV: diluir em 10 mL AD, infundir em 5 min (rápido = hipotensão).<br><strong>VO/retal:</strong> 500–1.000 mg 6/6 h.",
+  dosePed: "<strong>VO/retal:</strong> 10–25 mg/kg/dose 6/6 h (máx 4 g/dia).<br><strong>EV:</strong> 15–25 mg/kg/dose 6/6 h, diluída em SF/SG 5%, infusão em 15 min. <strong>Idade mínima:</strong> uso parenteral controverso &lt;3 meses; VO/retal a partir de 3 meses.",
+  doseGest: "Categoria não classificada (FDA não aprova). <strong>Bula brasileira: evitar no 1º e 3º trimestres</strong>. No 1º: risco teratogênico (limitado); no 3º: fechamento precoce do canal arterial, oligoidrâmnio. Considerada aceitável no 2º trimestre se necessária. Preferir paracetamol em gestantes.",
+  via: "EV (lenta, diluída), IM, VO, retal",
+  preparo: "<strong>EV: SEMPRE diluir</strong> (2 g em 10 mL AD ou SF, infundir em 5 min). Bolus rápido = hipotensão grave.",
+  precaucoes: "<strong>Risco raro de agranulocitose</strong> (0,4–1,1/milhão) — interromper em qualquer febre/odinofagia inexplicada. Contraindicações: gravidez 1º/3º trim, lactente &lt;3 meses, porfiria, deficiência G6PD, alergia a pirazolonas. Cuidado em asma sensível a AINE, IR, IH.",
+  reacoes: "Hipotensão (infusão rápida), reação cutânea (Stevens-Johnson rara), agranulocitose, anemia aplásica, anafilaxia, IRA.",
+  fontes: "Bula ANVISA; SBP Posicionamento Dipirona; CFM Parecer Dipirona Pediatria."
+},
+{
+  id: "dobutamina",
+  nome: "Dobutamina",
+  sinonimos: "Dobutrex®",
+  classe: "Inotrópico (β1-agonista)",
+  apresentacao: "Ampola 12,5 mg/mL (20 mL = 250 mg)",
+  cenarios: ["choque", "ic"],
+  tags: ["Choque cardiogênico", "IC"],
+  resumo: "Agente inotrópico β1-seletivo. Droga de escolha em choque cardiogênico e baixo débito com perfusão adequada.",
+  mecanismo: "Agonista β1-adrenérgico predominante (com leve efeito β2 e α1). Aumenta contratilidade (inotropismo), com discreto aumento de FC e leve vasodilatação periférica. Aumenta débito cardíaco sem grande variação da PA.",
+  indicacoes: [
+    "<strong>Choque cardiogênico</strong> (1ª linha após restabelecimento mínimo de PA)",
+    "<strong>IC aguda descompensada</strong> com baixo débito",
+    "<strong>Choque séptico</strong> com disfunção miocárdica (após noradrenalina adequada)",
+    "Pós-PCR com disfunção ventricular",
+    "Eco de estresse farmacológico"
+  ],
+  doseAdulto: "<strong>BIC:</strong> 2,5–20 mcg/kg/min, titular pela resposta hemodinâmica. Iniciar em 2,5–5 mcg/kg/min.",
+  dosePed: "<strong>BIC:</strong> 2–20 mcg/kg/min (mesmo intervalo). Neonatos podem precisar de doses mais baixas (2,5–10).",
+  doseGest: "Categoria B. Atravessa placenta minimamente. Usar quando indicada para descompensação cardíaca materna grave (cardiomiopatia periparto, IC). Mesmas doses.",
+  via: "EV em BIC (preferencial em veia central, mas pode periférica de grosso calibre)",
+  preparo: "<strong>Diluição padrão:</strong> 1 ampola (250 mg) + 230 mL SG 5% ou SF 0,9% = 1.000 mcg/mL (1 mg/mL). Ou 2 ampolas (500 mg) + 210 mL = 2.000 mcg/mL.<br>Cálculo rápido para 1.000 mcg/mL: <code>mL/h = (peso × dose) / 16,67</code>.",
+  precaucoes: "Não corrige hipotensão grave isoladamente — em choque com PAS &lt;70 associar noradrenalina. Pode <strong>aumentar consumo miocárdico de O2</strong> e gerar arritmia. Tolerância em 24–72 h. Evitar em CMH obstrutiva, EAo grave, taquiarritmias não controladas.",
+  reacoes: "Taquicardia, arritmias ventriculares, FA, hipotensão (em hipovolêmico), HAS, cefaleia, náusea, isquemia miocárdica.",
+  fontes: "Surviving Sepsis 2021; SBC Choque Cardiogênico 2022; Bula ANVISA."
+},
+{
+  id: "dopamina",
+  nome: "Dopamina",
+  sinonimos: "Revivan®",
+  classe: "Vasopressor/inotrópico (dose-dependente)",
+  apresentacao: "Ampola 5 mg/mL (10 mL = 50 mg)",
+  cenarios: ["choque", "bradicardia"],
+  tags: ["Choque", "Bradicardia"],
+  resumo: "Catecolamina endógena com efeito dose-dependente. Caiu em desuso favorito como vasopressor, mas ainda usada em bradicardia refratária.",
+  mecanismo: "Ação dose-dependente: <strong>1–3 mcg/kg/min</strong> — D1/D2 (vasodilatação renal/esplâncnica, sem benefício clínico comprovado); <strong>3–10 mcg/kg/min</strong> — β1 predominante (inotropismo, cronotropismo); <strong>&gt;10 mcg/kg/min</strong> — α1 predominante (vasoconstrição).",
+  indicacoes: [
+    "<strong>Bradicardia sintomática</strong> refratária à atropina (BIC)",
+    "<strong>Choque cardiogênico</strong> (alternativa, dose β)",
+    "<strong>Choque com bradicardia relativa</strong>",
+    "Choque séptico (caiu em desuso — noradrenalina é superior)",
+    "Pós-PCR com bradicardia e hipotensão"
+  ],
+  doseAdulto: "<strong>Bradicardia:</strong> 2–20 mcg/kg/min, titular pela FC/PA.<br><strong>Choque:</strong> 5–20 mcg/kg/min (raramente >20).<br>Iniciar em 5 mcg/kg/min.",
+  dosePed: "<strong>Choque/Bradicardia:</strong> 2–20 mcg/kg/min. Em neonatos: 2,5–10 mcg/kg/min.",
+  doseGest: "Categoria C. Pode reduzir fluxo placentário em doses vasopressoras. Preferir efedrina/fenilefrina em hipotensão por anestesia. Em emergência materna com risco de vida, usar.",
+  via: "EV em BIC (preferir veia central — extravasamento causa necrose tissular)",
+  preparo: "<strong>Diluição padrão:</strong> 5 ampolas (250 mg) + 200 mL SF/SG 5% = 1.000 mcg/mL. Ou 1 ampola (50 mg) + 240 mL = 200 mcg/mL.<br>Cálculo para 1.000 mcg/mL: <code>mL/h = (peso × dose) × 0,06</code>.",
+  precaucoes: "<strong>Extravasamento causa necrose</strong> — preferir CVC; se periférica, infiltrar fentolamina 5–10 mg em 10–15 mL SF no local de extravasamento. Em sepse: associada a maior mortalidade que noradrenalina — <strong>NORADRENALINA É 1ª ESCOLHA</strong>. Pode gerar arritmias, isquemia. Não associar a alcalinos (inativa).",
+  reacoes: "Taquicardia, arritmias (mais que NA), HAS, vasoconstrição periférica/visceral (oligúria, isquemia mesentérica), necrose por extravasamento, supressão prolactina e TSH.",
+  fontes: "Surviving Sepsis 2021; AHA ACLS 2020; SBC Choque 2022; Bula ANVISA."
+},
+{
+  id: "epinefrina",
+  nome: "Epinefrina",
+  sinonimos: "Adrenalina (idêntica)",
+  classe: "Simpaticomimético",
+  apresentacao: "Idem Adrenalina — Ampola 1 mg/mL",
+  cenarios: ["pcr", "anafilaxia", "choque", "bronco", "bradicardia"],
+  tags: ["= Adrenalina"],
+  resumo: "Sinônimo internacional de Adrenalina. Mesma molécula, mesmas doses e indicações.",
+  mecanismo: "Idêntica à Adrenalina. Ver entrada \"Adrenalina\".",
+  indicacoes: [
+    "Idêntico à <strong>Adrenalina</strong> — consulte aquela entrada",
+    "PCR, anafilaxia, broncoespasmo grave, bradicardia, choque distributivo"
+  ],
+  doseAdulto: "Consultar entrada <strong>Adrenalina</strong>.",
+  dosePed: "Consultar entrada <strong>Adrenalina</strong>.",
+  doseGest: "Consultar entrada <strong>Adrenalina</strong>.",
+  via: "EV, IO, IM, SC, NBZ, ET",
+  preparo: "Idem Adrenalina.",
+  precaucoes: "Idem Adrenalina.",
+  reacoes: "Idem Adrenalina.",
+  fontes: "Mesmas fontes da entrada Adrenalina."
+},
+{
+  id: "escopolamina",
+  nome: "Escopolamina (Butilbrometo)",
+  sinonimos: "Hioscina, Buscopan®",
+  classe: "Anticolinérgico (antimuscarínico)",
+  apresentacao: "Ampola 20 mg/mL (1 mL); Composto: 4 mg/mL + dipirona 500 mg/mL (5 mL)",
+  cenarios: ["dor"],
+  tags: ["Cólica"],
+  resumo: "Antiespasmódico anticolinérgico de ação periférica. 1ª linha em cólica visceral (renal, biliar, intestinal).",
+  mecanismo: "Antagonista muscarínico que não atravessa BHE (ao contrário da escopolamina base). Bloqueia receptores M1–M3 da musculatura lisa visceral → relaxamento de víscera oca, redução de secreções.",
+  indicacoes: [
+    "<strong>Cólica</strong> visceral aguda (renal, biliar, intestinal, dismenorreia)",
+    "Espasmo gastrointestinal e geniturinário",
+    "Sialorreia em paliativo (off-label)",
+    "Diminuição de secreções em fase final de vida"
+  ],
+  doseAdulto: "<strong>EV/IM:</strong> 20 mg (1 ampola), repetir a cada 6–8 h. Máx 100 mg/dia.<br><strong>VO:</strong> 10–20 mg 6/6 h.<br><strong>Composto (com dipirona):</strong> 1 ampola IM/EV lento 6/6 h.",
+  dosePed: "<strong>Uso restrito.</strong> Bula brasileira: ≥6 anos VO. EV/IM raramente usada na pediatria; quando indicada: 0,3–0,6 mg/kg/dose (máx 20 mg).",
+  doseGest: "Categoria não classificada (uso limitado). Bula: <strong>não recomendado na gestação</strong> por falta de dados. Em emergência com cólica refratária, considerar após avaliação risco-benefício. Preferir hidratação e analgesia simples.",
+  via: "EV (lento, diluído), IM, VO, retal",
+  preparo: "EV: diluir em 10 mL SF/AD, infundir lento (1 min). IM: pura.",
+  precaucoes: "<strong>Contraindicações:</strong> glaucoma de ângulo fechado, hipertrofia prostática com retenção urinária, taquicardia, miastenia gravis, megacolon, obstrução intestinal mecânica. Não atravessa BHE — sem efeito sedativo central.",
+  reacoes: "Boca seca, taquicardia, retenção urinária, constipação, midríase, rubor, distúrbios de acomodação visual.",
+  fontes: "Bula ANVISA Buscopan®; Diretrizes EAU Cólica Renal 2023."
+},
+{
+  id: "fenitoina",
+  nome: "Fenitoína",
+  sinonimos: "Hidantoína, Hidantal®",
+  classe: "Anticonvulsivante (hidantoína)",
+  apresentacao: "Ampola 50 mg/mL (5 mL = 250 mg)",
+  cenarios: ["convulsao"],
+  tags: ["Status epilepticus"],
+  resumo: "Anticonvulsivante de 2ª linha em status epilepticus (após benzodiazepínico). Mesma molécula que \"Hidantoína\".",
+  mecanismo: "Bloqueio dos canais de sódio voltagem-dependentes em estado inativo → estabiliza membrana neuronal → reduz disparo repetitivo de alta frequência. Não causa depressão respiratória/SNC marcante nas doses terapêuticas.",
+  indicacoes: [
+    "<strong>Status epilepticus</strong> (2ª linha — após BZD ineficaz)",
+    "Profilaxia de crises pós-TCE grave (primeira semana)",
+    "Tratamento crônico de epilepsia focal e tônico-clônica generalizada",
+    "Arritmia por intoxicação digitálica (uso histórico)"
+  ],
+  doseAdulto: "<strong>Status epilepticus:</strong> ataque 20 mg/kg EV (máx 1.500 mg) — diluir em SF 0,9% e infundir em <strong>NÃO MAIS QUE 50 mg/min</strong> (idoso: 25 mg/min). Tempo mínimo: 20 min para 70 kg.<br><strong>Em uso crônico:</strong> 5–10 mg/kg adicional.<br><strong>Manutenção:</strong> 5–10 mg/kg/dia em 2–3 doses VO/EV (300 mg/dia habitual).",
+  dosePed: "<strong>Status epilepticus:</strong> ataque 20 mg/kg EV (máx 1.000 mg) — taxa máx 1 mg/kg/min (ou 50 mg/min).<br><strong>Manutenção:</strong> 5–8 mg/kg/dia 2–3×/dia.",
+  doseGest: "Categoria D. Teratogênico — síndrome hidantoínica fetal (fenda palatina, anomalias craniofaciais, hipoplasia digital, déficit cognitivo). <strong>Em status epilepticus materno: usar — risco de hipóxia > risco fetal.</strong> Tratamento crônico: reavaliar e preferir alternativas.",
+  via: "EV (preferência em emergência), VO",
+  preparo: "<strong>Diluir SEMPRE em SF 0,9%</strong> (precipita em soluções glicosadas). Concentração ≤10 mg/mL. <strong>Veia calibrosa</strong> (preferir central) — extravasamento causa necrose grave (\"síndrome da luva púrpura\"). Filtrar (cristais).",
+  precaucoes: "<strong>Infusão rápida causa hipotensão e arritmia (BAV, assistolia)</strong> — monitorização contínua de ECG e PA durante administração. Contraindicações: BAV 2º/3º grau, bradicardia sinusal, síndrome do nó sinusal. Janela terapêutica estreita (nível 10–20 mcg/mL). Indutor enzimático potente — múltiplas interações.",
+  reacoes: "Hipotensão, arritmias, nistagmo, ataxia, sedação, hiperplasia gengival, hirsutismo, rash (incluindo Stevens-Johnson, DRESS), discrasias sanguíneas, hepatite, necrose por extravasamento.",
+  fontes: "Diretriz status epilepticus AES 2016; Einstein Pathway; Bula ANVISA."
+},
+{
+  id: "fenobarbital",
+  nome: "Fenobarbital",
+  sinonimos: "Gardenal®, Luminal®",
+  classe: "Barbitúrico anticonvulsivante",
+  apresentacao: "Ampola 100 mg/mL (2 mL = 200 mg) ou 200 mg/2 mL",
+  cenarios: ["convulsao"],
+  tags: ["Status epilepticus", "Convulsão neonatal"],
+  resumo: "Barbitúrico de longa ação. 2ª/3ª linha em status epilepticus; 1ª linha em convulsão neonatal.",
+  mecanismo: "Agonista alostérico do receptor GABA-A → ↑duração da abertura do canal Cl– (diferente do BZD que ↑frequência) → hiperpolarização. Doses altas: efeito GABA-mimético direto + bloqueio do glutamato (AMPA).",
+  indicacoes: [
+    "<strong>Convulsão neonatal</strong> (1ª linha)",
+    "<strong>Status epilepticus refratário</strong> (alternativa à fenitoína)",
+    "Manutenção em epilepsia (em desuso, mas usado em locais com baixo recurso)",
+    "Abstinência alcoólica/sedativos"
+  ],
+  doseAdulto: "<strong>Status epilepticus:</strong> ataque 15–20 mg/kg EV (máx 1.000 mg) — infundir a no máximo <strong>50–100 mg/min</strong> (ou 1 mg/kg/min). Pode-se dar dose adicional de 5–10 mg/kg.<br><strong>Manutenção:</strong> 1–3 mg/kg/dia (60–180 mg/dia).",
+  dosePed: "<strong>Convulsão neonatal:</strong> ataque 20 mg/kg EV em 20 min. Pode repetir 10 mg/kg até total 40 mg/kg.<br><strong>Status epilepticus pediátrico:</strong> 20 mg/kg EV (taxa máx 2 mg/kg/min ou 30 mg/min, o que for menor). Pode complementar com 5–10 mg/kg.<br><strong>Manutenção:</strong> 3–5 mg/kg/dia em 1–2 doses.",
+  doseGest: "Categoria D. Teratogênico (fenda palatina, cardiopatia congênita). Risco de sangramento neonatal por deficiência de vit K (suplementar a gestante no último mês). Síndrome de abstinência neonatal. <strong>Em status materno: usar quando indicado.</strong>",
+  via: "EV (preferência), IM (absorção mais lenta), VO",
+  preparo: "EV: diluir em SF 0,9% (10 mL para bolus, ou 50–100 mL para infusão). Sempre <strong>infusão lenta com monitorização</strong>.",
+  precaucoes: "<strong>Risco de depressão respiratória e hipotensão</strong>, potencializado por BZD/opioides — preparar via aérea. Contraindicações: porfiria, insuficiência respiratória grave. Indutor enzimático potente. Janela terapêutica: 15–40 mcg/mL.",
+  reacoes: "Sedação, depressão respiratória, hipotensão, bradicardia, rash, hepatotoxicidade, discrasia sanguínea, síndrome de Stevens-Johnson, dependência.",
+  fontes: "AES Guidelines Status Epilepticus; SBP Neurologia Neonatal; Bula ANVISA."
+},
+{
+  id: "furosemida",
+  nome: "Furosemida",
+  sinonimos: "Lasix®",
+  classe: "Diurético de alça",
+  apresentacao: "Ampola 10 mg/mL (2 mL = 20 mg)",
+  cenarios: ["edema", "eletrolito"],
+  tags: ["EAP", "Hipercalemia"],
+  resumo: "Diurético de alça potente. 1ª linha em edema agudo de pulmão com sobrecarga volêmica.",
+  mecanismo: "Inibe o cotransportador Na+/K+/2Cl– no ramo ascendente espesso da alça de Henle → natriurese, caliurese, perda de Mg++ e Ca++. <strong>Efeito venodilatador precoce</strong> (15 min) — reduz pré-carga antes da diurese.",
+  indicacoes: [
+    "<strong>Edema agudo de pulmão</strong> hipervolêmico (1ª linha)",
+    "<strong>Hipercalemia</strong> (parte do manejo)",
+    "ICC descompensada com congestão",
+    "Crise hipertensiva com EAP",
+    "Hipercalcemia sintomática (com hidratação)",
+    "Sobrecarga volêmica em IRA/IRC"
+  ],
+  doseAdulto: "<strong>EAP/ICC descompensada:</strong> 0,5–1 mg/kg EV em bolus (40–80 mg). Pode repetir após 20–30 min. <strong>Em uso crônico de diurético</strong>: usar o dobro da dose habitual oral via EV. Máx 200 mg/dose.<br><strong>Infusão contínua:</strong> 5–10 mg/h (em IC refratária).",
+  dosePed: "<strong>EV/IM:</strong> 1 mg/kg/dose, repetir até 6/6 h. Máx 6 mg/kg/dia. Neonato: 1 mg/kg 12/12 h (clearance lento).",
+  doseGest: "Categoria C. <strong>Não é 1ª escolha</strong> na pré-eclâmpsia (reduz fluxo placentário). Reservar para EAP/ICC materna. Pode causar hipoperfusão placentária e oligoidrâmnio em uso prolongado.",
+  via: "EV (preferência em emergência), IM, VO",
+  preparo: "EV: pode ser administrada pura em bolus lento (1–2 min) ou diluída em 10 mL SF. Velocidade máx: 4 mg/min (ototoxicidade em infusão rápida).",
+  precaucoes: "<strong>Hipotensão</strong> em paciente desidratado/hipovolêmico (\"choque seco\"). <strong>Ototoxicidade</strong> em infusão rápida ou doses altas, especialmente com aminoglicosídeos. Hipocalemia, hipomagnesemia, hipocalcemia, alcalose hipoclorêmica, hiperuricemia, hiperglicemia. Alérgicos a sulfa — reação cruzada rara.",
+  reacoes: "Hipocalemia, hiponatremia, hipotensão, IRA pré-renal, ototoxicidade, hiperuricemia (gota), hiperglicemia, rash, fotossensibilidade.",
+  fontes: "SBC IC 2018; SAMU EAP; Bula ANVISA."
+},
+{
+  id: "glicose",
+  nome: "Glicose 50%",
+  sinonimos: "Dextrose 50%",
+  classe: "Carboidrato hipertônico",
+  apresentacao: "Ampola 10 mL (5 g de glicose) ou 20 mL (10 g)",
+  cenarios: ["hipoglicemia", "eletrolito"],
+  tags: ["Hipoglicemia"],
+  resumo: "Solução hipertônica para tratamento imediato de hipoglicemia em paciente sem condições de ingestão oral.",
+  mecanismo: "Fornecimento direto de substrato energético. Solução com 500 mg/mL de glicose, osmolaridade ~2.500 mOsm/L (altamente hipertônica).",
+  indicacoes: [
+    "<strong>Hipoglicemia</strong> sintomática (glicemia &lt;70 mg/dL) sem condições de VO",
+    "Hipoglicemia em paciente em uso de insulina/sulfonilureia",
+    "Componente do tratamento de <strong>hipercalemia</strong> (com insulina)",
+    "Coma de origem indeterminada (junto com tiamina em alcoolista)"
+  ],
+  doseAdulto: "<strong>Hipoglicemia:</strong> 30–50 mL EV em bolus lento (3–5 min) por veia calibrosa. Repetir em 10 min se mantém sintomas/glicemia baixa. Iniciar SG 5% ou 10% em manutenção após.<br><strong>Hipercalemia:</strong> 50 mL de SG 50% + 10 UI insulina regular EV.",
+  dosePed: "<strong>Hipoglicemia (&gt;1 mês):</strong> 0,5–1 g/kg = <strong>2 mL/kg de SG 25%</strong> EV em bolus (diluir SG 50% 1:1 com AD para reduzir osmolaridade). RN/lactente: SG 10% 2–5 mL/kg.<br><strong>Manutenção:</strong> SG 10% em VIG 6–8 mg/kg/min.",
+  doseGest: "Categoria A (uso fisiológico). Mesmas doses. Cuidado com hipoglicemia reativa fetal após bolus rápido — preferir infusão controlada quando possível.",
+  via: "EV (sempre por veia calibrosa)",
+  preparo: "<strong>Solução altamente hipertônica</strong>. Em pediatria sempre diluir para SG 25% ou menos. Veia central preferível para infusão prolongada.",
+  precaucoes: "<strong>Extravasamento causa necrose tissular grave</strong> — testar refluxo antes. Cuidado em paciente alcoolista cronicamente desnutrido (administrar <strong>tiamina 100 mg antes</strong> para evitar encefalopatia de Wernicke). Não usar em hipoglicemia neonatal pura SG 50% — usar 10%.",
+  reacoes: "Hiperglicemia rebote, flebite, necrose por extravasamento, encefalopatia de Wernicke (em alcoolista desnutrido), hipernatremia (em uso prolongado).",
+  fontes: "SBD Diretrizes 2024; Protocolo SAMU Hipoglicemia; Bula ANVISA."
+},
+{
+  id: "haloperidol",
+  nome: "Haloperidol",
+  sinonimos: "Haldol®",
+  classe: "Antipsicótico típico (butirofenona)",
+  apresentacao: "Ampola 5 mg/mL (1 mL)",
+  cenarios: ["agitacao"],
+  tags: ["Agitação", "Delirium"],
+  resumo: "Antipsicótico de alta potência. 1ª linha em agitação psicomotora aguda associada a transtorno psicótico ou mania.",
+  mecanismo: "Antagonista D2 dopaminérgico potente (mesolímbico/mesocortical → efeito antipsicótico; nigroestriatal → efeitos extrapiramidais; túbero-infundibular → hiperprolactinemia). Baixa afinidade muscarínica, histaminérgica e adrenérgica.",
+  indicacoes: [
+    "<strong>Agitação psicomotora aguda</strong> em quadro psicótico/maníaco",
+    "<strong>Delirium hiperativo</strong> (em paciente crítico — uso controverso atualmente)",
+    "Esquizofrenia, transtorno bipolar (uso crônico)",
+    "Náusea/vômito refratário (off-label, doses baixas)",
+    "Soluços intratáveis"
+  ],
+  doseAdulto: "<strong>Agitação aguda:</strong> 5 mg IM (1 ampola). Reavaliar em 30 min — pode repetir. Máx 20–40 mg/dia. Frequentemente associado a <strong>prometazina 25–50 mg IM</strong> (reduz EPS e potencializa sedação) ou midazolam.<br><strong>Idoso/delirium:</strong> iniciar com 0,5–2 mg IM/VO (titular).<br><strong>EV não é indicado rotineiramente</strong> (off-label, risco de prolongamento de QT/Torsades).",
+  dosePed: "<strong>Uso restrito.</strong> ≥6 anos: 0,05–0,15 mg/kg/dia VO em 2–3 doses. <strong>Não usar &lt;3 anos</strong>. Agitação aguda em adolescente: 2,5–5 mg IM.",
+  doseGest: "Categoria C. Atravessa placenta. Risco de SEPM transitória no recém-nascido se uso no 3º trim. <strong>Em agitação grave materna com risco</strong>: usar com cautela, preferir doses baixas.",
+  via: "IM (preferencial em emergência), VO. EV: off-label e arriscado.",
+  preparo: "IM: puro. Não misturar na mesma seringa com outros fármacos.",
+  precaucoes: "<strong>Contraindicações:</strong> intoxicação por álcool/sedativos (potencializa depressão), Parkinson, demência por corpúsculos de Lewy, QT prolongado, hipersensibilidade. Cuidado em idoso (↑mortalidade na demência — black box FDA), epilepsia. <strong>Síndrome neuroléptica maligna</strong> (rara, grave). Monitorar ECG.",
+  reacoes: "Sintomas extrapiramidais (distonia aguda, acatisia, parkinsonismo, discinesia tardia), sedação, hipotensão ortostática, prolongamento QT, síndrome neuroléptica maligna, hiperprolactinemia.",
+  fontes: "SES-DF Protocolo Agitação Psicomotora; Einstein Pathway Agitação; Bula ANVISA."
+},
+{
+  id: "hidantoina",
+  nome: "Hidantoína",
+  sinonimos: "Fenitoína (idêntica)",
+  classe: "Anticonvulsivante (hidantoína)",
+  apresentacao: "Idem Fenitoína — Ampola 50 mg/mL",
+  cenarios: ["convulsao"],
+  tags: ["= Fenitoína"],
+  resumo: "Nome alternativo para Fenitoína (Hidantal®). Mesma molécula, mesmas doses e indicações.",
+  mecanismo: "Idêntica à Fenitoína. Ver entrada \"Fenitoína\".",
+  indicacoes: [
+    "Idêntico à <strong>Fenitoína</strong> — consulte aquela entrada",
+    "Status epilepticus, profilaxia pós-TCE, epilepsia"
+  ],
+  doseAdulto: "Consultar entrada <strong>Fenitoína</strong>.",
+  dosePed: "Consultar entrada <strong>Fenitoína</strong>.",
+  doseGest: "Consultar entrada <strong>Fenitoína</strong>.",
+  via: "EV, VO",
+  preparo: "Idem Fenitoína (sempre diluir em SF, nunca em SG).",
+  precaucoes: "Idem Fenitoína.",
+  reacoes: "Idem Fenitoína.",
+  fontes: "Mesmas fontes da entrada Fenitoína."
+},
+{
+  id: "hidrocortisona",
+  nome: "Hidrocortisona (Succinato)",
+  sinonimos: "Solu-Cortef®",
+  classe: "Corticoide (curta duração)",
+  apresentacao: "Frasco-ampola 100 mg ou 500 mg (pó liofilizado)",
+  cenarios: ["anafilaxia", "bronco", "outros"],
+  tags: ["Anafilaxia", "Asma", "Insuf. adrenal"],
+  resumo: "Corticoide de curta ação com atividade mineralocorticoide. 1ª escolha em insuficiência adrenal aguda e em crise asmática quando outros corticoides não estão disponíveis.",
+  mecanismo: "Glicocorticoide endógeno (cortisol sintético). Efeito glicocorticoide + leve mineralocorticoide. Início de ação 1–2 h após EV; meia-vida biológica 8–12 h. Modulação ampla da resposta inflamatória e imune.",
+  indicacoes: [
+    "<strong>Insuficiência adrenal aguda</strong> (crise addisoniana) — 1ª escolha",
+    "<strong>Anafilaxia</strong> (adjuvante após adrenalina)",
+    "<strong>Crise asmática grave</strong>",
+    "Choque séptico com hipotensão refratária (doses baixas)",
+    "Edema laríngeo agudo",
+    "Exacerbação de DPOC"
+  ],
+  doseAdulto: "<strong>Insuf. adrenal aguda:</strong> 100 mg EV em bolus, seguido de 200 mg/dia em BIC ou 50 mg 6/6 h.<br><strong>Anafilaxia:</strong> 200 mg EV (adjuvante).<br><strong>Crise asmática:</strong> 100–200 mg EV 6/6 h.<br><strong>Choque séptico refratário:</strong> 200 mg/dia EV em infusão contínua.",
+  dosePed: "<strong>Anafilaxia/crise asmática:</strong> 4–8 mg/kg EV (máx 250 mg/dose), repetir 6/6 h.<br><strong>Insuf. adrenal aguda:</strong> 2 mg/kg em bolus, depois 25–50 mg/m²/dia em BIC ou divididas.",
+  doseGest: "Categoria C. <strong>Cortisol é fisiológico</strong>. Crise asmática e insuficiência adrenal: usar sem hesitação. Anafilaxia: usar normalmente. Atravessa placenta em pequena quantidade (metabolizado em forma inativa).",
+  via: "EV (preferencial), IM, intra-articular",
+  preparo: "Reconstituir o pó com o diluente que acompanha (AD ou SF). Pode ser administrada em bolus lento ou diluída em 50–100 mL SF/SG 5% e infundida em 20–30 min.",
+  precaucoes: "Hiperglicemia. Retenção hidrossalina (atividade mineralocorticoide) — cuidado em IC, HAS, edema. Imunossupressão. Não interromper abruptamente em uso prolongado. Cuidado em úlcera péptica, infecção sistêmica não tratada, transtornos psiquiátricos.",
+  reacoes: "Hiperglicemia, retenção hidrossalina, HAS, hipocalemia, insônia, agitação, miopatia, supressão adrenal (uso prolongado), perfuração intestinal (raro).",
+  fontes: "SBP Anafilaxia 2023; GINA 2023; SBEM Insuf. Adrenal; Bula ANVISA."
+},
+{
+  id: "insulina",
+  nome: "Insulina Regular",
+  sinonimos: "Insulina Humana Regular, Humulin R®, Novolin R®",
+  classe: "Hormônio (anabólico)",
+  apresentacao: "Frasco 100 UI/mL (10 mL); ampola 100 UI/mL",
+  cenarios: ["hipoglicemia", "eletrolito"],
+  tags: ["CAD", "Hipercalemia"],
+  resumo: "Única insulina com uso EV. Padrão-ouro no tratamento de cetoacidose diabética, estado hiperosmolar e hipercalemia aguda.",
+  mecanismo: "Liga receptor de insulina (tirosina-quinase) → ↑captação de glicose pela via GLUT4 (músculo, tecido adiposo), inibição da gliconeogênese e cetogênese hepática, anabolismo proteico, captação de K+ intracelular.",
+  indicacoes: [
+    "<strong>Cetoacidose diabética (CAD)</strong>",
+    "<strong>Estado hiperglicêmico hiperosmolar</strong>",
+    "<strong>Hipercalemia</strong> (com glicose, por desvio intracelular)",
+    "Hiperglicemia em paciente crítico (alvo 140–180 mg/dL)",
+    "Diabetes em jejum perioperatório"
+  ],
+  doseAdulto: "<strong>CAD:</strong> bolus 0,1 UI/kg EV (opcional), seguido de BIC 0,1 UI/kg/h (pode-se usar 0,05 UI/kg/h em quadros leves). <strong>Só iniciar se K+ ≥3,3 mEq/L</strong>. Quando glicemia &lt;200 mg/dL: associar SG 5% e reduzir BIC para 0,05 UI/kg/h.<br><strong>Hipercalemia:</strong> 10 UI EV em bolus + 50 mL SG 50% (25 g glicose). Reduz K+ em 0,5–1 mEq/L em 30–60 min.",
+  dosePed: "<strong>CAD:</strong> 0,05–0,1 UI/kg/h em BIC (preferir 0,05 em quadros menos graves). <strong>Não dar bolus em criança</strong> (risco de edema cerebral). Mesmo princípio: K+ ≥3,3 e ajuste com glicose ao baixar para &lt;250 mg/dL.<br><strong>Hipercalemia:</strong> 0,1 UI/kg EV + 0,5 g/kg glicose.",
+  doseGest: "Categoria B. <strong>Insulina é o tratamento de escolha para hiperglicemia/CAD na gestação</strong> — não atravessa placenta significativamente. Mesmas doses do adulto. Atenção: gestante tem risco aumentado de hipoglicemia e CAD com glicemia menor (\"CAD euglicêmica\").",
+  via: "EV (regular apenas), SC, IM",
+  preparo: "<strong>BIC CAD:</strong> 25 UI insulina regular + 250 mL SF 0,9% = 0,1 UI/mL. <strong>Saturar o equipo</strong> (desprezar 20 mL — insulina adere ao plástico). Cálculo: <code>mL/h = peso (kg)</code> para 0,1 UI/kg/h.",
+  precaucoes: "<strong>Hipoglicemia é o efeito adverso mais grave.</strong> Monitorar glicemia capilar 1/1 h em BIC. Não iniciar em hipocalemia (K+ &lt;3,3) — repor K+ primeiro. <strong>Risco de edema cerebral em criança</strong> com queda glicêmica >100 mg/dL/h. Hipocalemia secundária à correção.",
+  reacoes: "Hipoglicemia, hipocalemia, hipomagnesemia, alergia local, edema cerebral (pediatria em CAD), lipodistrofia (uso crônico SC).",
+  fontes: "SBD CAD 2025; ADA 2024; Protocolo Einstein; Bula ANVISA."
+},
+{
+  id: "isossorbida",
+  nome: "Dinitrato de Isossorbida",
+  sinonimos: "Isordil®",
+  classe: "Nitrato (vasodilatador)",
+  apresentacao: "Comprimido sublingual 5 mg",
+  cenarios: ["sca", "edema", "has"],
+  tags: ["SCA", "EAP", "Crise HAS"],
+  resumo: "Nitrato sublingual de ação rápida. Vasodilatador venoso (e arterial em doses altas). 1ª linha em angina aguda e EAP.",
+  mecanismo: "Doador de óxido nítrico (NO) → ↑GMPc → relaxamento da musculatura lisa vascular. Predomínio em <strong>capacitância venosa</strong> (reduz pré-carga); em doses maiores, dilata arteríolas e coronárias.",
+  indicacoes: [
+    "<strong>Angina instável / IAM</strong> (com PAS ≥100 mmHg)",
+    "<strong>Edema agudo de pulmão</strong> (vasodilatador na trinca tripé: VNI, vasodilatador, diurético)",
+    "<strong>Emergência hipertensiva</strong> com EAP",
+    "Espasmo coronariano (Prinzmetal)",
+    "Profilaxia de angina (uso crônico — mononitrato VO)"
+  ],
+  doseAdulto: "<strong>Angina/SCA/EAP:</strong> 5 mg SL, repetir a cada 5 min até 3 doses se mantém dor/sintomas e PA permite. Se boa resposta e PA estável, iniciar nitroglicerina EV ou nitrato VO regular.",
+  dosePed: "<strong>Sem indicação rotineira</strong> em pediatria de urgência.",
+  doseGest: "Categoria C. Pode reduzir PA materna e fluxo placentário. Em SCA materna ou EAP: usar com monitorização. <strong>Útil em crise hipertensiva gestacional com EAP.</strong>",
+  via: "Sublingual (comprimido absorvido pela mucosa)",
+  preparo: "Pronto para uso. Paciente deve manter sob a língua até dissolução. Não engolir.",
+  precaucoes: "<strong>Contraindicações absolutas:</strong> uso de sildenafila/tadalafila/vardenafila nas últimas 24–48 h (risco de hipotensão grave); PAS &lt;100 mmHg; IAM de VD (PA dependente de pré-carga); choque; estenose aórtica grave; CMH obstrutiva. Tolerância em uso contínuo (precisa intervalo livre de 8–12 h).",
+  reacoes: "Cefaleia (muito comum), hipotensão, taquicardia reflexa, rubor, síncope, meta-hemoglobinemia (raro, doses altas).",
+  fontes: "SBC Diretriz IAM CSST 2021; SBC EAP; Bula ANVISA."
+},
+{
+  id: "lidocaina",
+  nome: "Lidocaína",
+  sinonimos: "Xylocaína®",
+  classe: "Anestésico local / Antiarrítmico classe IB",
+  apresentacao: "Frasco 1% (10 mg/mL) ou 2% (20 mg/mL); 20 mL — com ou sem vasoconstritor",
+  cenarios: ["pcr", "arritmia", "anestesia"],
+  tags: ["TV/FV", "Anestesia local"],
+  resumo: "Anestésico local amida e antiarrítmico classe IB. Alternativa à amiodarona em FV/TVSP. Anestésico local de 1ª linha.",
+  mecanismo: "Bloqueia canais de Na+ voltagem-dependentes em estado inativo → reduz disparo de fibras nervosas (anestesia) e estabiliza miocárdio ventricular isquêmico (antiarrítmico). Efeito predomina em tecidos despolarizados.",
+  indicacoes: [
+    "<strong>Anestesia local infiltrativa</strong> (sutura, drenagem, procedimentos)",
+    "<strong>Anestesia tópica</strong> (mucosa oral, uretra, traqueia para IOT)",
+    "<strong>FV/TVSP refratária</strong> (alternativa à amiodarona em PCR)",
+    "<strong>TV monomórfica estável</strong> (alternativa)",
+    "Arritmia ventricular pós-IAM (uso restrito atualmente)",
+    "Pré-tratamento de IOT (atenuação de resposta laríngea)"
+  ],
+  doseAdulto: "<strong>PCR (FV/TVSP):</strong> 1–1,5 mg/kg EV/IO em bolus. Repetir 0,5–0,75 mg/kg a cada 5–10 min. Máx 3 mg/kg.<br><strong>Arritmia perfusional:</strong> 1–1,5 mg/kg em bolus, seguido de BIC 1–4 mg/min.<br><strong>Anestesia local:</strong> dose máx <strong>4,5 mg/kg sem vasoconstritor</strong>, <strong>7 mg/kg com epinefrina</strong> (300 mg ou 500 mg respectivamente em adulto 70 kg).",
+  dosePed: "<strong>PCR:</strong> 1 mg/kg EV/IO em bolus, seguido de BIC 20–50 mcg/kg/min se ROSC.<br><strong>Anestesia local:</strong> mesmas doses máx por kg do adulto (4,5 mg/kg sem vaso; 7 mg/kg com vaso).",
+  doseGest: "Categoria B. Anestésico local de escolha na gestação. <strong>Em arritmia materna grave: usar sem hesitar.</strong> Cuidado com toxicidade sistêmica (sensibilidade aumentada na gestante).",
+  via: "EV/IO (antiarrítmico), infiltrativa, tópica, peridural, raquidiana",
+  preparo: "Anestesia local: ler concentração (1% = 10 mg/mL; 2% = 20 mg/mL). <strong>Aspirar antes de injetar</strong> para evitar intravascular. Em PCR: pode ser usada pura ou diluída em 10 mL SF.",
+  precaucoes: "<strong>Toxicidade sistêmica (LAST):</strong> parestesia peribucal → gosto metálico → tinnitus → convulsão → coma → arritmia → PCR. <strong>Tratamento: emulsão lipídica 20% 1,5 mL/kg + BIC 0,25 mL/kg/min.</strong> Contraindicações: bloqueio AV avançado sem MP, hipersensibilidade a amidas, choque. Cuidado em hepatopata (metabolismo CYP3A4).",
+  reacoes: "Reações locais, toxicidade sistêmica (LAST), convulsão, arritmia, bradicardia, hipotensão, parada respiratória, meta-hemoglobinemia (doses altas), reação alérgica (rara em amidas).",
+  fontes: "AHA ACLS/PALS 2020; SBA Diretrizes Anestesia Local; Bula ANVISA."
+},
+{
+  id: "meperidina",
+  nome: "Meperidina",
+  sinonimos: "Petidina, Dolantina®, Demerol®",
+  classe: "Opioide sintético",
+  apresentacao: "Ampola 50 mg/mL (2 mL = 100 mg)",
+  cenarios: ["dor"],
+  tags: ["Analgesia", "Calafrios"],
+  resumo: "Opioide sintético em desuso para analgesia (preferir morfina/fentanil). Mantém papel no tratamento de calafrios pós-anestésicos.",
+  mecanismo: "Agonista μ-opioide (e leve κ). Tem efeitos anticolinérgicos (não causa miose, pode causar taquicardia). Metabolizada em <strong>normeperidina</strong>, neurotóxica (acúmulo causa convulsão), especialmente em IRC.",
+  indicacoes: [
+    "<strong>Calafrios pós-anestésicos</strong> (1ª escolha, dose única baixa)",
+    "Dor aguda moderada/intensa (uso historico — preferir morfina/fentanil)",
+    "Analgesia obstétrica (uso decrescente no Brasil)",
+    "Em alergia documentada a morfina (raro)"
+  ],
+  doseAdulto: "<strong>Dor aguda:</strong> 50–100 mg IM/SC a cada 3–4 h, ou 25–50 mg EV lento diluído.<br><strong>Calafrios pós-anestésicos:</strong> 12,5–25 mg EV em dose única.<br><strong>Máx 600 mg/dia</strong> e <strong>não usar &gt;48 h</strong> (acúmulo de normeperidina).",
+  dosePed: "<strong>Uso restrito.</strong> Quando indicada: 1–1,5 mg/kg IM/EV a cada 3–4 h (máx 100 mg/dose). <strong>Evitar em &lt;6 meses.</strong>",
+  doseGest: "Categoria C (D se uso prolongado/altas doses no termo). Atravessa placenta — depressão respiratória neonatal se administrada nas 1–4 h antes do parto. <strong>Histórico em analgesia de parto</strong> — caiu em desuso por meia-vida da normeperidina ser longa no RN.",
+  via: "EV (lento), IM, SC (não usar VO — alta biodisponibilidade variável)",
+  preparo: "EV: diluir em 10 mL SF/AD, infundir em 5 min. <strong>Bolus rápido EV: hipotensão grave e bradicardia.</strong>",
+  precaucoes: "<strong>Contraindicação absoluta: uso de IMAO nos últimos 14 dias</strong> (síndrome serotoninérgica grave/fatal). Cuidado em IRC (acúmulo de normeperidina → convulsão). Crise convulsiva. Aumento da pressão intracraniana. Asma. Idoso. <strong>Antídoto: naloxona</strong> 0,4 mg EV.",
+  reacoes: "Sedação, depressão respiratória, náusea, vômito, hipotensão, bradicardia (ou taquicardia paradoxal), convulsão (normeperidina), prurido, dependência, constipação.",
+  fontes: "SBA Anestesiologia 2021; Bula ANVISA; OMS analgesia."
+},
+{
+  id: "midazolam",
+  nome: "Midazolam",
+  sinonimos: "Dormonid®",
+  classe: "Benzodiazepínico",
+  apresentacao: "Ampola 5 mg/mL (3 mL = 15 mg) ou 1 mg/mL (5 mL)",
+  cenarios: ["convulsao", "agitacao", "sedacao"],
+  tags: ["Convulsão", "Sedação", "IOT"],
+  resumo: "Benzodiazepínico de curta ação, hidrossolúvel. 1ª linha em crise convulsiva sem acesso EV (via IM/nasal/bucal). Padrão para sedação e indução.",
+  mecanismo: "Idem outros BZD: agonista alostérico GABA-A → ↑frequência de abertura do Cl–. Início rápido (2–5 min EV, 10–15 min IM/nasal), duração curta (30–60 min). Biotransformação hepática (CYP3A4).",
+  indicacoes: [
+    "<strong>Estado de mal epiléptico</strong> (1ª linha sem acesso EV — IM/nasal/bucal)",
+    "<strong>Sedação para procedimentos</strong> (IOT, CVC, redução de fratura, cardioversão)",
+    "<strong>Indução de IOT</strong> (sequência rápida)",
+    "Sedação contínua em UTI (BIC)",
+    "Pré-medicação anestésica",
+    "Agitação (alternativa/adjuvante)"
+  ],
+  doseAdulto: "<strong>Crise convulsiva:</strong> IM: 10 mg (peso ≥40 kg) ou 5 mg (13–40 kg). Bucal/nasal: 10 mg. EV: 0,1–0,2 mg/kg em bolus lento (máx 10 mg).<br><strong>Sedação para procedimento:</strong> 0,02–0,05 mg/kg EV (1–2,5 mg em adulto), titular.<br><strong>Indução IOT:</strong> 0,1–0,3 mg/kg EV.<br><strong>BIC sedação UTI:</strong> 0,02–0,1 mg/kg/h.",
+  dosePed: "<strong>Crise convulsiva:</strong> IM/nasal/bucal: 0,2 mg/kg (máx 10 mg). EV: 0,1–0,2 mg/kg.<br><strong>Sedação procedimento:</strong> 0,05–0,1 mg/kg EV (titular).<br><strong>Indução IOT:</strong> 0,1–0,3 mg/kg.<br><strong>BIC:</strong> 0,06–0,12 mg/kg/h.",
+  doseGest: "Categoria D. Em status epilepticus: usar (risco materno > risco fetal). Em sedação para procedimentos eletivos: evitar 1º trimestre (associação a fenda palatina — controverso). Próximo ao parto: depressão respiratória neonatal, floppy infant.",
+  via: "EV, IM, nasal, bucal, retal, VO",
+  preparo: "EV: pode ser puro lento ou diluído em SF. Nasal: usar atomizador. BIC: 50 mg + 100 mL SF = 0,5 mg/mL.",
+  precaucoes: "<strong>Depressão respiratória</strong> potencializada por opioides, álcool, idade. <strong>Hipotensão</strong> em paciente hipovolêmico ou cardiopata. Tolerância e dependência em uso prolongado. Antagonista: <strong>flumazenil 0,2 mg EV</strong> (cuidado em uso crônico — risco de crise convulsiva). Cuidado em apneia do sono, miastenia, hepatopata.",
+  reacoes: "Depressão respiratória, hipotensão, sedação prolongada, reação paradoxal, amnésia anterógrada, dependência.",
+  fontes: "AES Status Epilepticus; SBA Sedação; SBP Crise Convulsiva 2018; Bula ANVISA."
+},
+{
+  id: "ringer-lactato",
+  nome: "Ringer Lactato",
+  sinonimos: "Solução de Hartmann",
+  classe: "Cristaloide balanceado",
+  apresentacao: "Bolsa/frasco 500 mL e 1.000 mL",
+  cenarios: ["volume"],
+  tags: ["Reposição volêmica", "Trauma"],
+  resumo: "Cristaloide balanceado com composição semelhante ao plasma. 1ª escolha em reposição volêmica de grandes volumes (trauma, sepse, queimadura).",
+  mecanismo: "Isotônico (~273 mOsm/L) contendo Na+ 130, Cl– 109, K+ 4, Ca++ 3, lactato 28 mEq/L. Lactato é metabolizado a bicarbonato no fígado em 1–2 h → efeito tampão. Causa menos acidose hiperclorêmica que SF 0,9%.",
+  indicacoes: [
+    "<strong>Reposição volêmica</strong> em choque hipovolêmico, séptico, traumático",
+    "<strong>Queimaduras</strong> (fórmula de Parkland)",
+    "Manutenção em pós-operatório",
+    "Cetoacidose diabética (algumas diretrizes preferem em vez de SF para reduzir acidose hiperclorêmica)",
+    "Hipovolemia geral"
+  ],
+  doseAdulto: "<strong>Choque:</strong> 30 mL/kg em 3 h (bolus de 500–1.000 mL inicial em 15 min).<br><strong>Trauma:</strong> 1–2 L inicial, reavaliar (ATLS).<br><strong>Queimadura (Parkland):</strong> 4 mL × kg × %SCQ → 50% nas primeiras 8 h, 50% nas 16 h seguintes.",
+  dosePed: "<strong>Choque:</strong> bolus 20 mL/kg em 5–10 min, repetir até 60 mL/kg.<br><strong>Queimadura:</strong> 3 mL × kg × %SCQ + manutenção basal.",
+  doseGest: "Sem restrição. Preferido em situações de grandes volumes — menor acidose hiperclorêmica. Cuidado em IC e pré-eclâmpsia.",
+  via: "EV (preferencial)",
+  preparo: "Pronto para uso.",
+  precaucoes: "<strong>Contém K+ — cuidado em IRA com hipercalemia</strong> (preferir SF). <strong>Contém Ca++ — não infundir simultaneamente com hemoderivados (risco de coagulação) nem com ceftriaxona em neonato</strong> (precipitação fatal de ceftriaxona-cálcio). Sobrecarga em IC.",
+  reacoes: "Sobrecarga volêmica, alcalose metabólica (em grandes volumes — lactato é convertido a bicarbonato), hipercalemia (em IR), reações alérgicas raras.",
+  fontes: "Surviving Sepsis 2021; ATLS 10ª ed; ABA Burn 2023; Bula ANVISA."
+},
+{
+  id: "soro-glico-fisiologico",
+  nome: "Soro Glico-Fisiológico",
+  sinonimos: "SF/SG 1:1 ou 4:1",
+  classe: "Solução mista",
+  apresentacao: "Bolsa 500 ou 1.000 mL — combinação de SG 5% + SF 0,9% (proporções variáveis)",
+  cenarios: ["volume", "outros"],
+  tags: ["Manutenção", "Pediátrica"],
+  resumo: "Solução combinada usada para manutenção hidroeletrolítica e oferta basal de glicose, especialmente em pediatria e jejum prolongado.",
+  mecanismo: "Combinação de cristaloide isotônico (SF) e solução de carboidrato (SG). Oferta de volume, sódio, cloreto e calorias. Proporção comum: 1:1 (Na+ 77 mEq/L, glicose 2,5%) ou 4:1.",
+  indicacoes: [
+    "<strong>Manutenção hidroeletrolítica</strong> em jejum (especialmente pediátrica)",
+    "Pós-operatório imediato",
+    "Veículo para infusões",
+    "<strong>Cuidado:</strong> ISMP recomenda evitar soluções hipotônicas (1:4) em pediatria por risco de hiponatremia iatrogênica"
+  ],
+  doseAdulto: "Manutenção: 30–35 mL/kg/dia ajustada. Em adulto preferir SF ou solução balanceada + suplementação calórica controlada.",
+  dosePed: "<strong>Holliday-Segar:</strong> 100 mL/kg (até 10 kg) + 50 mL/kg (11–20 kg) + 20 mL/kg (>20 kg) por dia. <strong>Preferir solução isotônica (Na+ ≥130 mEq/L)</strong> — evitar soluções muito hipotônicas (risco de hiponatremia hospitalar).",
+  doseGest: "Sem restrição em volume habitual. Cuidado com glicose em gestante diabética não controlada.",
+  via: "EV",
+  preparo: "Pode ser comercial pronta ou preparada na hora misturando SG 5% e SF 0,9%.",
+  precaucoes: "<strong>Risco de hiponatremia iatrogênica</strong> em pediatria — preferir soluções com Na+ ≥130 mEq/L (SF puro ou Ringer). Cuidado com hiperglicemia em paciente com DM.",
+  reacoes: "Hiperglicemia, hiponatremia (se hipotônica), sobrecarga volêmica.",
+  fontes: "Holliday-Segar 1957; SBP Hidratação Pediátrica 2021; NICE/ISMP."
+},
+{
+  id: "soro-glicosado",
+  nome: "Soro Glicosado",
+  sinonimos: "SG 5%, SG 10%, Dextrose 5%/10%",
+  classe: "Carboidrato isotônico/hipotônico",
+  apresentacao: "Bolsa 250, 500 e 1.000 mL (5% ou 10%); SG 25% e 50% para uso restrito",
+  cenarios: ["hipoglicemia", "volume", "diluicao"],
+  tags: ["VIG", "Hipoglicemia"],
+  resumo: "Solução de glicose. SG 5% é isotônica osmolar mas hipotônica funcional (após metabolização). Veículo padrão para infusão de medicamentos e aporte calórico.",
+  mecanismo: "Contém 5 g glicose / 100 mL (SG 5%) ou 10 g / 100 mL (SG 10%). Após metabolização da glicose, sobra água livre — efetivamente solução hipotônica (importante na sobrecarga volêmica em paciente cardiopata).",
+  indicacoes: [
+    "<strong>Manutenção em hipoglicemia tratada</strong>",
+    "Veículo de diluição (fármacos incompatíveis com SF — ex.: amiodarona)",
+    "Manutenção hidroeletrolítica (com eletrólitos adicionados)",
+    "<strong>Aporte de glicose em CAD</strong> quando glicemia &lt;200 mg/dL",
+    "Hiperhidratação na lise tumoral / rabdomiólise"
+  ],
+  doseAdulto: "<strong>Pós-hipoglicemia:</strong> manutenção com SG 5% 100–150 mL/h (~5–7,5 g/h).<br><strong>CAD:</strong> trocar SF por SG 5% (ou solução mista) quando glicemia &lt;200 mg/dL para manter insulina.<br><strong>Diluente:</strong> conforme prescrição.",
+  dosePed: "<strong>VIG (Velocidade de Infusão de Glicose):</strong> neonato/lactente alvo 4–8 mg/kg/min.<br>Cálculo: <code>VIG = (mL/h × %glicose × 10) / (kg × 60)</code>.<br><strong>Manutenção lactente:</strong> SG 10% com eletrólitos a 4–6 mg/kg/min.",
+  doseGest: "Sem restrição. Cuidado com hiperglicemia em diabetes gestacional descompensado.",
+  via: "EV (5–10% periférica; ≥20% somente CVC)",
+  preparo: "Pronto para uso. Verificar concentração. SG 50% — diluir antes em pediatria.",
+  precaucoes: "<strong>Não usar como ressuscitação volêmica</strong> (é água livre após metabolização — não expande efetivamente o intravascular). Hiperglicemia em DM e crítico. SG concentrado (≥10%) por veia central. Cuidado em alcoolista desnutrido (encefalopatia de Wernicke — dar tiamina antes).",
+  reacoes: "Hiperglicemia, hiponatremia dilucional, sobrecarga volêmica (em IC), flebite (concentrações altas em periférica), encefalopatia de Wernicke.",
+  fontes: "SBD 2024; SBP Hidratação Pediátrica; Bula ANVISA."
+}
+];
+
+// ============================================================
+// CATEGORIAS / FILTROS
+// ============================================================
+const CATEGORIAS = [
+  { id: "todos", nome: "Todos" },
+  { id: "pcr", nome: "PCR" },
+  { id: "arritmia", nome: "Arritmias" },
+  { id: "bradicardia", nome: "Bradicardia" },
+  { id: "choque", nome: "Choque / DVA" },
+  { id: "anafilaxia", nome: "Anafilaxia" },
+  { id: "bronco", nome: "Broncoespasmo" },
+  { id: "edema", nome: "EAP / IC" },
+  { id: "sca", nome: "SCA" },
+  { id: "has", nome: "Crise HAS" },
+  { id: "convulsao", nome: "Convulsão" },
+  { id: "agitacao", nome: "Agitação" },
+  { id: "sedacao", nome: "Sedação / IOT" },
+  { id: "hipoglicemia", nome: "Hipo / Diabetes" },
+  { id: "dor", nome: "Dor / Analgesia" },
+  { id: "febre", nome: "Febre" },
+  { id: "eletrolito", nome: "Eletrólitos" },
+  { id: "volume", nome: "Volume" },
+  { id: "anestesia", nome: "Anestesia local" },
+  { id: "intoxicacao", nome: "Intoxicação" },
+  { id: "ic", nome: "Insuf. Cardíaca" },
+  { id: "diluicao", nome: "Diluentes" }
+];
+
+// ============================================================
+// ESTADO
+// ============================================================
+let estadoFiltro = "todos";
+let estadoBusca = "";
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderFiltros() {
+  const cont = document.getElementById("filters");
+  // limpar tudo, exceto label
+  const label = cont.querySelector(".filter-label");
+  cont.innerHTML = "";
+  cont.appendChild(label);
+  CATEGORIAS.forEach(cat => {
+    const chip = document.createElement("button");
+    chip.className = "chip" + (estadoFiltro === cat.id ? " active" : "");
+    chip.textContent = cat.nome;
+    chip.dataset.id = cat.id;
+    chip.addEventListener("click", () => {
+      estadoFiltro = cat.id;
+      renderFiltros();
+      renderGrid();
+    });
+    cont.appendChild(chip);
+  });
+  // botão limpar busca
+  if (estadoBusca) {
+    const reset = document.createElement("button");
+    reset.className = "chip reset";
+    reset.textContent = "✕ Limpar busca";
+    reset.addEventListener("click", () => {
+      document.getElementById("search").value = "";
+      estadoBusca = "";
+      renderFiltros();
+      renderGrid();
+    });
+    cont.appendChild(reset);
+  }
+}
+
+function filtrarMeds() {
+  const termo = estadoBusca.toLowerCase().trim();
+  return MEDS.filter(m => {
+    const matchCat = estadoFiltro === "todos" || m.cenarios.includes(estadoFiltro);
+    if (!matchCat) return false;
+    if (!termo) return true;
+    const texto = (m.nome + " " + m.sinonimos + " " + m.classe + " " + m.resumo + " " + m.tags.join(" ") + " " + m.indicacoes.join(" ")).toLowerCase();
+    return texto.includes(termo);
+  });
+}
+
+function renderStats() {
+  const total = MEDS.length;
+  const visiveis = filtrarMeds().length;
+  document.getElementById("stats").innerHTML = `
+    <span>Exibindo <strong>${visiveis}</strong> de <strong>${total}</strong> medicamentos</span>
+    ${estadoFiltro !== "todos" ? `<span>Filtro: <strong>${CATEGORIAS.find(c=>c.id===estadoFiltro).nome}</strong></span>` : ""}
+    ${estadoBusca ? `<span>Busca: <strong>"${estadoBusca}"</strong></span>` : ""}
+  `;
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty");
+  const meds = filtrarMeds();
+  renderStats();
+  if (meds.length === 0) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+  grid.innerHTML = meds.map(m => `
+    <article class="card" data-id="${m.id}">
+      <div class="card-head">
+        <div>
+          <h3 class="card-name">${m.nome}</h3>
+          ${m.sinonimos && m.sinonimos !== "—" ? `<div class="card-syn">${m.sinonimos}</div>` : ""}
+        </div>
+        <span class="card-class">${m.classe}</span>
+      </div>
+      <p class="card-summary">${m.resumo}</p>
+      <div class="card-tags">${m.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+    </article>
+  `).join("");
+  // bind cliques
+  grid.querySelectorAll(".card").forEach(el => {
+    el.addEventListener("click", () => abrirModal(el.dataset.id));
+  });
+}
+
+// ============================================================
+// CALCULADORA DE DOSES POR PESO
+// Cada entrada referencia o id do medicamento. fn(kg) retorna
+// um objeto { label, result, obs }. Result pode usar HTML inline
+// com classes .num (dose) e .vol (volume).
+// ============================================================
+const fmt = (n, d = 2) => {
+  if (n === null || isNaN(n)) return "—";
+  const fixed = +n.toFixed(d);
+  return Number.isInteger(fixed) ? fixed.toString() : fixed.toString().replace(/\.?0+$/, "");
+};
+const min = Math.min, max = Math.max;
+
+const CALCULOS = {
+  adrenalina: [
+    {
+      label: "PCR — bolus EV/IO (pediátrico)",
+      fn: kg => {
+        const mg = min(1, 0.01 * kg);
+        const mL110000 = mg; // solução 1:10.000 = 0.1 mg/mL → mL = mg / 0.1
+        const mLpura = mg;   // solução 1:1.000 = 1 mg/mL → mL = mg
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL110000 * 10)} mL</span> de 1:10.000 (= ${fmt(mLpura)} mL de 1:1.000 + 9 mL SF)<span class="max">máx 1 mg</span><div class="calc-item-obs">Repetir a cada 3–5 min. Via ET: 0,1 mg/kg = ${fmt(0.1 * kg)} mL de 1:1.000.</div>`;
+      }
+    },
+    {
+      label: "Anafilaxia IM (1ª linha)",
+      fn: kg => {
+        const adolescente = kg >= 40;
+        const maxMg = adolescente ? 0.5 : 0.3;
+        const mg = min(maxMg, 0.01 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mg)} mL</span> da solução 1:1.000 IM<span class="max">máx ${maxMg} mg</span><div class="calc-item-obs">Face anterolateral da coxa. Repetir a cada 5–15 min se necessário.</div>`;
+      }
+    },
+    {
+      label: "Crupe — NBZ",
+      fn: kg => {
+        const mg = min(5, 0.5 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mg)} mL</span> de 1:1.000 em 3 mL SF, NBZ<span class="max">máx 5 mg</span>`;
+      }
+    },
+    {
+      label: "BIC — choque/anafilaxia refratária",
+      fn: kg => {
+        return `<table class="calc-table"><tr><th>Dose</th><th>BIC 4 mcg/mL (4 mg+96 mL SF)</th></tr>` +
+          [0.05, 0.1, 0.3, 0.5, 1].map(d => {
+            const mlH = (kg * d * 60) / 4; // mcg/kg/min → mL/h
+            return `<tr><td>${d} mcg/kg/min</td><td><span class="vol">${fmt(mlH)} mL/h</span></td></tr>`;
+          }).join("") + `</table>`;
+      }
+    }
+  ],
+  epinefrina: [], // copiado de adrenalina (preenchido depois)
+
+  amiodarona: [
+    {
+      label: "PCR pediátrico — bolus EV/IO",
+      fn: kg => {
+        const mg = min(300, 5 * kg);
+        const mL = mg / 50; // amp 50 mg/mL
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL)} mL</span> da ampola 50 mg/mL<span class="max">máx 300 mg</span><div class="calc-item-obs">Pode repetir até 2× (máx 15 mg/kg/dia). Diluir em SG 5%.</div>`;
+      }
+    },
+    {
+      label: "Arritmia perfusional pediátrica",
+      fn: kg => {
+        const mg = min(300, 5 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> em 20–60 min EV<div class="calc-item-obs">Não administrar em bolus em paciente com pulso.</div>`;
+      }
+    }
+  ],
+
+  atropina: [
+    {
+      label: "Bradicardia pediátrica EV/IO",
+      fn: kg => {
+        const mg = max(0.1, min(0.5, 0.02 * kg));
+        const mLamp025 = mg / 0.25; // amp 0,25 mg/mL
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mLamp025)} mL</span> da ampola 0,25 mg/mL<span class="max">mín 0,1 / máx 0,5 mg</span><div class="calc-item-obs">Pode repetir 1×. Adolescente: máx 1 mg/dose.</div>`;
+      }
+    },
+    {
+      label: "Organofosforado — dose inicial pediátrica",
+      fn: kg => {
+        const mg = 0.05 * kg;
+        return `<span class="num">${fmt(mg)} mg</span> EV inicial — <strong>dobrar a cada 5 min</strong> até atropinização<div class="calc-item-obs">Alvo: secreções brônquicas secas, FC ≥ 100 bpm em criança. Sem dose máxima.</div>`;
+      }
+    },
+    {
+      label: "Pré-IOT pediátrica (opcional)",
+      fn: kg => {
+        const mg = max(0.1, 0.02 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> EV<div class="calc-item-obs">Controverso. Considerar &lt; 1 ano ou uso de succinilcolina.</div>`;
+      }
+    }
+  ],
+
+  "brometo-ipratropio": [
+    {
+      label: "NBZ pediátrica (1 gota / 2 kg)",
+      fn: kg => {
+        const gotas = min(20, Math.round(kg / 2));
+        const mg = gotas * 0.0125; // 1 gota ≈ 0,0125 mg
+        return `<span class="num">${gotas} gotas</span> (≈ ${fmt(mg)} mg) em 3 mL SF<span class="max">máx 20 gotas</span><div class="calc-item-obs">Pode associar a β2-agonista na mesma NBZ. Repetir a cada 20 min × 3 doses.</div>`;
+      }
+    }
+  ],
+
+  "cloreto-potassio": [
+    {
+      label: "Reposição pediátrica EV (sintomática)",
+      fn: kg => {
+        const mEqMin = 0.5 * kg, mEqMax = 1 * kg;
+        const mLamp191 = mEqMax / 2.5; // KCl 19,1% ≈ 2,5 mEq/mL
+        const mLamp10 = mEqMax / 1.34; // KCl 10% ≈ 1,34 mEq/mL
+        return `<span class="num">${fmt(mEqMin)}–${fmt(mEqMax)} mEq</span> em 1–2 h EV diluído<div class="calc-item-obs">≈ ${fmt(mLamp191)} mL de KCl 19,1% ou ${fmt(mLamp10)} mL de KCl 10%. Taxa máx 1 mEq/kg/h. Concentração máx em periférica: 40 mEq/L. Monitor ECG.</div>`;
+      }
+    }
+  ],
+
+  "cloreto-sodio": [
+    {
+      label: "Bolus em choque/desidratação grave (pediátrico)",
+      fn: kg => `<span class="num">${fmt(20 * kg)} mL</span> em 5–10 min<div class="calc-item-obs">Repetir até 60 mL/kg (= ${fmt(60 * kg)} mL no total) reavaliando perfusão.</div>`
+    },
+    {
+      label: "Bolus em sepse/choque (adulto)",
+      fn: kg => `<span class="num">${fmt(30 * kg)} mL</span> em 3 h (Surviving Sepsis)<div class="calc-item-obs">Iniciar com 500–1.000 mL em 15 min. Reavaliar fluido-responsividade.</div>`
+    },
+    {
+      label: "Manutenção pediátrica (Holliday-Segar)",
+      fn: kg => {
+        let mlDia;
+        if (kg <= 10) mlDia = 100 * kg;
+        else if (kg <= 20) mlDia = 1000 + 50 * (kg - 10);
+        else mlDia = 1500 + 20 * (kg - 20);
+        return `<span class="num">${fmt(mlDia)} mL/dia</span> = <span class="vol">${fmt(mlDia / 24)} mL/h</span><div class="calc-item-obs">Preferir solução isotônica (Na ≥130 mEq/L). Evitar SG 5% puro.</div>`;
+      }
+    }
+  ],
+
+  dexametasona: [
+    {
+      label: "Crupe — dose única",
+      fn: kg => {
+        const mg = min(16, 0.6 * kg);
+        const mLamp4 = mg / 4; // amp 4 mg/mL
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mLamp4)} mL</span> da ampola 4 mg/mL VO/IM/EV<span class="max">máx 16 mg</span>`;
+      }
+    },
+    {
+      label: "Crise asmática (dose única)",
+      fn: kg => {
+        const mg = min(16, 0.6 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> VO/EV dose única<div class="calc-item-obs">Alternativa à prednisolona 5 dias (não-inferioridade).</div>`;
+      }
+    },
+    {
+      label: "Anafilaxia pediátrica (adjuvante)",
+      fn: kg => {
+        const mg = min(10, 0.15 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> EV/IM<div class="calc-item-obs">Adjuvante — NUNCA substituir a adrenalina IM.</div>`;
+      }
+    },
+    {
+      label: "Meningite bacteriana — 6/6 h",
+      fn: kg => {
+        const mg = 0.15 * kg;
+        return `<span class="num">${fmt(mg)} mg</span> EV 6/6 h × 4 dias<div class="calc-item-obs">Iniciar antes ou junto com a 1ª dose de antibiótico.</div>`;
+      }
+    }
+  ],
+
+  diazepam: [
+    {
+      label: "Crise convulsiva pediátrica EV",
+      fn: kg => {
+        const mg = min(10, 0.3 * kg);
+        const mL = mg / 5; // amp 5 mg/mL
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL)} mL</span> da ampola 5 mg/mL<span class="max">máx 10 mg</span><div class="calc-item-obs">Bolus lento (1–2 mg/min). Pode repetir após 5–10 min. Preparar via aérea.</div>`;
+      }
+    },
+    {
+      label: "Crise convulsiva — via retal (sem acesso EV)",
+      fn: kg => {
+        const mg = min(20, 0.5 * kg);
+        return `<span class="num">${fmt(mg)} mg</span> via retal<span class="max">máx 20 mg</span>`;
+      }
+    }
+  ],
+
+  diclofenaco: [
+    {
+      label: "Dose VO pediátrica (≥6 anos)",
+      fn: kg => {
+        const mgDia = min(150, 2 * kg);
+        return `<span class="num">${fmt(mgDia)} mg/dia</span> dividido em 3 tomadas<span class="max">máx 150 mg/dia</span><div class="calc-item-obs">Parenteral não recomendado &lt; 14 anos.</div>`;
+      }
+    }
+  ],
+
+  dipirona: [
+    {
+      label: "VO/retal pediátrica",
+      fn: kg => {
+        const mgMin = 10 * kg, mgMax = 25 * kg;
+        const gotasMin = mgMin / 25, gotasMax = mgMax / 25; // sol oral 500 mg/mL ≈ 25 mg/gota
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg/dose</span> a cada 6 h<div class="calc-item-obs">Solução oral 500 mg/mL: ${Math.round(gotasMin)}–${Math.round(gotasMax)} gotas/dose. Máx 4 g/dia.</div>`;
+      }
+    },
+    {
+      label: "EV pediátrica (diluída, infusão lenta)",
+      fn: kg => {
+        const mgMin = 15 * kg, mgMax = 25 * kg;
+        const mLMin = mgMin / 500, mLMax = mgMax / 500; // amp 500 mg/mL
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> = <span class="vol">${fmt(mLMin)}–${fmt(mLMax)} mL</span> da ampola 500 mg/mL<div class="calc-item-obs">Diluir em SF/SG 5%, infundir em 15 min. Uso ≥3 meses.</div>`;
+      }
+    }
+  ],
+
+  dobutamina: [
+    {
+      label: "BIC — tabela completa (250 mg + 230 mL = 1.000 mcg/mL)",
+      fn: kg => {
+        return `<table class="calc-table"><tr><th>Dose</th><th>mL/h</th></tr>` +
+          [2.5, 5, 7.5, 10, 15, 20].map(d => {
+            const mlH = (kg * d * 60) / 1000;
+            return `<tr><td>${d} mcg/kg/min</td><td><span class="vol">${fmt(mlH)} mL/h</span></td></tr>`;
+          }).join("") + `</table><div class="calc-item-obs">Iniciar geralmente em 2,5–5 mcg/kg/min e titular. Em sepse: associar a noradrenalina.</div>`;
+      }
+    }
+  ],
+
+  dopamina: [
+    {
+      label: "BIC — tabela completa (5 amp = 250 mg + 200 mL = 1.000 mcg/mL)",
+      fn: kg => {
+        return `<table class="calc-table"><tr><th>Dose</th><th>mL/h</th><th>Efeito</th></tr>` +
+          [2, 5, 10, 15, 20].map(d => {
+            const mlH = (kg * d * 60) / 1000;
+            const efeito = d <= 3 ? "δ (renal)" : d <= 10 ? "β (inotr)" : "α (vasoc)";
+            return `<tr><td>${d} mcg/kg/min</td><td><span class="vol">${fmt(mlH)} mL/h</span></td><td style="font-size:11px;color:var(--text-3);">${efeito}</td></tr>`;
+          }).join("") + `</table><div class="calc-item-obs">Preferir veia central. NA é superior em sepse. Em extravasamento: fentolamina local.</div>`;
+      }
+    }
+  ],
+
+  escopolamina: [
+    {
+      label: "Dose pediátrica EV/IM (uso restrito)",
+      fn: kg => {
+        const mg = min(20, 0.5 * kg);
+        const mL = mg / 20; // amp 20 mg/mL
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL)} mL</span> da ampola 20 mg/mL<span class="max">máx 20 mg</span><div class="calc-item-obs">Bula brasileira: ≥6 anos VO. Parenteral raramente indicado em pediatria.</div>`;
+      }
+    }
+  ],
+
+  fenitoina: [
+    {
+      label: "Status epilepticus — ataque",
+      fn: kg => {
+        const adulto = kg >= 40;
+        const maxMg = adulto ? 1500 : 1000;
+        const mg = min(maxMg, 20 * kg);
+        const mL = mg / 50; // amp 50 mg/mL
+        const tempoMin = adulto ? max(20, mg / 50) : max(20, mg / kg); // 50 mg/min adulto, 1 mg/kg/min ped
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL)} mL</span> da ampola 50 mg/mL<span class="max">máx ${maxMg} mg</span><div class="calc-item-obs">Diluir em SF (NUNCA SG). Infundir em <strong>≥${fmt(tempoMin)} min</strong>. Monitor ECG + PA contínuos. Veia calibrosa (extravasamento = necrose).</div>`;
+      }
+    },
+    {
+      label: "Manutenção (5–10 mg/kg/dia)",
+      fn: kg => {
+        const mgMin = 5 * kg, mgMax = 10 * kg;
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg/dia</span> em 2–3 doses<div class="calc-item-obs">Iniciar 12 h após dose de ataque. Nível terapêutico: 10–20 mcg/mL.</div>`;
+      }
+    }
+  ],
+  hidantoina: [], // = fenitoina
+
+  fenobarbital: [
+    {
+      label: "Status epilepticus — ataque",
+      fn: kg => {
+        const maxMg = kg >= 40 ? 1000 : 1000;
+        const mg = min(maxMg, 20 * kg);
+        const mL = mg / 100; // amp 100 mg/mL
+        const taxaMin = mg / 50; // máx 50 mg/min (ped: 2 mg/kg/min até 30 mg/min)
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL)} mL</span> da ampola 100 mg/mL<span class="max">máx 1.000 mg</span><div class="calc-item-obs">Infundir em ≥${fmt(taxaMin)} min. Preparar via aérea — sinergia de depressão respiratória com BZD.</div>`;
+      }
+    },
+    {
+      label: "Convulsão neonatal — ataque",
+      fn: kg => {
+        const mg = 20 * kg;
+        const mL = mg / 100;
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL)} mL</span> EV em 20 min<div class="calc-item-obs">Pode repetir 10 mg/kg até total 40 mg/kg (= ${fmt(40 * kg)} mg).</div>`;
+      }
+    }
+  ],
+
+  furosemida: [
+    {
+      label: "EAP / sobrecarga (dose inicial)",
+      fn: kg => {
+        const mgMin = 0.5 * kg, mgMax = min(200, 1 * kg);
+        const mLMin = mgMin / 10, mLMax = mgMax / 10; // amp 10 mg/mL
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> = <span class="vol">${fmt(mLMin)}–${fmt(mLMax)} mL</span> EV em bolus lento<span class="max">máx 200 mg/dose</span><div class="calc-item-obs">Em uso crônico de diurético: dobrar a dose habitual oral. Reavaliar em 20–30 min.</div>`;
+      }
+    },
+    {
+      label: "Pediátrica — dose EV",
+      fn: kg => {
+        const mg = 1 * kg;
+        return `<span class="num">${fmt(mg)} mg</span> EV/IM, repetir até 6/6 h<div class="calc-item-obs">Máx 6 mg/kg/dia = ${fmt(6 * kg)} mg/dia.</div>`;
+      }
+    }
+  ],
+
+  glicose: [
+    {
+      label: "Hipoglicemia pediátrica (>1 mês) — SG 25%",
+      fn: kg => {
+        const g = 0.5 * kg; // 0.5-1 g/kg, usar 0.5 como mínimo seguro
+        const mL25 = 2 * kg; // 2 mL/kg de SG 25%
+        return `<span class="num">${fmt(g)} g</span> = <span class="vol">${fmt(mL25)} mL</span> de SG 25%<div class="calc-item-obs">Preparar: misturar SG 50% e AD na proporção 1:1. Repetir glicemia em 10 min.</div>`;
+      }
+    },
+    {
+      label: "Hipoglicemia RN/lactente — SG 10%",
+      fn: kg => {
+        const mLMin = 2 * kg, mLMax = 5 * kg;
+        return `<span class="num">${fmt(mLMin)}–${fmt(mLMax)} mL</span> de SG 10% EV em bolus<div class="calc-item-obs">Manter SG 10% em infusão contínua com VIG 6–8 mg/kg/min após.</div>`;
+      }
+    },
+    {
+      label: "Hipoglicemia adulto — SG 50%",
+      fn: () => `<span class="num">30–50 mL</span> de SG 50% EV em bolus lento (3–5 min)<div class="calc-item-obs">Em alcoolista desnutrido: administrar tiamina 100 mg ANTES (evitar Wernicke).</div>`
+    }
+  ],
+
+  haloperidol: [
+    {
+      label: "Pediátrico ≥6 anos — dose diária",
+      fn: kg => {
+        const mgMin = 0.05 * kg, mgMax = 0.15 * kg;
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg/dia</span> dividido em 2–3 doses VO<div class="calc-item-obs">Não usar em &lt;3 anos. Adolescente em agitação aguda: 2,5–5 mg IM.</div>`;
+      }
+    }
+  ],
+
+  hidrocortisona: [
+    {
+      label: "Anafilaxia / crise asmática pediátrica",
+      fn: kg => {
+        const mg = min(250, 5 * kg); // dose intermediária 4-8 mg/kg
+        return `<span class="num">${fmt(mg)} mg</span> EV/IM, repetir 6/6 h<span class="max">máx 250 mg/dose</span><div class="calc-item-obs">Faixa 4–8 mg/kg/dose. Adjuvante — adrenalina IM continua sendo 1ª linha em anafilaxia.</div>`;
+      }
+    },
+    {
+      label: "Insuficiência adrenal aguda pediátrica",
+      fn: kg => {
+        const mg = 2 * kg;
+        return `<span class="num">${fmt(mg)} mg</span> EV em bolus, seguido de manutenção<div class="calc-item-obs">Manutenção: 25–50 mg/m²/dia em BIC ou divididas 6/6 h.</div>`;
+      }
+    }
+  ],
+
+  insulina: [
+    {
+      label: "CAD — BIC (100 UI + 99 mL SF = 1 UI/mL)",
+      fn: kg => {
+        const uiH = 0.1 * kg;
+        return `<span class="num">${fmt(uiH)} UI/h</span> = <span class="vol">${fmt(uiH)} mL/h</span> da BIC 1 UI/mL<div class="calc-item-obs"><strong>Só iniciar se K+ ≥3,3 mEq/L</strong>. Saturar equipo (desprezar 20 mL). Em quadros leves: 0,05 UI/kg/h = ${fmt(0.05 * kg)} mL/h.</div>`;
+      }
+    },
+    {
+      label: "Hipercalemia — bolus EV",
+      fn: kg => {
+        const ui = kg >= 50 ? 10 : 0.1 * kg;
+        return `<span class="num">${fmt(ui)} UI</span> EV + ${kg >= 50 ? "50 mL SG 50% (25 g)" : `${fmt(0.5 * kg)} g de glicose`}<div class="calc-item-obs">Reduz K+ em 0,5–1 mEq/L em 30–60 min. Monitorar glicemia capilar a cada 1 h.</div>`;
+      }
+    }
+  ],
+
+  lidocaina: [
+    {
+      label: "PCR (FV/TVSP) — bolus EV/IO",
+      fn: kg => {
+        const mgMin = 1 * kg, mgMax = 1.5 * kg;
+        const mLamp2 = mgMax / 20; // 2% = 20 mg/mL
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> = <span class="vol">${fmt(mLamp2)} mL</span> da solução 2% (20 mg/mL)<div class="calc-item-obs">Pode repetir 0,5–0,75 mg/kg a cada 5–10 min. Máx total 3 mg/kg = ${fmt(3 * kg)} mg.</div>`;
+      }
+    },
+    {
+      label: "Anestesia local — DOSE MÁXIMA SEGURA",
+      fn: kg => {
+        const mgSemVaso = 4.5 * kg;
+        const mgComVaso = 7 * kg;
+        const mL2pcSemVaso = mgSemVaso / 20;
+        const mL1pcSemVaso = mgSemVaso / 10;
+        return `<span class="num">${fmt(mgSemVaso)} mg</span> sem vasoconstritor / <span class="num">${fmt(mgComVaso)} mg</span> com vasoconstritor<div class="calc-item-obs">≈ ${fmt(mL2pcSemVaso)} mL da solução 2% ou ${fmt(mL1pcSemVaso)} mL da solução 1% (sem vaso). <strong>LAST</strong>: tinnitus → convulsão → PCR. Antídoto: emulsão lipídica 20% 1,5 mL/kg = ${fmt(1.5 * kg)} mL.</div>`;
+      }
+    }
+  ],
+
+  meperidina: [
+    {
+      label: "Dor aguda pediátrica (≥6 meses)",
+      fn: kg => {
+        const mgMin = 1 * kg, mgMax = min(100, 1.5 * kg);
+        const mLMin = mgMin / 50, mLMax = mgMax / 50; // amp 50 mg/mL
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> = <span class="vol">${fmt(mLMin)}–${fmt(mLMax)} mL</span> IM/EV a cada 3–4 h<span class="max">máx 100 mg/dose</span><div class="calc-item-obs">Não usar &gt;48 h (normeperidina). Antídoto: naloxona 0,01 mg/kg = ${fmt(0.01 * kg)} mg.</div>`;
+      }
+    }
+  ],
+
+  midazolam: [
+    {
+      label: "Crise convulsiva — IM/nasal/bucal (sem acesso EV)",
+      fn: kg => {
+        const mg = min(10, 0.2 * kg);
+        const mL5 = mg / 5; // amp 5 mg/mL
+        const mL1 = mg / 1; // amp 1 mg/mL
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL5)} mL</span> (5 mg/mL) ou <span class="vol">${fmt(mL1)} mL</span> (1 mg/mL)<span class="max">máx 10 mg</span><div class="calc-item-obs">Via nasal: dividir entre as narinas com atomizador.</div>`;
+      }
+    },
+    {
+      label: "Crise convulsiva — EV",
+      fn: kg => {
+        const mg = min(10, 0.15 * kg);
+        const mL5 = mg / 5;
+        return `<span class="num">${fmt(mg)} mg</span> = <span class="vol">${fmt(mL5)} mL</span> (5 mg/mL) EV lento<span class="max">máx 10 mg</span>`;
+      }
+    },
+    {
+      label: "Indução IOT (sequência rápida)",
+      fn: kg => {
+        const mgMin = 0.1 * kg, mgMax = 0.3 * kg;
+        const mLMin = mgMin / 5, mLMax = mgMax / 5;
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> = <span class="vol">${fmt(mLMin)}–${fmt(mLMax)} mL</span> (5 mg/mL) EV<div class="calc-item-obs">Considerar ketamina ou etomidato em paciente hemodinamicamente instável.</div>`;
+      }
+    },
+    {
+      label: "Sedação para procedimento",
+      fn: kg => {
+        const mgMin = 0.05 * kg, mgMax = 0.1 * kg;
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> EV (titular)<div class="calc-item-obs">Iniciar com dose menor em idoso. Antídoto: flumazenil 0,2 mg EV.</div>`;
+      }
+    }
+  ],
+
+  "ringer-lactato": [
+    {
+      label: "Bolus em choque pediátrico",
+      fn: kg => `<span class="num">${fmt(20 * kg)} mL</span> em 5–10 min<div class="calc-item-obs">Repetir até 60 mL/kg (= ${fmt(60 * kg)} mL) reavaliando perfusão.</div>`
+    },
+    {
+      label: "Queimadura — Fórmula de Parkland (adulto)",
+      fn: kg => {
+        return `<table class="calc-table"><tr><th>%SCQ</th><th>Total 24h</th><th>1ª — 8h (mL/h)</th></tr>` +
+          [15, 20, 30, 40, 50].map(scq => {
+            const total = 4 * kg * scq;
+            const mlH8 = total / 2 / 8;
+            return `<tr><td>${scq}%</td><td><span class="num">${fmt(total)} mL</span></td><td><span class="vol">${fmt(mlH8)} mL/h</span></td></tr>`;
+          }).join("") + `</table><div class="calc-item-obs">50% nas primeiras 8 h (a partir da queimadura). 50% nas 16 h seguintes. Ajustar por diurese (0,5 mL/kg/h adulto).</div>`;
+      }
+    },
+    {
+      label: "Queimadura — Pediátrica (3 mL × kg × %SCQ + manutenção)",
+      fn: kg => {
+        const scq = 20; // exemplo
+        return `<span class="num">${fmt(3 * kg * scq)} mL</span> (exemplo 20%SCQ) em 24 h + manutenção Holliday-Segar<div class="calc-item-obs">Pediatria: 3 mL × kg × %SCQ. Adicionar manutenção (não substituir).</div>`;
+      }
+    }
+  ],
+
+  "soro-glicosado": [
+    {
+      label: "VIG (Velocidade de Infusão de Glicose) — pediátrica",
+      fn: kg => {
+        return `<table class="calc-table"><tr><th>SG</th><th>VIG 6 mg/kg/min</th><th>VIG 8 mg/kg/min</th></tr>` +
+          [5, 10].map(pct => {
+            const ml6 = (6 * kg * 60) / (pct * 10);
+            const ml8 = (8 * kg * 60) / (pct * 10);
+            return `<tr><td>SG ${pct}%</td><td><span class="vol">${fmt(ml6)} mL/h</span></td><td><span class="vol">${fmt(ml8)} mL/h</span></td></tr>`;
+          }).join("") + `</table><div class="calc-item-obs">Fórmula: VIG (mg/kg/min) = (mL/h × %glicose × 10) ÷ (kg × 60). Alvo lactente: 4–8 mg/kg/min.</div>`;
+      }
+    }
+  ],
+
+  aminofilina: [
+    {
+      label: "Ataque (não em uso crônico de teofilina)",
+      fn: kg => {
+        const mgMin = 5 * kg, mgMax = 6 * kg;
+        const mLamp = mgMax / 24; // amp 24 mg/mL
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg</span> = <span class="vol">${fmt(mLamp)} mL</span> da ampola 24 mg/mL<div class="calc-item-obs">Diluir em 100 mL SF/SG, infundir em 20–30 min. <strong>NUNCA</strong> em bolus rápido. Reduzir para 3 mg/kg (= ${fmt(3 * kg)} mg) se em uso crônico.</div>`;
+      }
+    },
+    {
+      label: "BIC manutenção (adulto)",
+      fn: kg => {
+        const mgHmin = 0.5 * kg, mgHmax = 0.9 * kg;
+        return `<span class="num">${fmt(mgHmin)}–${fmt(mgHmax)} mg/h</span> EV<div class="calc-item-obs">Idoso/hepatopata: 0,3 mg/kg/h = ${fmt(0.3 * kg)} mg/h. Alvo nível sérico: 10–20 mcg/mL.</div>`;
+      }
+    }
+  ],
+
+  deslanosideo: [
+    {
+      label: "Digitalização pediátrica (uso raro)",
+      fn: kg => {
+        const mgMin = 0.02 * kg, mgMax = 0.04 * kg;
+        const mLmin = mgMin / 0.2, mLmax = mgMax / 0.2; // amp 0.2 mg/mL
+        return `<span class="num">${fmt(mgMin)}–${fmt(mgMax)} mg/dia</span> = <span class="vol">${fmt(mLmin)}–${fmt(mLmax)} mL</span> da ampola 0,2 mg/mL<div class="calc-item-obs">Fracionar em 1–3 doses. EV lento (2–4 min). Em desuso na pediatria — preferir digoxina.</div>`;
+      }
+    }
+  ]
+};
+// Aliases (medicamentos com nome alternativo apontam para a mesma calculadora)
+CALCULOS.epinefrina = CALCULOS.adrenalina;
+CALCULOS.hidantoina = CALCULOS.fenitoina;
+
+// ============================================================
+// RENDERIZAÇÃO DA CALCULADORA NO MODAL
+// ============================================================
+function renderCalculadora(medId) {
+  const peso = parseFloat(localStorage.getItem("farmaco-peso") || "");
+  const calculos = CALCULOS[medId];
+
+  if (!calculos || calculos.length === 0) return ""; // sem calculadora para esse med
+
+  if (!peso || peso <= 0 || isNaN(peso)) {
+    return `<div class="calc-section">
+      <div class="calc-header">
+        <div class="calc-title">Calculadora de Dose por Peso</div>
+      </div>
+      <div class="calc-empty">▸ Informe o peso do paciente no topo da tela para ver as doses calculadas.</div>
+    </div>`;
+  }
+
+  const itens = calculos.map(c => `
+    <div class="calc-item">
+      <div class="calc-item-label">${c.label}</div>
+      <div class="calc-item-result">${c.fn(peso)}</div>
+    </div>
+  `).join("");
+
+  return `<div class="calc-section">
+    <div class="calc-header">
+      <div class="calc-title">Calculadora de Dose por Peso</div>
+      <div class="calc-weight">Peso: <strong>${peso} kg</strong></div>
+    </div>
+    <div class="calc-list">${itens}</div>
+  </div>`;
+}
+
+
+function abrirModal(id) {
+  const m = MEDS.find(x => x.id === id);
+  if (!m) return;
+  const modal = document.getElementById("modal");
+  modal.dataset.medId = id;
+  modal.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title">${m.nome}</h2>
+        ${m.sinonimos && m.sinonimos !== "—" ? `<div class="modal-syn">${m.sinonimos}</div>` : ""}
+        <span class="modal-class">${m.classe}</span>
+      </div>
+      <button class="close-btn" id="close-modal" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <section class="section">
+        <div class="section-title">Apresentação</div>
+        <div class="section-content">${m.apresentacao}</div>
+      </section>
+      <section class="section">
+        <div class="section-title">Indicações de Urgência/Emergência</div>
+        <div class="section-content">
+          <ul class="indic-list">
+            ${m.indicacoes.map(i => `<li>${i}</li>`).join("")}
+          </ul>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-title">Mecanismo de Ação</div>
+        <div class="section-content">${m.mecanismo}</div>
+      </section>
+      <section class="section">
+        <div class="section-title">Posologia</div>
+        <div class="dose-grid">
+          <div class="dose-block adulto">
+            <div class="dose-label">▣ Adulto</div>
+            <div class="dose-text">${m.doseAdulto}</div>
+          </div>
+          <div class="dose-block ped">
+            <div class="dose-label">▣ Pediátrico</div>
+            <div class="dose-text">${m.dosePed}</div>
+          </div>
+          <div class="dose-block gest">
+            <div class="dose-label">▣ Gestante</div>
+            <div class="dose-text">${m.doseGest}</div>
+          </div>
+        </div>
+        ${renderCalculadora(m.id)}
+      </section>
+      <section class="section">
+        <div class="section-title">Via de Administração</div>
+        <div class="section-content">${m.via}</div>
+      </section>
+      <section class="section">
+        <div class="section-title">Preparo / Diluição</div>
+        <div class="section-content">${m.preparo}</div>
+      </section>
+      <section class="section">
+        <div class="section-title">Precauções e Contraindicações</div>
+        <div class="section-content">
+          <div class="callout critical">${m.precaucoes}</div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-title">Reações Adversas Principais</div>
+        <div class="section-content">${m.reacoes}</div>
+      </section>
+      <section class="section">
+        <div class="section-title">Fontes Consultadas</div>
+        <div class="section-content sources">${m.fontes}</div>
+      </section>
+    </div>
+  `;
+  document.getElementById("modal-backdrop").classList.add("show");
+  document.body.style.overflow = "hidden";
+  document.getElementById("close-modal").addEventListener("click", fecharModal);
+}
+
+function fecharModal() {
+  document.getElementById("modal-backdrop").classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+// ============================================================
+// EVENTOS
+// ============================================================
+document.getElementById("search").addEventListener("input", (e) => {
+  estadoBusca = e.target.value;
+  renderFiltros();
+  renderGrid();
+});
+
+// Peso do paciente — persistido em localStorage
+const weightInput = document.getElementById("weight");
+const weightWrap = document.getElementById("weight-wrap");
+const weightClear = document.getElementById("weight-clear");
+
+function setWeightUI(v) {
+  if (v && parseFloat(v) > 0) {
+    weightWrap.classList.add("active");
+  } else {
+    weightWrap.classList.remove("active");
+  }
+}
+
+// Carregar peso salvo
+const pesoSalvo = localStorage.getItem("farmaco-peso");
+if (pesoSalvo) {
+  weightInput.value = pesoSalvo;
+  setWeightUI(pesoSalvo);
+}
+
+weightInput.addEventListener("input", (e) => {
+  const v = e.target.value;
+  if (v && parseFloat(v) > 0) {
+    localStorage.setItem("farmaco-peso", v);
+  } else {
+    localStorage.removeItem("farmaco-peso");
+  }
+  setWeightUI(v);
+  // Se modal está aberto, re-renderizar
+  const backdrop = document.getElementById("modal-backdrop");
+  if (backdrop.classList.contains("show")) {
+    const currentId = document.getElementById("modal").dataset.medId;
+    if (currentId) abrirModal(currentId);
+  }
+});
+
+weightClear.addEventListener("click", () => {
+  weightInput.value = "";
+  localStorage.removeItem("farmaco-peso");
+  setWeightUI("");
+  const backdrop = document.getElementById("modal-backdrop");
+  if (backdrop.classList.contains("show")) {
+    const currentId = document.getElementById("modal").dataset.medId;
+    if (currentId) abrirModal(currentId);
+  }
+});
+
+document.getElementById("modal-backdrop").addEventListener("click", (e) => {
+  if (e.target.id === "modal-backdrop") fecharModal();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") fecharModal();
+  if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+    e.preventDefault();
+    document.getElementById("search").focus();
+  }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderFiltros();
+renderGrid();
+</script>
+</body>
+</html>
