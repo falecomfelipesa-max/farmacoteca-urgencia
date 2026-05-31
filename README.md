@@ -12,7 +12,7 @@
 
 Ferramenta de consulta médica para **profissionais da saúde** atuando em urgência/emergência. Único arquivo HTML, sem dependências externas, funciona offline em qualquer dispositivo com navegador (celular, tablet, desktop). Pode ser hospedado em qualquer lugar (GitHub Pages, intranet hospitalar, pendrive, Google Drive).
 
-Cobre os **32 medicamentos essenciais** do carrinho de emergência e maleta SAMU brasileiro, com posologia para adulto, pediátrico e gestante, indicações, mecanismo, preparo, precauções e reações adversas.
+Cobre os **84 medicamentos essenciais** do carrinho de emergência e maleta SAMU brasileiro, com posologia para adulto, pediátrico e gestante, indicações, mecanismo, preparo, precauções e reações adversas.
 
 ## ✨ Funcionalidades
 

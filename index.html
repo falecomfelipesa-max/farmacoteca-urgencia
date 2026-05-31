@@ -25,9 +25,36 @@
   --gest: #ba68c8;
   --ped: #4fc3f7;
   --shadow: 0 8px 32px rgba(0,0,0,.5);
+  --pattern-1: rgba(79, 195, 247, .03);
+  --pattern-2: rgba(239, 83, 80, .02);
   --mono: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --serif: Georgia, "Times New Roman", serif;
+}
+
+/* ===== TEMA CLARO ===== */
+[data-theme="light"] {
+  --bg-0: #f4f6f9;
+  --bg-1: #ffffff;
+  --bg-2: #ffffff;
+  --bg-3: #eef1f6;
+  --bg-hover: #e4e9f0;
+  --border: #d8dee8;
+  --border-strong: #b9c2d0;
+  --text-0: #1a212c;
+  --text-1: #3a4656;
+  --text-2: #64707f;
+  --text-3: #8a95a3;
+  --accent: #0277bd;
+  --accent-dim: #0288d1;
+  --critical: #d32f2f;
+  --warning: #e65100;
+  --safe: #2e7d32;
+  --gest: #8e24aa;
+  --ped: #0277bd;
+  --shadow: 0 8px 32px rgba(20,40,80,.12);
+  --pattern-1: rgba(2, 119, 189, .04);
+  --pattern-2: rgba(211, 47, 47, .03);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -47,8 +74,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(circle at 20% 10%, rgba(79, 195, 247, .03) 0%, transparent 40%),
-    radial-gradient(circle at 80% 90%, rgba(239, 83, 80, .02) 0%, transparent 40%);
+    radial-gradient(circle at 20% 10%, var(--pattern-1) 0%, transparent 40%),
+    radial-gradient(circle at 80% 90%, var(--pattern-2) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
@@ -140,6 +167,27 @@ header {
 }
 .weight-wrap.active .weight-clear { opacity: 1; }
 .weight-clear:hover { color: var(--critical); }
+
+/* Theme toggle */
+.theme-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  background: var(--bg-2); border: 1px solid var(--border-strong);
+  border-radius: 6px; cursor: pointer; color: var(--text-1);
+  font-size: 17px; transition: background .15s, border-color .15s, color .15s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: var(--bg-hover); border-color: var(--accent); color: var(--accent); }
+.theme-toggle .theme-icon-light { display: none; }
+.theme-toggle .theme-icon-dark { display: inline; }
+[data-theme="light"] .theme-toggle .theme-icon-light { display: inline; }
+[data-theme="light"] .theme-toggle .theme-icon-dark { display: none; }
+
+/* Transição suave entre temas */
+body, header, .card, .modal-content, .theme-toggle, .weight-wrap,
+.search-input, .filter-chip, .stats, .calc-section {
+  transition: background-color .25s ease, border-color .25s ease, color .25s ease;
+}
 
 /* Calculator section in modal */
 .calc-section {
@@ -536,6 +584,10 @@ footer strong { color: var(--warning); }
         <span class="weight-unit">kg</span>
         <button class="weight-clear" id="weight-clear" aria-label="Limpar peso">✕</button>
       </div>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema (T)">
+        <span class="theme-icon-dark">☾</span>
+        <span class="theme-icon-light">☀</span>
+      </button>
     </div>
     <div class="filters" id="filters">
       <span class="filter-label">Cenário:</span>
@@ -1088,7 +1140,7 @@ const MEDS = [
 {
   id: "glicose",
   nome: "Glicose 50%",
-  sinonimos: "Dextrose 50%",
+  sinonimos: "Dextrose 50%, Glicose hipertônica",
   classe: "Carboidrato hipertônico",
   apresentacao: "Ampola 10 mL (5 g de glicose) ou 20 mL (10 g)",
   cenarios: ["hipoglicemia", "eletrolito"],
@@ -1371,7 +1423,7 @@ const MEDS = [
 {
   id: "soro-glicosado",
   nome: "Soro Glicosado",
-  sinonimos: "SG 5%, SG 10%, Dextrose 5%/10%",
+  sinonimos: "SG 5%, SG 10%, Dextrose 5%/10%, Glicose isotônica",
   classe: "Carboidrato isotônico/hipotônico",
   apresentacao: "Bolsa 250, 500 e 1.000 mL (5% ou 10%); SG 25% e 50% para uso restrito",
   cenarios: ["hipoglicemia", "volume", "diluicao"],
@@ -1393,7 +1445,1317 @@ const MEDS = [
   precaucoes: "<strong>Não usar como ressuscitação volêmica</strong> (é água livre após metabolização — não expande efetivamente o intravascular). Hiperglicemia em DM e crítico. SG concentrado (≥10%) por veia central. Cuidado em alcoolista desnutrido (encefalopatia de Wernicke — dar tiamina antes).",
   reacoes: "Hiperglicemia, hiponatremia dilucional, sobrecarga volêmica (em IC), flebite (concentrações altas em periférica), encefalopatia de Wernicke.",
   fontes: "SBD 2024; SBP Hidratação Pediátrica; Bula ANVISA."
+},
+{
+  id: "amitriptilina",
+  nome: "Amitriptilina",
+  sinonimos: "Tryptanol®",
+  classe: "Antidepressivo tricíclico",
+  apresentacao: "Comprimido 25 mg e 75 mg",
+  cenarios: ["dor", "outros"],
+  tags: ["Dor neuropática", "Profilaxia enxaqueca"],
+  resumo: "Antidepressivo tricíclico. Na urgência, mais relevante pela toxicidade em intoxicação (overdose) do que pelo uso agudo.",
+  mecanismo: "Inibe recaptação de noradrenalina e serotonina; antagoniza receptores muscarínicos, histaminérgicos H1, α1-adrenérgicos e bloqueia canais de sódio cardíacos (responsável pela cardiotoxicidade em overdose).",
+  indicacoes: [
+    "Dor neuropática crônica",
+    "Profilaxia de enxaqueca e cefaleia tensional",
+    "Depressão (uso crônico)",
+    "<strong>Atenção na emergência:</strong> overdose é potencialmente fatal (arritmia, convulsão, hipotensão) — tratamento com bicarbonato de sódio"
+  ],
+  doseAdulto: "<strong>Dor neuropática:</strong> iniciar 12,5–25 mg VO à noite, titular até 75–150 mg/dia.<br><strong>Profilaxia enxaqueca:</strong> 10–25 mg/dia à noite.",
+  dosePed: "Não recomendado de rotina &lt;12 anos. Enurese (uso restrito, ≥6a): 10–25 mg à noite.",
+  doseGest: "Categoria C. Evitar se possível. Próximo ao termo: risco de sintomas de retirada/anticolinérgicos no RN.",
+  via: "VO",
+  preparo: "Uso oral — sem preparo de emergência.",
+  precaucoes: "<strong>Overdose:</strong> QRS largo (>100 ms) prediz convulsão e arritmia → tratar com <strong>bicarbonato de sódio</strong> 1–2 mEq/kg EV em bolus. Contraindicações: IAM recente, arritmia, glaucoma de ângulo fechado, retenção urinária, uso de IMAO (14 dias). Cuidado em idoso (efeitos anticolinérgicos, quedas).",
+  reacoes: "Boca seca, sedação, ganho de peso, hipotensão ortostática, retenção urinária, constipação, prolongamento QT, arritmias (overdose).",
+  fontes: "AHA Intoxicações 2023; Bula ANVISA; SBED Dor."
+},
+{
+  id: "ampicilina",
+  nome: "Ampicilina",
+  sinonimos: "—",
+  classe: "Antibiótico β-lactâmico (aminopenicilina)",
+  apresentacao: "Frasco-ampola 500 mg e 1 g (pó para EV/IM)",
+  cenarios: ["antibiotico"],
+  tags: ["Sepse", "Meningite", "Listeria"],
+  resumo: "Aminopenicilina de amplo espectro. Cobre gram-positivos, alguns gram-negativos, Listeria e Enterococcus.",
+  mecanismo: "Inibe a síntese da parede celular bacteriana ligando-se às PBPs (proteínas ligadoras de penicilina), com ação bactericida.",
+  indicacoes: [
+    "<strong>Meningite bacteriana</strong> (cobertura de Listeria em &lt;1 mês, &gt;50 anos, imunossuprimidos)",
+    "Sepse neonatal (com gentamicina)",
+    "Endocardite por Enterococcus (com gentamicina)",
+    "Infecção urinária, ITU em gestante",
+    "Profilaxia de estreptococo B no parto"
+  ],
+  doseAdulto: "<strong>Infecção grave/meningite:</strong> 2 g EV 4/4 h (12 g/dia).<br><strong>Infecção moderada:</strong> 1–2 g EV/IM 6/6 h.<br><strong>Profilaxia GBS no parto:</strong> 2 g EV ataque, depois 1 g 4/4 h até o parto.",
+  dosePed: "<strong>Infecção grave:</strong> 100–400 mg/kg/dia EV dividido 6/6 h.<br><strong>Meningite/sepse neonatal:</strong> 200–400 mg/kg/dia 6/6 h (ajustar por idade gestacional).",
+  doseGest: "Categoria B. <strong>Seguro na gestação</strong> — amplamente usado. Mesmas doses do adulto.",
+  via: "EV (preferencial em infecção grave), IM",
+  preparo: "Reconstituir com AD. Para EV: diluir em SF 0,9% e infundir em 15–30 min (bolus lento aceitável em doses menores). Estável apenas algumas horas após reconstituição.",
+  precaucoes: "<strong>Alergia a penicilinas</strong> (reação cruzada). Rash em mononucleose (não é alergia verdadeira). Ajustar dose em IRC. Pode reduzir eficácia de anticoncepcional oral. Risco de colite por C. difficile.",
+  reacoes: "Reação alérgica (do rash à anafilaxia), diarreia, candidíase, rash maculopapular, nefrite intersticial, convulsão (doses altas em IRC).",
+  fontes: "SBP Antibioticoterapia; Manual de Antibioticoterapia CCIH; Bula ANVISA."
+},
+{
+  id: "bicarbonato-sodio",
+  nome: "Bicarbonato de Sódio 8,4%",
+  sinonimos: "NaHCO3",
+  classe: "Alcalinizante / eletrólito",
+  apresentacao: "Ampola/frasco 8,4% (1 mEq/mL) — frasco 250 mL ou ampola 10 mL",
+  cenarios: ["pcr", "eletrolito", "intoxicacao"],
+  tags: ["Hipercalemia", "Acidose", "Intox. tricíclico"],
+  resumo: "Alcalinizante. Uso restrito e direcionado: hipercalemia grave, acidose metabólica grave, intoxicação por bloqueadores de canal de sódio.",
+  mecanismo: "Tampão que neutraliza H+ → eleva pH sérico. Desloca K+ para o intracelular. Em intoxicação por bloqueadores de canal de sódio, a alcalinização + aporte de Na+ reverte o alargamento do QRS.",
+  indicacoes: [
+    "<strong>Hipercalemia grave</strong> com alterações no ECG",
+    "<strong>Intoxicação por antidepressivos tricíclicos</strong> / bloqueadores de canal de sódio (QRS largo)",
+    "<strong>Acidose metabólica grave</strong> (pH &lt;7,1) com instabilidade",
+    "Acidose em CAD apenas se pH ≤6,9",
+    "Alcalinização urinária (intoxicação por salicilato, fenobarbital)",
+    "PCR prolongada com acidose/hipercalemia documentada"
+  ],
+  doseAdulto: "<strong>Hipercalemia/acidose grave:</strong> 1 mEq/kg EV em bolus (50–100 mEq), reavaliar gasometria.<br><strong>Intoxicação por tricíclico (QRS &gt;100 ms):</strong> 1–2 mEq/kg EV em bolus, repetir até estreitar QRS; meta pH 7,45–7,55.",
+  dosePed: "<strong>Acidose/hipercalemia:</strong> 1 mEq/kg EV lento (diluir 1:1 com AD em neonato → solução 4,2%).<br><strong>Neonato:</strong> usar 4,2% (0,5 mEq/mL) para reduzir osmolaridade.",
+  doseGest: "Sem restrição quando indicado. Mesmos princípios.",
+  via: "EV (sempre lento; em neonato diluir)",
+  preparo: "Em adulto pode ser puro EV lento. <strong>Neonato/lactente: diluir 1:1 com AD</strong> (solução hiperosmolar → risco de hemorragia intraventricular). Não misturar com cálcio (precipita) nem com catecolaminas (inativa).",
+  precaucoes: "<strong>NÃO é rotina em PCR nem em CAD.</strong> Causa: hipernatremia, alcalose, hipocalemia, hipocalcemia, sobrecarga volêmica, desvio da curva de O2 (piora oxigenação tecidual). Extravasamento causa necrose. Não administrar na mesma via que cálcio ou catecolaminas.",
+  reacoes: "Alcalose metabólica, hipernatremia, hipocalemia, hipocalcemia (tetania), sobrecarga volêmica, necrose por extravasamento.",
+  fontes: "AHA ACLS 2020; SBD CAD 2025; AHA Intoxicações 2023; Bula ANVISA."
+},
+{
+  id: "biperideno",
+  nome: "Biperideno",
+  sinonimos: "Akineton®",
+  classe: "Anticolinérgico central",
+  apresentacao: "Ampola 5 mg/mL (1 mL); comprimido 2 mg",
+  cenarios: ["intoxicacao", "outros"],
+  tags: ["Distonia aguda", "SEP"],
+  resumo: "Anticolinérgico de ação central. 1ª linha no tratamento de distonia aguda e sintomas extrapiramidais induzidos por antipsicóticos/metoclopramida.",
+  mecanismo: "Antagonista muscarínico central que reequilibra a relação dopamina/acetilcolina nos núcleos da base, revertendo sintomas extrapiramidais.",
+  indicacoes: [
+    "<strong>Distonia aguda / crise oculogírica</strong> por antipsicótico, metoclopramida, prometazina (1ª linha)",
+    "Parkinsonismo medicamentoso",
+    "Acatisia (segunda linha)",
+    "Doença de Parkinson (adjuvante, uso crônico)"
+  ],
+  doseAdulto: "<strong>Distonia aguda:</strong> 2–5 mg (½–1 ampola) EV lento ou IM. Pode repetir a cada 30 min até melhora (máx 4 doses/dia). Alternativa: difenidramina.",
+  dosePed: "<strong>Distonia aguda:</strong> 0,04 mg/kg/dose (máx 2 mg) IM/EV lento, pode repetir após 30 min. Uso cauteloso.",
+  doseGest: "Categoria não classificada. Usar apenas se distonia grave sem alternativa. Dados limitados.",
+  via: "EV lento, IM, VO",
+  preparo: "EV: administrar lento (não exceder 2 mg/min). Pode ser puro ou diluído em SF.",
+  precaucoes: "Efeitos anticolinérgicos: pode piorar quadro em intoxicação anticolinérgica. Contraindicações: glaucoma de ângulo fechado, obstrução GI/urinária, megacolon, taquiarritmia. Cuidado em idoso (confusão, delirium).",
+  reacoes: "Boca seca, visão turva, taquicardia, retenção urinária, confusão, alucinações (doses altas/idoso), euforia (potencial de abuso).",
+  fontes: "SES-DF Agitação; Protocolo SES-PR Intoxicação; Bula ANVISA."
+},
+{
+  id: "bupivacaina",
+  nome: "Bupivacaína",
+  sinonimos: "Marcaína®, Neocaína®",
+  classe: "Anestésico local (amida, longa ação)",
+  apresentacao: "Frasco 0,5% (5 mg/mL) — isobárica, hiperbárica (com glicose) ou com vasoconstritor",
+  cenarios: ["anestesia"],
+  tags: ["Raquianestesia", "Bloqueios"],
+  resumo: "Anestésico local amida de longa duração. Usado em raquianestesia, peridural e bloqueios de nervo periférico. Mais cardiotóxico que a lidocaína.",
+  mecanismo: "Bloqueia canais de sódio voltagem-dependentes → impede condução do impulso nervoso. Alta lipossolubilidade → início mais lento e duração longa (2–8 h).",
+  indicacoes: [
+    "<strong>Raquianestesia</strong> (forma hiperbárica)",
+    "<strong>Anestesia peridural</strong>",
+    "Bloqueios de nervo periférico e de plexo",
+    "Analgesia pós-operatória prolongada",
+    "Infiltração para procedimentos longos"
+  ],
+  doseAdulto: "<strong>Raquianestesia:</strong> 10–15 mg (2–3 mL da solução 0,5% hiperbárica).<br><strong>Peridural:</strong> 10–20 mL da solução 0,25–0,5%.<br><strong>Dose máxima:</strong> 2 mg/kg sem vasoconstritor; 2,5–3 mg/kg com vasoconstritor (≈150–175 mg em adulto).",
+  dosePed: "<strong>Caudal/peridural:</strong> 0,5–2,5 mg/kg conforme bloqueio. Dose máx 2 mg/kg (sem vaso). <strong>Atenção: maior risco de toxicidade.</strong>",
+  doseGest: "Categoria C. <strong>Amplamente usada em raquianestesia para cesárea</strong> (forma hiperbárica). A forma 0,75% é contraindicada em obstetrícia (cardiotoxicidade). Mesmas precauções de LAST.",
+  via: "Subaracnoidea (raqui), peridural, perineural, infiltrativa — <strong>NUNCA EV</strong>",
+  preparo: "<strong>Aspirar sempre antes de injetar</strong> (evitar intravascular). Verificar baricidade conforme a técnica. A apresentação 0,75% é proscrita em obstetrícia.",
+  precaucoes: "<strong>Cardiotoxicidade alta</strong> — a injeção intravascular acidental causa colapso cardiovascular de difícil reversão. <strong>LAST</strong>: tratar com emulsão lipídica 20% 1,5 mL/kg + infusão. Não usar para anestesia regional EV (Bier). Dose máxima rígida.",
+  reacoes: "Toxicidade sistêmica (LAST): convulsão, arritmia ventricular refratária, colapso CV. Hipotensão e bradicardia (bloqueio simpático na raqui), cefaleia pós-punção, retenção urinária.",
+  fontes: "SBA Diretrizes Anestesia Regional; Bula ANVISA."
+},
+{
+  id: "captopril",
+  nome: "Captopril",
+  sinonimos: "—",
+  classe: "Inibidor da ECA (IECA)",
+  apresentacao: "Comprimido 12,5 mg, 25 mg e 50 mg",
+  cenarios: ["has", "ic"],
+  tags: ["Urgência HAS", "IC"],
+  resumo: "IECA de ação curta. 1ª escolha VO em urgência hipertensiva (sem lesão de órgão-alvo). Início rápido (15–30 min).",
+  mecanismo: "Inibe a enzima conversora de angiotensina → reduz formação de angiotensina II → vasodilatação, redução da resistência periférica e da secreção de aldosterona.",
+  indicacoes: [
+    "<strong>Urgência hipertensiva</strong> (sem lesão aguda de órgão-alvo) — 1ª escolha VO",
+    "Insuficiência cardíaca (uso crônico)",
+    "Pós-IAM (remodelamento)",
+    "Nefropatia diabética",
+    "HAS crônica"
+  ],
+  doseAdulto: "<strong>Urgência HAS:</strong> 25 mg VO (pode até 50 mg). Início em 15–30 min, repetir após 30–60 min se necessário. <strong>Não usar sublingual</strong> (queda abrupta e imprevisível).<br><strong>IC/HAS crônica:</strong> 12,5–50 mg 8/8 h.",
+  dosePed: "<strong>HAS:</strong> 0,3–0,5 mg/kg/dose 8/8 h (máx 6 mg/kg/dia). Neonato: 0,01–0,05 mg/kg (alta sensibilidade).",
+  doseGest: "<strong>CONTRAINDICADO (categoria D).</strong> IECA causam malformação renal fetal, oligoidrâmnio, hipoplasia pulmonar e morte fetal (2º/3º trim). Suspender ao confirmar gravidez. Usar metildopa/hidralazina/nifedipina.",
+  via: "VO (administrar longe das refeições — alimento reduz absorção)",
+  preparo: "Uso oral. <strong>Evitar a via sublingual</strong> (sem vantagem e risco de hipotensão excessiva).",
+  precaucoes: "<strong>Contraindicações:</strong> gestação, angioedema prévio por IECA, estenose bilateral de artéria renal, hipercalemia. Cuidado em IRC, desidratação, uso de diurético/AINE/espironolactona. Risco de hipotensão de primeira dose. Tosse seca (5–20%).",
+  reacoes: "Tosse seca, hipotensão, hipercalemia, IRA (em estenose renal), angioedema, rash, disgeusia, neutropenia (raro).",
+  fontes: "Posicionamento Luso-Brasileiro Emergências Hipertensivas 2020; Einstein Pathway HAS; Bula ANVISA."
+},
+{
+  id: "carbamazepina",
+  nome: "Carbamazepina",
+  sinonimos: "Tegretol®",
+  classe: "Anticonvulsivante",
+  apresentacao: "Comprimido 200 mg e 400 mg; suspensão 20 mg/mL (sem forma EV no Brasil)",
+  cenarios: ["convulsao", "dor"],
+  tags: ["Epilepsia", "Neuralgia trigêmeo"],
+  resumo: "Anticonvulsivante de manutenção (sem formulação EV). Sem papel no status epilepticus agudo. 1ª linha em neuralgia do trigêmeo.",
+  mecanismo: "Bloqueia canais de sódio voltagem-dependentes em estado inativo → estabiliza membranas neuronais hiperexcitadas. Potente indutor enzimático (CYP3A4) e autoindutor.",
+  indicacoes: [
+    "Epilepsia focal e tônico-clônica generalizada (manutenção)",
+    "<strong>Neuralgia do trigêmeo</strong> (1ª escolha)",
+    "Transtorno bipolar (estabilizador de humor)",
+    "Dor neuropática",
+    "<strong>Sem indicação no status epilepticus</strong> (não há forma EV)"
+  ],
+  doseAdulto: "<strong>Epilepsia:</strong> iniciar 200 mg 12/12 h, titular até 800–1.200 mg/dia.<br><strong>Neuralgia do trigêmeo:</strong> iniciar 100–200 mg 12/12 h, titular até alívio (máx 1.200 mg/dia).",
+  dosePed: "<strong>Epilepsia:</strong> iniciar 10–20 mg/kg/dia em 2–3 doses, titular até 20–30 mg/kg/dia. Nível terapêutico: 4–12 mcg/mL.",
+  doseGest: "Categoria D. Teratogênico (defeitos de tubo neural, fenda palatina). Suplementar ácido fólico. Não interromper abruptamente em epiléptica grávida — ponderar risco. Reavaliar com especialista.",
+  via: "VO (única via disponível no Brasil)",
+  preparo: "Uso oral. Suspensão para crianças/SNG.",
+  precaucoes: "<strong>Contraindicações:</strong> BAV, porfiria, uso de IMAO, mielossupressão prévia. Risco de <strong>Stevens-Johnson/NET</strong> (testar HLA-B*1502 em asiáticos). Hiponatremia (SIADH). Múltiplas interações (indutor enzimático). Overdose: coma, convulsão, arritmia.",
+  reacoes: "Tontura, ataxia, diplopia, sedação, hiponatremia, leucopenia, rash (Stevens-Johnson), hepatotoxicidade, anemia aplásica (rara).",
+  fontes: "Liga Brasileira de Epilepsia; ANVISA; SBED Dor Neuropática."
+},
+{
+  id: "carvao-ativado",
+  nome: "Carvão Ativado",
+  sinonimos: "—",
+  classe: "Adsorvente (antídoto inespecífico)",
+  apresentacao: "Pó para suspensão (frascos de 25 g e 50 g)",
+  cenarios: ["intoxicacao"],
+  tags: ["Intoxicação"],
+  resumo: "Adsorvente gastrointestinal. Reduz a absorção de tóxicos quando administrado precocemente (idealmente &lt;1 h da ingestão).",
+  mecanismo: "Superfície porosa de altíssima área adsorve moléculas do tóxico no lúmen GI, impedindo sua absorção sistêmica. Não adsorve substâncias polares pequenas.",
+  indicacoes: [
+    "<strong>Intoxicação por via oral</strong> com substância adsorvível, idealmente em até 1 h (até 2 h em substâncias muito letais ou de liberação lenta)",
+    "<strong>Múltiplas doses:</strong> intoxicação por carbamazepina, fenobarbital, teofilina, ácido valproico, dapsona (recirculação êntero-hepática)"
+  ],
+  doseAdulto: "<strong>Dose única:</strong> 25–100 g (geralmente 50 g) VO ou por SNG (se via aérea protegida), diluído a 10% em água.<br><strong>Múltiplas doses:</strong> 50 g, depois 25 g a cada 2–4 h.",
+  dosePed: "<strong>Dose única:</strong> 1 g/kg VO (máx 50 g), diluído em água/suco.<br><strong>Múltiplas doses:</strong> 0,5–1 g/kg a cada 4–6 h.",
+  doseGest: "<strong>Contraindicação relativa</strong> na bula, mas pode ser usado em intoxicação grave materna (não é absorvido sistemicamente). Proteger via aérea.",
+  via: "VO ou SNG (apenas se via aérea protegida/IOT)",
+  preparo: "Diluir a 10% em água ou suco. <strong>Não passar SNG só para administrar carvão</strong> — e não intubar só para isso. Em paciente consciente, oferecer VO.",
+  precaucoes: "<strong>NÃO adsorve:</strong> álcoois (etanol, metanol), metais (ferro, lítio, potássio), ácidos/bases fortes (cáusticos), cianeto, hidrocarbonetos, fluoreto. <strong>Contraindicações:</strong> rebaixamento sem via aérea protegida (risco de broncoaspiração), íleo/obstrução, ingestão de cáusticos, risco de perfuração.",
+  reacoes: "Vômito, broncoaspiração (grave — pneumonite), constipação, obstrução intestinal (múltiplas doses), abrasão de córnea (contato).",
+  fontes: "AHA Intoxicações 2023; CIATox; Einstein Intoxicação Exógena; Bula ANVISA."
+},
+{
+  id: "cefalexina",
+  nome: "Cefalexina",
+  sinonimos: "Keflex®",
+  classe: "Antibiótico (cefalosporina 1ª geração, VO)",
+  apresentacao: "Cápsula 500 mg; suspensão 250 mg/5 mL",
+  cenarios: ["antibiotico"],
+  tags: ["Pele/partes moles", "ITU"],
+  resumo: "Cefalosporina oral de 1ª geração. Boa cobertura para gram-positivos. Usada em infecções de pele e ITU não complicada.",
+  mecanismo: "Inibe a síntese da parede celular bacteriana (PBPs). Bactericida. Espectro: cocos gram-positivos (S. aureus MSSA, estreptococos) e alguns gram-negativos.",
+  indicacoes: [
+    "<strong>Infecções de pele e partes moles</strong> (celulite, erisipela leve, impetigo)",
+    "ITU não complicada",
+    "Faringite estreptocócica",
+    "Profilaxia de ITU recorrente"
+  ],
+  doseAdulto: "<strong>500 mg VO 6/6 h</strong> (ou 1 g 12/12 h). Infecções graves: até 4 g/dia.",
+  dosePed: "<strong>25–50 mg/kg/dia</strong> VO dividido 6/6 h ou 8/8 h (máx 4 g/dia). Infecções graves: 75–100 mg/kg/dia.",
+  doseGest: "Categoria B. <strong>Seguro na gestação.</strong> Mesmas doses.",
+  via: "VO",
+  preparo: "Uso oral. Suspensão refrigerada após reconstituição.",
+  precaucoes: "Alergia a cefalosporinas/penicilinas (reação cruzada ~1–3%). Ajustar em IRC. Pode causar colite por C. difficile.",
+  reacoes: "Diarreia, náusea, candidíase, rash, reação alérgica, colite pseudomembranosa.",
+  fontes: "Manual de Antibioticoterapia CCIH; SBP; Bula ANVISA."
+},
+{
+  id: "cefalotina",
+  nome: "Cefalotina",
+  sinonimos: "Keflin®",
+  classe: "Antibiótico (cefalosporina 1ª geração, EV)",
+  apresentacao: "Frasco-ampola 1 g (pó para EV/IM)",
+  cenarios: ["antibiotico"],
+  tags: ["Profilaxia cirúrgica", "Pele"],
+  resumo: "Cefalosporina parenteral de 1ª geração. Cobertura para gram-positivos. Usada em profilaxia cirúrgica e infecções de pele/partes moles.",
+  mecanismo: "Inibe síntese da parede celular bacteriana (PBPs). Bactericida. Espectro: cocos gram-positivos (MSSA, estreptococos).",
+  indicacoes: [
+    "<strong>Profilaxia cirúrgica</strong>",
+    "<strong>Infecções de pele e partes moles</strong> (celulite, abscesso)",
+    "Infecções por S. aureus sensível à oxacilina (MSSA)",
+    "Mastite, infecção de ferida operatória"
+  ],
+  doseAdulto: "<strong>1–2 g EV 6/6 h</strong> (infecções graves até 12 g/dia).<br><strong>Profilaxia cirúrgica:</strong> 1–2 g EV 30–60 min antes da incisão.",
+  dosePed: "<strong>80–160 mg/kg/dia</strong> EV dividido 6/6 h (máx 12 g/dia).",
+  doseGest: "Categoria B. <strong>Seguro na gestação.</strong> Mesmas doses.",
+  via: "EV (preferencial), IM",
+  preparo: "Reconstituir com AD. EV: diluir em SF e infundir em 20–30 min. Meia-vida curta → intervalos curtos.",
+  precaucoes: "Alergia a cefalosporinas/penicilinas. Flebite (irritante — rotacionar acesso). Ajustar em IRC. Dor à injeção IM.",
+  reacoes: "Flebite, dor local, diarreia, rash, reação alérgica, nefrotoxicidade (com aminoglicosídeos), colite por C. difficile.",
+  fontes: "Manual de Antibioticoterapia CCIH; Profilaxia cirúrgica; Bula ANVISA."
+},
+{
+  id: "cetoprofeno",
+  nome: "Cetoprofeno",
+  sinonimos: "Profenid®",
+  classe: "AINE",
+  apresentacao: "Frasco-ampola 100 mg (IV) e 100 mg/2 mL (IM)",
+  cenarios: ["dor", "febre"],
+  tags: ["Dor", "Cólica", "Anti-inflamatório"],
+  resumo: "Anti-inflamatório não esteroide injetável. Analgesia de dor moderada/intensa, especialmente musculoesquelética e cólica.",
+  mecanismo: "Inibe COX-1 e COX-2 → reduz prostaglandinas → ação analgésica, anti-inflamatória e antipirética.",
+  indicacoes: [
+    "Dor musculoesquelética aguda",
+    "Cólica renal/biliar (alternativa)",
+    "Lombalgia aguda",
+    "Dor pós-operatória (analgesia multimodal)",
+    "Crises de gota"
+  ],
+  doseAdulto: "<strong>EV:</strong> 100 mg diluído em 100 mL SF, infundir em 20 min, a cada 8–12 h (máx 300 mg/dia, IV apenas hospitalar).<br><strong>IM:</strong> 100 mg 1–2×/dia.",
+  dosePed: "<strong>Não recomendado &lt;15 anos</strong> por via parenteral (bula brasileira).",
+  doseGest: "Categoria C (1º/2º trim) / <strong>D no 3º trimestre — CONTRAINDICADO</strong> (fechamento do canal arterial, oligoidrâmnio). Evitar. Preferir dipirona/paracetamol.",
+  via: "EV (diluído, hospitalar), IM profundo, VO, tópico",
+  preparo: "EV: <strong>diluir em 100 mL SF, infundir em 20 min</strong> (não bolus). IM: profundo no glúteo.",
+  precaucoes: "<strong>Contraindicações:</strong> úlcera péptica ativa, IRA/IRC (TFG &lt;30), ICC descompensada, sangramento ativo, alergia a AINE, asma por AINE, 3º trimestre. Cuidado em idoso, anticoagulado, desidratado.",
+  reacoes: "Dispepsia, sangramento digestivo, IRA, HAS, retenção hídrica, broncoespasmo, reação alérgica, flebite.",
+  fontes: "Bula ANVISA; SAMU-RS; SBOT."
+},
+{
+  id: "clister-glicerinado",
+  nome: "Clister Glicerinado",
+  sinonimos: "Enema de glicerina, Fleet®",
+  classe: "Laxante (uso retal)",
+  apresentacao: "Solução glicerinada 12% para uso retal; frascos de enema",
+  cenarios: ["gastro"],
+  tags: ["Constipação", "Fecaloma"],
+  resumo: "Enema osmótico/lubrificante para evacuação. Usado em constipação intestinal grave, fecaloma e preparo intestinal.",
+  mecanismo: "A glicerina exerce efeito osmótico local (atrai água para a luz intestinal) e lubrificante, estimulando o peristaltismo e amolecendo as fezes.",
+  indicacoes: [
+    "<strong>Constipação intestinal grave / fecaloma</strong>",
+    "Preparo para exames/procedimentos",
+    "Esvaziamento retal em retenção fecal"
+  ],
+  doseAdulto: "<strong>Enema:</strong> 100–500 mL de solução glicerinada via retal, reter o máximo possível antes de evacuar. Geralmente solução 12%.",
+  dosePed: "Volume reduzido conforme idade: lactente 20–60 mL; pré-escolar 60–120 mL; escolar 120–250 mL. Glicerina mais diluída.",
+  doseGest: "Uso aceitável para constipação na gestação (preferir medidas dietéticas primeiro). Cuidado em risco de trabalho de parto prematuro (estímulo).",
+  via: "Retal",
+  preparo: "Aquecer levemente a solução (conforto). Posicionar paciente em decúbito lateral esquerdo. Introduzir a cânula lubrificada.",
+  precaucoes: "<strong>Contraindicações:</strong> abdome agudo, obstrução intestinal, suspeita de perfuração, sangramento retal não esclarecido, pós-operatório de cirurgia anorretal recente. Risco de distúrbio eletrolítico em uso repetido (enemas fosfatados).",
+  reacoes: "Cólica, irritação retal, distúrbio hidroeletrolítico (uso repetido/fosfatado), trauma de mucosa.",
+  fontes: "Protocolos de Enfermagem; Bula ANVISA."
+},
+{
+  id: "clordiazepoxido",
+  nome: "Clordiazepóxido",
+  sinonimos: "Librium®, Psicosedin®",
+  classe: "Benzodiazepínico (longa ação)",
+  apresentacao: "Comprimido/cápsula 10 mg e 25 mg",
+  cenarios: ["agitacao", "sedacao"],
+  tags: ["Abstinência alcoólica"],
+  resumo: "Benzodiazepínico de longa duração. Principal uso na urgência é o manejo da síndrome de abstinência alcoólica.",
+  mecanismo: "Agonista alostérico do receptor GABA-A → potencializa o efeito inibitório do GABA → ansiólise, sedação, anticonvulsivante. Meia-vida longa (metabólitos ativos).",
+  indicacoes: [
+    "<strong>Síndrome de abstinência alcoólica</strong> (esquema de redução progressiva)",
+    "Ansiedade aguda grave",
+    "Pré-medicação"
+  ],
+  doseAdulto: "<strong>Abstinência alcoólica:</strong> 25–100 mg VO 6/6 h no 1º dia, com redução progressiva ao longo de 5–7 dias (esquema fixo ou guiado por CIWA-Ar). Máx 300 mg/dia.<br><strong>Ansiedade:</strong> 10–25 mg 2–4×/dia.",
+  dosePed: "Uso restrito. ≥6 anos: 5 mg 2–4×/dia (ansiedade). Raramente indicado em urgência pediátrica.",
+  doseGest: "Categoria D. Evitar (associação a malformações no 1º trim; floppy infant e abstinência neonatal próximo ao termo).",
+  via: "VO (única apresentação no Brasil atualmente)",
+  preparo: "Uso oral.",
+  precaucoes: "Depressão respiratória (potencializada por álcool/opioides). <strong>Em hepatopata grave preferir lorazepam/oxazepam</strong> (clordiazepóxido tem metabólitos ativos de meia-vida longa, risco de acúmulo). Cuidado em idoso. Antagonista: flumazenil.",
+  reacoes: "Sedação, ataxia, confusão, depressão respiratória, reação paradoxal, dependência, sedação prolongada (idoso/hepatopata).",
+  fontes: "Protocolos de Abstinência Alcoólica (CIWA-Ar); Bula ANVISA."
+},
+{
+  id: "clonidina",
+  nome: "Clonidina",
+  sinonimos: "Atensina®, Cloridrato de Clonidina",
+  classe: "Agonista α2-adrenérgico central",
+  apresentacao: "Comprimido 0,100 mg, 0,150 mg e 0,200 mg; ampola 150 mcg/mL",
+  cenarios: ["has", "agitacao", "outros"],
+  tags: ["Urgência HAS", "Abstinência"],
+  resumo: "Agonista α2 central. Usado em urgência hipertensiva (VO), abstinência (álcool/opioides) e como adjuvante sedativo.",
+  mecanismo: "Agonista α2-adrenérgico central → reduz o tônus simpático → diminui FC, resistência periférica e PA. Também tem efeito sedativo e analgésico.",
+  indicacoes: [
+    "<strong>Urgência hipertensiva</strong> (VO) — opção em alta adrenérgica",
+    "Hipertensão refratária (uso crônico)",
+    "<strong>Síndrome de abstinência</strong> (álcool, opioides, nicotina)",
+    "Adjuvante em sedação/analgesia (UTI)",
+    "Síndromes de hiperatividade simpática"
+  ],
+  doseAdulto: "<strong>Urgência HAS:</strong> 0,1–0,2 mg VO, repetir 0,1 mg/h se necessário (máx 0,7 mg). Início em 30–60 min.<br><strong>Abstinência:</strong> 0,1–0,2 mg 8/8 h.<br><strong>EV (sedação UTI):</strong> 0,5–2 mcg/kg/h.",
+  dosePed: "<strong>HAS:</strong> 5–10 mcg/kg/dia VO dividido 8/8–12/12 h. <strong>Adjuvante sedação:</strong> 1–5 mcg/kg/dose. Uso especializado.",
+  doseGest: "Categoria C. Pode ser usada na HAS gestacional (2ª/3ª linha). A retirada abrupta causa hipertensão rebote — atenção no periparto.",
+  via: "VO, EV (lento/BIC), transdérmica",
+  preparo: "VO: uso direto. EV: diluir em SF, infusão lenta (bolus rápido = hipertensão paradoxal transitória, depois hipotensão).",
+  precaucoes: "<strong>Não suspender abruptamente</strong> (hipertensão rebote grave). Causa sedação, hipotensão, bradicardia. Cuidado em BAV, bradicardia, idoso. Potencializa depressores do SNC.",
+  reacoes: "Sedação, boca seca, hipotensão, bradicardia, hipertensão rebote (retirada), constipação, depressão, disfunção sexual.",
+  fontes: "Posicionamento Luso-Brasileiro Emergências Hipertensivas 2020; Bula ANVISA."
+},
+{
+  id: "hidralazina",
+  nome: "Hidralazina",
+  sinonimos: "Apresolina®, Nepresol®, Cloridrato de Hidralazina",
+  classe: "Vasodilatador arterial direto",
+  apresentacao: "Ampola 20 mg/mL (1 mL); comprimido 25 mg e 50 mg",
+  cenarios: ["has", "ic"],
+  tags: ["Emergência HAS gestacional", "Eclâmpsia"],
+  resumo: "Vasodilatador arterial direto. 1ª linha parenteral na emergência hipertensiva da gestação (pré-eclâmpsia grave/eclâmpsia).",
+  mecanismo: "Relaxamento direto da musculatura lisa arteriolar (mecanismo via interferência no cálcio intracelular) → reduz resistência vascular periférica e PA. Causa taquicardia reflexa.",
+  indicacoes: [
+    "<strong>Emergência hipertensiva na gestação</strong> (pré-eclâmpsia grave, eclâmpsia) — 1ª linha EV",
+    "Crise hipertensiva (alternativa)",
+    "Insuficiência cardíaca (com nitrato, em intolerantes a IECA)"
+  ],
+  doseAdulto: "<strong>Emergência HAS gestacional:</strong> 5 mg EV lento, repetir 5–10 mg a cada 20–30 min conforme PA (máx 30 mg). Pode diluir 1 ampola (20 mg) em 19 mL AD → 1 mg/mL.<br><strong>VO (HAS crônica):</strong> 25–50 mg 6/6 h.",
+  dosePed: "<strong>Crise hipertensiva:</strong> 0,1–0,2 mg/kg/dose EV (máx 20 mg), repetir a cada 4–6 h. VO: 0,75–1 mg/kg/dia dividido 6/6 h.",
+  doseGest: "Categoria C, mas <strong>1ª linha na emergência hipertensiva obstétrica</strong> (longa experiência de segurança). Mesmas doses.",
+  via: "EV (lento), IM, VO",
+  preparo: "EV: diluir 1 ampola (20 mg) em 19 mL de AD/SF → 1 mg/mL; administrar 5 mL (5 mg) lento. Monitorar PA a cada 5 min.",
+  precaucoes: "<strong>Taquicardia reflexa</strong> (cuidado em coronariopatia, dissecção de aorta — evitar isolada). Hipotensão materna pode causar sofrimento fetal. Cefaleia, rubor. Uso crônico em altas doses: síndrome lúpus-like. Evitar em taquiarritmia, IAM.",
+  reacoes: "Taquicardia reflexa, cefaleia, rubor, hipotensão, palpitação, retenção hídrica, síndrome lúpus-like (crônico, alta dose).",
+  fontes: "Protocolo MS Pré-eclâmpsia 2022; FEBRASGO; Posicionamento Luso-Brasileiro 2020; Bula ANVISA."
+},
+{
+  id: "clorpromazina",
+  nome: "Clorpromazina",
+  sinonimos: "Amplictil®, Longactil®",
+  classe: "Antipsicótico típico (fenotiazina)",
+  apresentacao: "Ampola 5 mg/mL (5 mL = 25 mg); comprimido 25 mg e 100 mg",
+  cenarios: ["agitacao", "outros"],
+  tags: ["Agitação", "Soluço intratável"],
+  resumo: "Antipsicótico de baixa potência com forte efeito sedativo. Usado em agitação psicomotora e soluço intratável.",
+  mecanismo: "Antagonista D2 dopaminérgico, com forte bloqueio H1 (sedação), α1-adrenérgico (hipotensão) e muscarínico. Menor potência antipsicótica que o haloperidol, mas mais sedativo.",
+  indicacoes: [
+    "<strong>Agitação psicomotora</strong> (alternativa, mais sedativa)",
+    "Psicose aguda",
+    "<strong>Soluço intratável</strong> (1ª escolha)",
+    "Náusea/vômito refratário",
+    "Esquizofrenia (uso crônico)"
+  ],
+  doseAdulto: "<strong>Agitação:</strong> 25–50 mg IM, repetir a cada 4–6 h se necessário.<br><strong>Soluço intratável:</strong> 25–50 mg VO/IM 6/6–8/8 h.<br><strong>EV:</strong> evitar (hipotensão grave); se usado, muito diluído e lento.",
+  dosePed: "<strong>≥6 meses:</strong> 0,5–1 mg/kg/dose IM/VO a cada 6–8 h (uso cauteloso). Náusea/agitação.",
+  doseGest: "Categoria C. Risco de sintomas extrapiramidais/abstinência no RN se uso no 3º trim. Usar apenas se necessário.",
+  via: "IM, VO. EV apenas muito diluído (risco de hipotensão grave)",
+  preparo: "IM: profundo. <strong>Hipotensão postural marcante</strong> — manter paciente deitado após aplicação e monitorar PA.",
+  precaucoes: "<strong>Hipotensão ortostática importante</strong> (bloqueio α1). Prolongamento QT. Sintomas extrapiramidais, síndrome neuroléptica maligna. Reduz limiar convulsivo. Contraindicado em depressão grave do SNC, intoxicação por depressores. Fotossensibilidade.",
+  reacoes: "Hipotensão, sedação, sintomas extrapiramidais, prolongamento QT, síndrome neuroléptica maligna, icterícia colestática, fotossensibilidade, discrasias sanguíneas.",
+  fontes: "SES-DF Agitação Psicomotora; Bula ANVISA."
+},
+{
+  id: "cloranfenicol",
+  nome: "Cloranfenicol",
+  sinonimos: "Quemicetina®",
+  classe: "Antibiótico (anfenicol)",
+  apresentacao: "Frasco-ampola 1 g (succinato, EV); cápsula 250/500 mg",
+  cenarios: ["antibiotico"],
+  tags: ["Meningite (alternativa)", "Febre tifoide"],
+  resumo: "Antibiótico bacteriostático de amplo espectro. Uso restrito hoje pela toxicidade hematológica; alternativa em alergia a β-lactâmicos.",
+  mecanismo: "Inibe a síntese proteica bacteriana ligando-se à subunidade 50S do ribossomo. Bacteriostático (bactericida para alguns patógenos da meningite). Amplo espectro, atravessa bem a BHE.",
+  indicacoes: [
+    "<strong>Meningite bacteriana</strong> em alérgicos a β-lactâmicos (alternativa)",
+    "Febre tifoide",
+    "Riquetsioses (febre maculosa)",
+    "Abscesso cerebral (alternativa)",
+    "Infecções graves quando opções de 1ª linha indisponíveis"
+  ],
+  doseAdulto: "<strong>Infecção grave/meningite:</strong> 50–100 mg/kg/dia EV dividido 6/6 h (máx 4 g/dia).",
+  dosePed: "<strong>Meningite:</strong> 75–100 mg/kg/dia EV 6/6 h (máx 4 g/dia). <strong>Neonato:</strong> doses muito reduzidas e monitoradas (risco de síndrome do bebê cinzento).",
+  doseGest: "Categoria C. <strong>Contraindicado próximo ao termo</strong> (síndrome do bebê cinzento). Evitar; usar apenas sem alternativa.",
+  via: "EV (preferencial), VO",
+  preparo: "Reconstituir o succinato com AD. EV: diluir em SF, infundir em 30 min.",
+  precaucoes: "<strong>Toxicidade hematológica grave:</strong> aplasia medular idiossincrásica (rara, fatal, dose-independente) e supressão medular dose-dependente reversível. <strong>Síndrome do bebê cinzento</strong> em neonato (colapso CV). Monitorar hemograma. Múltiplas interações (inibidor enzimático).",
+  reacoes: "Anemia aplásica, supressão medular, síndrome do bebê cinzento (neonato), neurite óptica, náusea, reação de Jarisch-Herxheimer.",
+  fontes: "SBP Antibioticoterapia Pneumonia; Manual de Antibioticoterapia CCIH; Bula ANVISA."
+},
+{
+  id: "codeina",
+  nome: "Codeína",
+  sinonimos: "Codein®",
+  classe: "Opioide fraco",
+  apresentacao: "Comprimido 30 mg e 60 mg; solução oral 3 mg/mL; associações com paracetamol",
+  cenarios: ["dor"],
+  tags: ["Dor moderada", "Antitussígeno"],
+  resumo: "Opioide fraco para dor moderada (degrau 2 da escada analgésica). Também antitussígeno. Pró-fármaco convertido em morfina pela CYP2D6.",
+  mecanismo: "Pró-fármaco metabolizado em morfina pela CYP2D6 (~10%). Agonista μ-opioide fraco. Efeito analgésico e antitussígeno central.",
+  indicacoes: [
+    "<strong>Dor moderada</strong> (degrau 2 da OMS), frequentemente com paracetamol",
+    "<strong>Tosse seca</strong> intratável (antitussígeno)",
+    "Diarreia (uso off-label)"
+  ],
+  doseAdulto: "<strong>Dor:</strong> 30–60 mg VO 4/4–6/6 h (máx 240 mg/dia).<br><strong>Antitussígeno:</strong> 10–20 mg VO 4/4–6/6 h.",
+  dosePed: "<strong>CONTRAINDICADA &lt;12 anos</strong> (FDA/ANVISA — risco de depressão respiratória fatal em metabolizadores ultrarrápidos). 12–18a: evitar; se usar, 0,5 mg/kg/dose (máx 30 mg) com cautela.",
+  doseGest: "Categoria C (D se uso prolongado/termo). Risco de síndrome de abstinência neonatal e depressão respiratória no parto. Evitar próximo ao termo.",
+  via: "VO",
+  preparo: "Uso oral.",
+  precaucoes: "<strong>Contraindicada &lt;12 anos e em amamentação</strong> (metabolizadores ultrarrápidos da CYP2D6 → morfina em excesso no leite). Constipação, depressão respiratória, dependência. Cuidado em DPOC, apneia do sono, IH. Antídoto: naloxona.",
+  reacoes: "Constipação, náusea, sonolência, depressão respiratória, prurido, dependência, tontura.",
+  fontes: "OMS Escada Analgésica; ANVISA Alerta Codeína Pediatria; Bula ANVISA."
+},
+{
+  id: "complexo-b",
+  nome: "Complexo B Injetável",
+  sinonimos: "Vitaminas do complexo B",
+  classe: "Suplemento vitamínico",
+  apresentacao: "Ampola (B1, B2, B3, B5, B6, B12 em concentrações variáveis)",
+  cenarios: ["outros"],
+  tags: ["Reposição vitamínica"],
+  resumo: "Reposição de vitaminas do complexo B. Na urgência, relevante em alcoolistas e desnutridos (sobretudo pela tiamina).",
+  mecanismo: "Conjunto de coenzimas essenciais ao metabolismo energético (B1-tiamina, B2-riboflavina, B3-niacina, B6-piridoxina, B12-cobalamina). A tiamina é crítica na prevenção da encefalopatia de Wernicke.",
+  indicacoes: [
+    "Deficiência de vitaminas do complexo B",
+    "Alcoolismo crônico / desnutrição (atenção: a tiamina isolada é preferível e em dose adequada)",
+    "Neuropatia periférica carencial",
+    "Coadjuvante em analgesia de dor neuropática (associações)"
+  ],
+  doseAdulto: "<strong>Reposição:</strong> 1 ampola IM/EV 1×/dia conforme produto. <strong>Em alcoolista de risco: usar TIAMINA específica em dose alta</strong> (ver entrada Tiamina) — o complexo B comum não tem tiamina suficiente para tratar/prevenir Wernicke.",
+  dosePed: "Conforme produto e deficiência específica. Uso menos comum em urgência.",
+  doseGest: "Em geral seguro (vitaminas hidrossolúveis). B6 inclusive usada para náusea gestacional. Evitar megadoses.",
+  via: "IM, EV (conforme produto)",
+  preparo: "Conforme bula do produto específico. Alguns são apenas IM.",
+  precaucoes: "Reações alérgicas (especialmente tiamina EV rápida — raras anafiláticas). <strong>Não substitui a tiamina em dose terapêutica na suspeita de Wernicke.</strong> Coloração amarela intensa da urina (riboflavina).",
+  reacoes: "Reação no local da injeção, rubor, raramente anafilaxia (tiamina EV), urina amarelo-intenso.",
+  fontes: "Bula ANVISA; Diretrizes de manejo do alcoolismo."
+},
+{
+  id: "digoxina",
+  nome: "Digoxina",
+  sinonimos: "Digoxina®, Lanoxin®",
+  classe: "Glicosídeo cardíaco",
+  apresentacao: "Ampola 0,25 mg/mL (1 mL); comprimido 0,25 mg; elixir pediátrico 0,05 mg/mL",
+  cenarios: ["arritmia", "ic"],
+  tags: ["FA com alta resposta", "IC"],
+  resumo: "Glicosídeo cardíaco. Controle de frequência em FA/Flutter (especialmente com IC) e inotrópico na ICFEr. Janela terapêutica estreita.",
+  mecanismo: "Inibe Na+/K+ ATPase → aumenta Ca++ intracelular → inotropismo positivo. Aumenta tônus vagal → reduz condução AV (cronotropismo negativo).",
+  indicacoes: [
+    "<strong>FA/Flutter com alta resposta ventricular</strong> + IC (controle de FC)",
+    "<strong>Insuficiência cardíaca</strong> com FE reduzida sintomática",
+    "Taquicardia supraventricular (uso restrito)"
+  ],
+  doseAdulto: "<strong>Digitalização EV (FA aguda):</strong> 0,25–0,5 mg EV, depois 0,25 mg a cada 6 h até 1–1,5 mg em 24 h.<br><strong>Manutenção:</strong> 0,125–0,25 mg/dia VO (reduzir em idoso/IRC).<br><strong>Nível terapêutico:</strong> 0,5–0,9 ng/mL (IC); até 2,0 (controle de FC).",
+  dosePed: "<strong>Digitalização total:</strong> varia com idade (RN a termo 20–30 mcg/kg; lactente 30–50 mcg/kg) — dar metade, depois ¼ + ¼ a cada 8 h. <strong>Manutenção:</strong> 8–10 mcg/kg/dia dividido 12/12 h.",
+  doseGest: "Categoria C. <strong>Pode ser usada na gestação</strong> (inclusive para taquiarritmia fetal). Monitorar nível sérico (volume de distribuição alterado).",
+  via: "EV (lento, 5 min), VO",
+  preparo: "EV: pode ser pura lenta ou diluída em ≥4× o volume com AD/SF/SG. Verificar K+ antes (hipocalemia potencializa toxicidade).",
+  precaucoes: "<strong>Janela terapêutica estreita.</strong> Toxicidade potencializada por: hipocalemia, hipomagnesemia, hipercalcemia, IRC, hipotireoidismo, idade. <strong>Contraindicações:</strong> intoxicação digitálica, BAV 2º/3º sem MP, WPW com FA, CMH obstrutiva. Antídoto: anticorpo antidigoxina (Digibind®).",
+  reacoes: "<strong>Intoxicação:</strong> náusea, vômito, anorexia, distúrbios visuais (xantopsia), confusão, bradicardia, qualquer arritmia (TA com bloqueio, bidirecional, ESV, BAV). Hipocalemia agrava.",
+  fontes: "SBC Arritmias e IC; Bula ANVISA; SBP Cardiologia Pediátrica."
+},
+{
+  id: "enalapril",
+  nome: "Enalaprilato / Enalapril",
+  sinonimos: "Renitec®, Vasopril®",
+  classe: "Inibidor da ECA (IECA)",
+  apresentacao: "Comprimido 5, 10 e 20 mg (enalapril); ampola 1,25 mg/mL (enalaprilato — forma EV)",
+  cenarios: ["has", "ic"],
+  tags: ["HAS", "IC"],
+  resumo: "IECA. O enalaprilato (forma EV) é opção em emergência hipertensiva; o enalapril VO é anti-hipertensivo crônico e usado em IC.",
+  mecanismo: "Inibe a enzima conversora de angiotensina → reduz angiotensina II e aldosterona → vasodilatação e redução da PA. Enalapril é pró-fármaco (ativado em enalaprilato no fígado).",
+  indicacoes: [
+    "<strong>Emergência hipertensiva</strong> (enalaprilato EV — uso restrito)",
+    "HAS crônica (enalapril VO)",
+    "<strong>Insuficiência cardíaca</strong> com FE reduzida",
+    "Pós-IAM, nefropatia diabética"
+  ],
+  doseAdulto: "<strong>Enalaprilato EV:</strong> 0,625–1,25 mg EV lento (5 min) a cada 6 h (máx 5 mg/dose).<br><strong>Enalapril VO:</strong> iniciar 5 mg/dia, manutenção 10–40 mg/dia (1–2 tomadas).",
+  dosePed: "<strong>HAS:</strong> 0,08 mg/kg/dia VO (máx inicial 5 mg), titular. Cuidado com hipotensão.",
+  doseGest: "<strong>CONTRAINDICADO (categoria D).</strong> IECA são teratogênicos (mesma toxicidade renal fetal do captopril). Suspender ao confirmar gravidez.",
+  via: "EV (enalaprilato), VO (enalapril)",
+  preparo: "Enalaprilato EV: pode ser puro lento ou diluído em 50 mL SF, em 5 min.",
+  precaucoes: "<strong>Contraindicações:</strong> gestação, angioedema por IECA, estenose bilateral de artéria renal, hipercalemia. Hipotensão de primeira dose (cuidado em hipovolêmico/uso de diurético). Cuidado em IRC. Tosse seca.",
+  reacoes: "Tosse seca, hipotensão, hipercalemia, IRA (estenose renal), angioedema, tontura, disgeusia.",
+  fontes: "SBC IC 2018; Posicionamento Luso-Brasileiro Emergências Hipertensivas 2020; Bula ANVISA."
+},
+{
+  id: "fenoterol",
+  nome: "Fenoterol (Bromidrato)",
+  sinonimos: "Berotec®",
+  classe: "Broncodilatador β2-agonista de curta ação",
+  apresentacao: "Solução para NBZ 5 mg/mL (gotas); aerossol 100 mcg/jato",
+  cenarios: ["bronco", "anafilaxia"],
+  tags: ["Asma", "Broncoespasmo"],
+  resumo: "β2-agonista de curta ação inalatório. 1ª linha na crise asmática e broncoespasmo agudo (alternativa ao salbutamol).",
+  mecanismo: "Agonista β2-adrenérgico → relaxamento da musculatura lisa brônquica → broncodilatação rápida (início em 5 min). Ação secundária em β1 (taquicardia).",
+  indicacoes: [
+    "<strong>Crise asmática</strong> (broncodilatação de resgate)",
+    "<strong>Exacerbação de DPOC</strong>",
+    "Broncoespasmo agudo de qualquer causa",
+    "Adjuvante na anafilaxia com broncoespasmo (após adrenalina)"
+  ],
+  doseAdulto: "<strong>NBZ:</strong> 10–20 gotas (2,5–5 mg) em 3–5 mL SF, a cada 20 min × 3 doses na 1ª hora.<br><strong>Aerossol:</strong> 4–8 jatos com espaçador a cada 20 min × 3 doses.",
+  dosePed: "<strong>NBZ:</strong> 1 gota/3 kg (máx 10 gotas) em 3 mL SF, a cada 20 min × 3 doses. Pode associar ao ipratrópio.<br><strong>Aerossol:</strong> 2–4 jatos com espaçador a cada 20 min × 3 doses.",
+  doseGest: "Categoria B/C. <strong>β2-agonistas inalatórios são seguros e indicados na crise asmática gestacional.</strong> Mesmas doses.",
+  via: "Inalatória (NBZ ou aerossol com espaçador)",
+  preparo: "Diluir em 3–5 mL SF 0,9%. Pode combinar com brometo de ipratrópio na mesma NBZ.",
+  precaucoes: "Taquicardia, tremor, hipocalemia (doses altas/repetidas — monitorar K+ em crise grave). Cuidado em cardiopatia, hipertireoidismo, arritmia. Uso excessivo pode mascarar piora da asma.",
+  reacoes: "Tremor, taquicardia, palpitação, cefaleia, hipocalemia, hiperglicemia, agitação, câimbra.",
+  fontes: "GINA 2023; SBPT Asma 2021; Bula ANVISA."
+},
+{
+  id: "flumazenil",
+  nome: "Flumazenil",
+  sinonimos: "Lanexat®",
+  classe: "Antagonista de benzodiazepínico",
+  apresentacao: "Ampola 0,1 mg/mL (5 mL = 0,5 mg)",
+  cenarios: ["intoxicacao"],
+  tags: ["Antídoto BZD"],
+  resumo: "Antagonista competitivo dos benzodiazepínicos. Reverte sedação/depressão respiratória por BZD. Uso cauteloso — risco de convulsão.",
+  mecanismo: "Antagonista competitivo no sítio benzodiazepínico do receptor GABA-A → reverte os efeitos dos BZD. Meia-vida curta (pode haver re-sedação).",
+  indicacoes: [
+    "<strong>Reversão de sedação por benzodiazepínico</strong> (pós-procedimento, sobredose acidental)",
+    "Intoxicação por BZD em paciente NÃO usuário crônico, sem coingestão de pró-convulsivantes",
+    "<strong>Sem papel em PCR</strong> (diferente da naloxona)"
+  ],
+  doseAdulto: "<strong>0,2 mg EV</strong> em 15–30 s; repetir 0,2 mg a cada 1 min se necessário. Dose cumulativa usual 1 mg (máx 3 mg). Se re-sedação: BIC 0,1–0,4 mg/h.",
+  dosePed: "<strong>0,01 mg/kg EV</strong> (máx 0,2 mg/dose) em 15 s; repetir a cada 1 min até máx total 0,05 mg/kg ou 1 mg.",
+  doseGest: "Categoria C. Usar apenas se benefício claro. Dados limitados.",
+  via: "EV",
+  preparo: "Pode ser puro ou diluído em SF/SG 5%. Administração lenta.",
+  precaucoes: "<strong>Risco de convulsão grave</strong> em: usuário crônico de BZD (abstinência), coingestão de antidepressivo tricíclico ou outro pró-convulsivante, epiléptico em uso de BZD. <strong>Não usar empiricamente em coma de causa indeterminada.</strong> Re-sedação possível (meia-vida curta — vigiar).",
+  reacoes: "Convulsão, arritmia, ansiedade, agitação (abstinência aguda de BZD), náusea, re-sedação, rubor.",
+  fontes: "AHA Intoxicações 2023; Einstein Intoxicação Exógena; Bula ANVISA."
+},
+{
+  id: "gentamicina",
+  nome: "Gentamicina",
+  sinonimos: "Garamicina®",
+  classe: "Antibiótico aminoglicosídeo",
+  apresentacao: "Ampola 40 mg/mL (1 e 2 mL); 10 mg/mL pediátrica",
+  cenarios: ["antibiotico"],
+  tags: ["Sepse gram-negativo", "Sinergia"],
+  resumo: "Aminoglicosídeo bactericida contra gram-negativos. Usado em sepse e em sinergia (endocardite). Nefro e ototóxico.",
+  mecanismo: "Liga-se à subunidade 30S do ribossomo → erro de leitura do mRNA → inibição da síntese proteica. Bactericida concentração-dependente. Espectro: gram-negativos aeróbios; sinergia com β-lactâmico contra gram-positivos.",
+  indicacoes: [
+    "<strong>Sepse por gram-negativos</strong> (em combinação)",
+    "<strong>Endocardite</strong> (sinergia com penicilina/ampicilina/vancomicina)",
+    "Pielonefrite, ITU complicada",
+    "Sepse neonatal (com ampicilina)",
+    "Infecções intra-abdominais (combinada)"
+  ],
+  doseAdulto: "<strong>Dose única diária:</strong> 5–7 mg/kg/dia EV (preferencial — menos nefrotóxica).<br><strong>Múltiplas doses:</strong> 3–5 mg/kg/dia dividido 8/8 h.<br><strong>Endocardite (sinergia):</strong> 3 mg/kg/dia. Monitorar níveis e função renal.",
+  dosePed: "<strong>5–7,5 mg/kg/dia</strong> EV (dose única diária) ou dividido 8/8 h. <strong>Neonato:</strong> 4–5 mg/kg/dose com intervalo ajustado pela idade gestacional (24–48 h).",
+  doseGest: "Categoria D. Risco de ototoxicidade fetal (lesão do VIII par). Usar apenas em infecção grave sem alternativa. Monitorar níveis.",
+  via: "EV (diluída, 30 min), IM",
+  preparo: "EV: diluir em 50–100 mL SF/SG 5%, infundir em 30 min. <strong>Não misturar com β-lactâmicos na mesma solução</strong> (inativação).",
+  precaucoes: "<strong>Nefrotoxicidade</strong> (geralmente reversível) e <strong>ototoxicidade</strong> (coclear/vestibular, pode ser irreversível). Monitorar função renal, níveis séricos (vale &lt;1–2 mcg/mL). Bloqueio neuromuscular (cuidado em miastenia). Evitar associação com outros nefro/ototóxicos.",
+  reacoes: "Nefrotoxicidade, ototoxicidade (zumbido, vertigem, surdez), bloqueio neuromuscular, hipomagnesemia, reação alérgica.",
+  fontes: "Manual de Antibioticoterapia CCIH; Surviving Sepsis; SBP; Bula ANVISA."
+},
+{
+  id: "gluconato-calcio",
+  nome: "Gluconato de Cálcio 10%",
+  sinonimos: "—",
+  classe: "Eletrólito / antídoto",
+  apresentacao: "Ampola 10% (10 mL = 1 g = ~4,6 mEq de Ca++ / 93 mg de cálcio elementar)",
+  cenarios: ["eletrolito", "intoxicacao", "pcr"],
+  tags: ["Hipercalemia", "Antídoto MgSO4", "Hipocalcemia"],
+  resumo: "Fonte de cálcio EV. Estabilizador de membrana na hipercalemia, antídoto da intoxicação por sulfato de magnésio e tratamento da hipocalcemia sintomática.",
+  mecanismo: "Repõe cálcio. Na hipercalemia, antagoniza o efeito do K+ na membrana do miócito (estabiliza o potencial de membrana) sem reduzir o K+ sérico. Reverte bloqueio neuromuscular do magnésio.",
+  indicacoes: [
+    "<strong>Hipercalemia</strong> com alterações no ECG (cardioproteção imediata)",
+    "<strong>Antídoto da intoxicação por sulfato de magnésio</strong> (depressão respiratória/parada na eclâmpsia)",
+    "<strong>Hipocalcemia sintomática</strong> (tetania, convulsão, laringoespasmo)",
+    "Intoxicação por bloqueador de canal de cálcio / β-bloqueador",
+    "Hipocalcemia por transfusão maciça (citrato)"
+  ],
+  doseAdulto: "<strong>Hipercalemia:</strong> 1–2 g (10–20 mL) EV lento (2–5 min), repetir em 5–10 min se ECG não melhora.<br><strong>Antídoto MgSO4:</strong> 1 g (10 mL) EV lento.<br><strong>Hipocalcemia sintomática:</strong> 1–2 g EV em 10 min, depois infusão se necessário.",
+  dosePed: "<strong>Hipocalcemia/hipercalemia:</strong> 0,5–1 mL/kg (50–100 mg/kg) EV lento, monitor cardíaco. Máx 2 g/dose. <strong>Cloreto de cálcio só em veia central</strong> (mais necrosante).",
+  doseGest: "Categoria C, mas <strong>usar sem hesitar como antídoto do MgSO4</strong> na eclâmpsia. Mesmas doses.",
+  via: "EV lento (preferir gluconato em periférica; cloreto de cálcio só em central)",
+  preparo: "EV lento (não exceder ~1 mL/min do gluconato 10%). Pode diluir em SF/SG. <strong>Não misturar com bicarbonato</strong> (precipita carbonato de cálcio) nem com ceftriaxona em neonato.",
+  precaucoes: "<strong>Extravasamento causa necrose</strong> (cloreto > gluconato). Bradicardia/assistolia se infusão rápida. <strong>Cuidado em paciente digitalizado</strong> (cálcio potencializa toxicidade da digoxina — pode causar \"stone heart\"). Monitor cardíaco contínuo.",
+  reacoes: "Bradicardia, hipotensão (infusão rápida), necrose por extravasamento, hipercalcemia, flebite, potencialização de toxicidade digitálica.",
+  fontes: "AHA ACLS 2020; Protocolo MS Eclâmpsia 2022; AHA Intoxicações; Bula ANVISA."
+},
+{
+  id: "manitol",
+  nome: "Manitol 20%",
+  sinonimos: "—",
+  classe: "Diurético osmótico",
+  apresentacao: "Frasco 20% (200 mg/mL) — 250 mL",
+  cenarios: ["edema", "outros"],
+  tags: ["HIC", "Edema cerebral"],
+  resumo: "Diurético osmótico. 1ª linha (com salina hipertônica) na redução aguda da pressão intracraniana e edema cerebral.",
+  mecanismo: "Açúcar osmoticamente ativo não reabsorvido. Cria gradiente osmótico que desidrata o parênquima cerebral (reduz PIC) e promove diurese osmótica. Também melhora a reologia sanguínea.",
+  indicacoes: [
+    "<strong>Hipertensão intracraniana / edema cerebral</strong> (TCE, AVC, tumor) — redução aguda",
+    "Herniação cerebral iminente",
+    "Glaucoma agudo (redução da pressão intraocular)",
+    "Profilaxia/tratamento de IRA oligúrica (uso controverso)",
+    "Síndrome compartimental / rabdomiólise (forçar diurese — controverso)"
+  ],
+  doseAdulto: "<strong>HIC:</strong> 0,25–1 g/kg EV em bolus (em 15–20 min). Pode repetir a cada 4–6 h conforme PIC e osmolaridade (alvo &lt;320 mOsm/L). Dose típica: 1 g/kg ataque.",
+  dosePed: "<strong>HIC:</strong> 0,25–1 g/kg EV em 20 min, repetir a cada 4–6 h conforme resposta e osmolaridade.",
+  doseGest: "Categoria C. Usar em HIC materna grave com cautela (pode causar desidratação fetal e alterações eletrolíticas). Monitorar.",
+  via: "EV (com filtro — pode cristalizar)",
+  preparo: "<strong>Usar equipo com filtro</strong> (cristais). Se cristalizado, aquecer o frasco em banho-maria e agitar antes de infundir. Veia calibrosa.",
+  precaucoes: "<strong>Contraindicações:</strong> anúria/IRA estabelecida, ICC/EAP (expande volume antes de diurese), desidratação grave, hemorragia intracraniana ativa (relativo), hiperosmolaridade (>320 mOsm/L). Monitorar osmolaridade, eletrólitos, função renal e diurese. Efeito rebote de PIC possível.",
+  reacoes: "Sobrecarga volêmica inicial (EAP), desidratação e hipovolemia (após diurese), distúrbios eletrolíticos, IRA (doses altas), efeito rebote de PIC, flebite.",
+  fontes: "Brain Trauma Foundation 2016; SBN Neurologia; Bula ANVISA."
+},
+{
+  id: "metildopa",
+  nome: "Metildopa",
+  sinonimos: "Aldomet®",
+  classe: "Anti-hipertensivo de ação central (agonista α2)",
+  apresentacao: "Comprimido 250 mg e 500 mg",
+  cenarios: ["has"],
+  tags: ["HAS na gestação"],
+  resumo: "Anti-hipertensivo de ação central. 1ª escolha para HAS crônica na gestação (longo histórico de segurança fetal).",
+  mecanismo: "Pró-fármaco convertido em α-metilnoradrenalina, agonista α2 central → reduz tônus simpático e PA. Início lento (4–6 h), inadequado para emergência.",
+  indicacoes: [
+    "<strong>HAS crônica na gestação</strong> (1ª escolha)",
+    "HAS crônica (uso geral, menos comum hoje)",
+    "<strong>Não serve para emergência hipertensiva</strong> (início lento)"
+  ],
+  doseAdulto: "<strong>250 mg VO 2–3×/dia</strong>, titular até 500 mg–1 g 8/8–12/12 h (máx 3 g/dia).",
+  dosePed: "<strong>HAS:</strong> 10 mg/kg/dia VO dividido 2–4×, titular (máx 65 mg/kg/dia ou 3 g/dia).",
+  doseGest: "<strong>Categoria B — anti-hipertensivo de escolha na gestação</strong> (maior experiência de segurança). Mesmas doses.",
+  via: "VO",
+  preparo: "Uso oral.",
+  precaucoes: "Início de ação lento (não usar em emergência). Sedação, hipotensão postural. Pode causar anemia hemolítica (Coombs+), hepatite, depressão. Não suspender abruptamente. Cuidado em hepatopatia.",
+  reacoes: "Sedação, fadiga, hipotensão postural, boca seca, anemia hemolítica autoimune, hepatite, depressão, congestão nasal.",
+  fontes: "FEBRASGO; Protocolo MS Pré-eclâmpsia 2022; Bula ANVISA."
+},
+{
+  id: "metilergometrina",
+  nome: "Metilergometrina (Maleato)",
+  sinonimos: "Methergin®, Ergotrate®",
+  classe: "Alcaloide do ergot (uterotônico)",
+  apresentacao: "Ampola 0,2 mg/mL (1 mL); comprimido 0,125 mg",
+  cenarios: ["obstetrica"],
+  tags: ["Hemorragia pós-parto"],
+  resumo: "Uterotônico do grupo ergot. 2ª linha no tratamento da hemorragia pós-parto por atonia uterina (após ocitocina).",
+  mecanismo: "Agonista de receptores serotoninérgicos e α-adrenérgicos no miométrio → contração uterina tônica e sustentada. Também causa vasoconstrição sistêmica.",
+  indicacoes: [
+    "<strong>Hemorragia pós-parto por atonia uterina</strong> (2ª linha, após ocitocina)",
+    "Subinvolução uterina puerperal",
+    "Prevenção de hemorragia no pós-parto/pós-aborto (casos selecionados)"
+  ],
+  doseAdulto: "<strong>HPP:</strong> 0,2 mg (1 ampola) IM. Pode repetir a cada 2–4 h (máx 5 doses/1 mg em 24 h). <strong>EV evitar</strong> (risco de HAS grave e AVC); se imprescindível, muito lento e diluído.<br><strong>VO:</strong> 0,125–0,25 mg 8/8 h por alguns dias.",
+  dosePed: "Não se aplica (uso obstétrico).",
+  doseGest: "<strong>CONTRAINDICADA antes da expulsão fetal</strong> (causa contração tônica → sofrimento/morte fetal). Uso somente no pós-parto/pós-dequitação.",
+  via: "IM (preferencial), VO. EV apenas em emergência extrema, muito lento.",
+  preparo: "IM: pura. Proteger da luz e calor (degrada). Verificar integridade da ampola.",
+  precaucoes: "<strong>Contraindicações:</strong> HAS, pré-eclâmpsia/eclâmpsia, doença vascular, coronariopatia, sepse, gestação ativa (pré-expulsão). Pode causar HAS grave, vasoespasmo, AVC, isquemia. Não associar a vasoconstritores/triptanos.",
+  reacoes: "Hipertensão, cefaleia, náusea, vômito, vasoespasmo (digital, coronariano, cerebral), HAS grave/AVC (EV), tontura.",
+  fontes: "FEBRASGO Hemorragia Pós-Parto; OMS HPP; Bula ANVISA."
+},
+{
+  id: "metilprednisolona",
+  nome: "Metilprednisolona",
+  sinonimos: "Solu-Medrol®",
+  classe: "Corticoide (intermediário)",
+  apresentacao: "Frasco-ampola 125 mg e 500 mg (succinato, EV/IM)",
+  cenarios: ["bronco", "anafilaxia", "outros"],
+  tags: ["Asma", "Anafilaxia", "Anti-inflamatório"],
+  resumo: "Corticoide de potência intermediária. Usado em crise asmática grave, exacerbação de DPOC, anafilaxia e processos inflamatórios graves.",
+  mecanismo: "Glicocorticoide sintético com mínima atividade mineralocorticoide. Potência ~5× a hidrocortisona. Modula transcrição gênica reduzindo mediadores inflamatórios. Início em 1–2 h.",
+  indicacoes: [
+    "<strong>Crise asmática grave / refratária</strong>",
+    "<strong>Exacerbação de DPOC</strong>",
+    "Anafilaxia (adjuvante após adrenalina)",
+    "Doenças autoimunes em atividade (pulsoterapia)",
+    "Edema/compressão medular, rejeição de transplante",
+    "Choque séptico refratário (controverso)"
+  ],
+  doseAdulto: "<strong>Asma/DPOC:</strong> 40–125 mg EV 6/6–8/8 h (ou 1–2 mg/kg/dia).<br><strong>Anafilaxia:</strong> 1–2 mg/kg EV.<br><strong>Pulsoterapia:</strong> 500–1.000 mg EV/dia × 3–5 dias.",
+  dosePed: "<strong>Asma/anafilaxia:</strong> 1–2 mg/kg/dose EV (máx 60–80 mg/dose) a cada 6–12 h.<br><strong>Pulsoterapia:</strong> 10–30 mg/kg/dia (máx 1 g).",
+  doseGest: "Categoria C. Crise asmática/anafilaxia: usar normalmente. Atravessa placenta em menor grau que dexametasona/betametasona (preferida quando NÃO se quer efeito fetal).",
+  via: "EV (preferencial), IM, intra-articular",
+  preparo: "Reconstituir com diluente que acompanha. EV: bolus lento (doses baixas) ou diluir em 50–100 mL SF/SG e infundir em 15–30 min. Pulsoterapia: infundir em ≥30 min (risco de arritmia em bolus rápido).",
+  precaucoes: "Hiperglicemia, HAS, imunossupressão, retenção hídrica. Pulsoterapia em bolus rápido: risco de arritmia e morte súbita. Não interromper abruptamente em uso prolongado. Cuidado em úlcera, infecção sistêmica, psicose.",
+  reacoes: "Hiperglicemia, HAS, insônia, agitação, retenção hídrica, hipocalemia, miopatia, arritmia (bolus rápido), supressão adrenal.",
+  fontes: "GINA 2023; SBP Anafilaxia; SBPT; Bula ANVISA."
+},
+{
+  id: "metoclopramida",
+  nome: "Metoclopramida",
+  sinonimos: "Plasil®",
+  classe: "Antiemético / procinético (antagonista D2)",
+  apresentacao: "Ampola 5 mg/mL (2 mL = 10 mg); comprimido 10 mg; solução oral",
+  cenarios: ["gastro"],
+  tags: ["Náusea/vômito", "Procinético"],
+  resumo: "Antiemético e procinético. 1ª linha para náuseas e vômitos no pronto-socorro. Risco de efeitos extrapiramidais.",
+  mecanismo: "Antagonista D2 central (zona de gatilho quimiorreceptora) e periférico (procinético gástrico). Em doses altas também antagoniza 5-HT3. Acelera o esvaziamento gástrico.",
+  indicacoes: [
+    "<strong>Náuseas e vômitos</strong> (de diversas causas)",
+    "Gastroparesia",
+    "Adjuvante em crise de enxaqueca (com analgésico)",
+    "Facilitação de procedimentos (esvaziamento gástrico)",
+    "Refluxo gastroesofágico (uso pontual)"
+  ],
+  doseAdulto: "<strong>10 mg EV/IM</strong> a cada 8 h (EV lento, diluído — bolus rápido causa acatisia intensa). Máx 30 mg/dia. <strong>VO:</strong> 10 mg 8/8 h antes das refeições.",
+  dosePed: "<strong>0,1–0,15 mg/kg/dose</strong> EV/VO a cada 8 h (máx 0,5 mg/kg/dia, máx 10 mg/dose). <strong>Cautela: maior risco de SEP em crianças.</strong>",
+  doseGest: "Categoria B. <strong>Pode ser usada na gestação</strong> (inclusive para hiperêmese gravídica). Mesmas doses.",
+  via: "EV (lento, diluído), IM, VO",
+  preparo: "EV: diluir em 50 mL SF e infundir em 15 min (ou bolus muito lento em ≥3 min) — reduz risco de acatisia.",
+  precaucoes: "<strong>Sintomas extrapiramidais</strong> (distonia aguda, acatisia) — mais em jovens e doses altas; tratar com biperideno/difenidramina. Discinesia tardia em uso prolongado (limitar a 5 dias / máx 30 mg/dia — restrição da ANVISA/EMA). Prolongamento QT. Contraindicado em obstrução/perfuração/hemorragia GI, feocromocitoma, epilepsia.",
+  reacoes: "Sonolência, acatisia, distonia aguda, discinesia tardia (crônico), hiperprolactinemia, diarreia, prolongamento QT, síndrome neuroléptica maligna (rara).",
+  fontes: "ANVISA Restrição Metoclopramida; Bula ANVISA; SBP."
+},
+{
+  id: "metoprolol",
+  nome: "Metoprolol (Tartarato)",
+  sinonimos: "Seloken®, Lopressor®",
+  classe: "Betabloqueador β1-seletivo",
+  apresentacao: "Ampola 1 mg/mL (5 mL = 5 mg); comprimido 25, 50 e 100 mg",
+  cenarios: ["arritmia", "sca", "has"],
+  tags: ["SCA", "Taquiarritmia"],
+  resumo: "Betabloqueador cardiosseletivo. Usado em SCA, controle de frequência em taquiarritmias e HAS. Forma EV para emergência.",
+  mecanismo: "Antagonista β1-adrenérgico seletivo → reduz FC, contratilidade, condução AV, consumo miocárdico de O2 e PA. Cardiosseletividade diminui em doses altas.",
+  indicacoes: [
+    "<strong>Síndrome coronariana aguda</strong> (reduz isquemia e arritmia, se estável)",
+    "<strong>Controle de FC em FA/Flutter</strong> e taquicardias supraventriculares",
+    "Taquicardia sinusal sintomática",
+    "HAS, IC estável (uso crônico)",
+    "Profilaxia de enxaqueca, tireotoxicose"
+  ],
+  doseAdulto: "<strong>SCA/taquiarritmia (EV):</strong> 5 mg EV lento (1 mg/min), repetir a cada 5 min até 15 mg conforme FC/PA.<br><strong>VO:</strong> 25–100 mg 12/12 h.",
+  dosePed: "<strong>Uso restrito.</strong> HAS/arritmia: 0,5–1 mg/kg/dia VO dividido 12/12 h. EV raramente usado em pediatria.",
+  doseGest: "Categoria C. Betabloqueadores podem ser usados na gestação (preferir labetalol/metoprolol); risco de restrição de crescimento e bradicardia/hipoglicemia neonatal. Monitorar.",
+  via: "EV (lento), VO",
+  preparo: "EV: administrar lento (1 mg/min), monitorizando FC e PA continuamente.",
+  precaucoes: "<strong>Contraindicações:</strong> bradicardia, BAV 2º/3º grau, choque cardiogênico, IC descompensada, asma/DPOC com broncoespasmo ativo, PAS &lt;100. Não usar em SCA por cocaína (vasoespasmo). Não suspender abruptamente. Mascara sinais de hipoglicemia.",
+  reacoes: "Bradicardia, hipotensão, BAV, broncoespasmo, fadiga, extremidades frias, mascaramento de hipoglicemia, IC descompensada (uso inadequado).",
+  fontes: "SBC IAM 2021; SBC Arritmias; Bula ANVISA."
+},
+{
+  id: "nifedipina",
+  nome: "Nifedipina",
+  sinonimos: "Adalat®",
+  classe: "Bloqueador de canal de cálcio (di-hidropiridina)",
+  apresentacao: "Comprimido/cápsula 10 e 20 mg; retard 20 e 30 mg",
+  cenarios: ["has", "obstetrica"],
+  tags: ["HAS gestacional", "Tocólise"],
+  resumo: "BCC di-hidropiridínico. Usado na emergência hipertensiva da gestação (VO) e como tocolítico. A forma de ação rápida sublingual é proscrita.",
+  mecanismo: "Bloqueia canais de cálcio tipo L da musculatura lisa vascular → vasodilatação arteriolar → redução da PA. Também relaxa o miométrio (efeito tocolítico).",
+  indicacoes: [
+    "<strong>Emergência hipertensiva na gestação</strong> (VO, formulação de liberação modificada/oral)",
+    "<strong>Tocólise</strong> (inibição do trabalho de parto prematuro)",
+    "HAS crônica",
+    "Angina vasoespástica (Prinzmetal)",
+    "Fenômeno de Raynaud"
+  ],
+  doseAdulto: "<strong>Emergência HAS gestacional:</strong> 10 mg VO, repetir a cada 20–30 min se necessário (máx 30 mg). <strong>NUNCA sublingual</strong> (queda abrupta → isquemia/AVC).<br><strong>Tocólise:</strong> 20 mg VO ataque, depois 10–20 mg 4/4–8/8 h.<br><strong>HAS crônica:</strong> retard 20–60 mg/dia.",
+  dosePed: "<strong>Crise hipertensiva:</strong> 0,25–0,5 mg/kg/dose VO (máx 10 mg). Uso cauteloso. <strong>Evitar sublingual.</strong>",
+  doseGest: "Categoria C, mas <strong>amplamente usada e recomendada</strong> na emergência hipertensiva gestacional e na tocólise. Mesmas doses.",
+  via: "VO (engolir — <strong>nunca sublingual ou perfurar a cápsula sob a língua</strong>)",
+  preparo: "Uso oral. A administração sublingual da cápsula líquida é <strong>proscrita</strong> (causou IAM e AVC).",
+  precaucoes: "<strong>Não usar via sublingual</strong> (hipotensão abrupta e imprevisível). Taquicardia reflexa, cefaleia, edema. Cuidado ao associar com sulfato de magnésio (potencializa hipotensão e bloqueio neuromuscular). Evitar em estenose aórtica grave, IC descompensada.",
+  reacoes: "Cefaleia, rubor, edema de membros inferiores, taquicardia reflexa, hipotensão, tontura, hipotensão grave (sublingual — proscrito).",
+  fontes: "Posicionamento Luso-Brasileiro Emergências Hipertensivas 2020; FEBRASGO; Bula ANVISA."
+},
+{
+  id: "nistatina",
+  nome: "Nistatina",
+  sinonimos: "Micostatin®",
+  classe: "Antifúngico poliênico (tópico)",
+  apresentacao: "Suspensão oral 100.000 UI/mL; creme/pomada",
+  cenarios: ["outros"],
+  tags: ["Candidíase oral"],
+  resumo: "Antifúngico tópico/oral não absorvível. 1ª linha em candidíase oral (sapinho) e cutânea.",
+  mecanismo: "Liga-se ao ergosterol da membrana fúngica → forma poros → extravasamento do conteúdo celular → morte do fungo. Não é absorvido pelo TGI (ação local).",
+  indicacoes: [
+    "<strong>Candidíase oral</strong> (muguet/sapinho)",
+    "Candidíase cutânea e de dobras",
+    "Candidíase esofágica (uso limitado — preferir fluconazol)",
+    "Profilaxia de candidíase em imunossuprimidos"
+  ],
+  doseAdulto: "<strong>Candidíase oral:</strong> 5–10 mL (500.000–1.000.000 UI) — bochechar e engolir, 4×/dia, por 7–14 dias.",
+  dosePed: "<strong>Lactente:</strong> 1–2 mL (100.000–200.000 UI) em cada lado da boca, 4×/dia.<br><strong>Crianças maiores:</strong> 4–6 mL 4×/dia, por 7–14 dias.",
+  doseGest: "Categoria C (oral)/B (tópico vaginal). <strong>Segura na gestação</strong> (não é absorvida). Mesmas doses.",
+  via: "VO (suspensão — uso tópico na mucosa), tópica cutânea",
+  preparo: "Suspensão: agitar antes de usar. Bochechar o máximo possível antes de engolir. Aplicar após as refeições.",
+  precaucoes: "Praticamente sem absorção sistêmica → muito segura. Raramente: irritação, náusea com doses orais altas. Manter por 48 h após resolução clínica para evitar recidiva.",
+  reacoes: "Náusea, vômito, diarreia (doses orais altas), irritação local, gosto desagradável.",
+  fontes: "SBP; Bula ANVISA."
+},
+{
+  id: "nitroprussiato",
+  nome: "Nitroprussiato de Sódio",
+  sinonimos: "Nipride®, Nitrop®",
+  classe: "Vasodilatador (arterial e venoso)",
+  apresentacao: "Frasco-ampola 50 mg (pó) + diluente",
+  cenarios: ["has", "edema"],
+  tags: ["Emergência HAS", "EAP"],
+  resumo: "Vasodilatador potente de ação imediata. Droga de escolha na maioria das emergências hipertensivas (uso EV em BIC com monitorização).",
+  mecanismo: "Doador de óxido nítrico → vasodilatação arterial e venosa balanceada → redução imediata da PA (reduz pré e pós-carga). Início em segundos, efeito cessa minutos após parar.",
+  indicacoes: [
+    "<strong>Emergência hipertensiva</strong> (encefalopatia, dissecção de aorta com β-bloq, EAP hipertensivo) — droga de escolha",
+    "Redução controlada da PA no perioperatório",
+    "<strong>Insuficiência cardíaca aguda</strong> com hipertensão / pós-carga elevada"
+  ],
+  doseAdulto: "<strong>BIC:</strong> iniciar 0,25–0,5 mcg/kg/min, titular a cada 2–5 min (máx 8–10 mcg/kg/min, e por tempo limitado). Requer linha arterial / monitorização contínua de PA.",
+  dosePed: "<strong>BIC:</strong> iniciar 0,3–0,5 mcg/kg/min, titular até 8 mcg/kg/min. Monitorização contínua obrigatória.",
+  doseGest: "Categoria C. <strong>Evitar</strong> (risco teórico de acúmulo de cianeto/tiocianato no feto). Reservar para emergência hipertensiva materna refratária sem alternativa, pelo menor tempo possível. Preferir hidralazina/nifedipina.",
+  via: "EV exclusivamente em BIC (nunca bolus)",
+  preparo: "<strong>Diluir SEMPRE em SG 5%</strong> (50 mg em 250 mL SG 5% = 200 mcg/mL). <strong>Proteger da luz</strong> (envolver bolsa e equipo em papel alumínio — fotodegradação libera cianeto). Trocar a solução a cada 24 h (ou se mudar de cor).",
+  precaucoes: "<strong>Toxicidade por cianeto/tiocianato</strong> em uso prolongado (>24–48 h), dose alta, IRC ou IH (acidose metabólica, confusão, convulsão → tratar com hidroxicobalamina/tiossulfato). Hipotensão grave (titular com cuidado). Roubo coronariano, aumento de PIC. Não usar isolada na dissecção de aorta (associar β-bloq antes).",
+  reacoes: "Hipotensão, taquicardia reflexa, cefaleia, náusea, toxicidade por cianeto (acidose, alteração mental), metemoglobinemia, aumento da PIC.",
+  fontes: "Posicionamento Luso-Brasileiro Emergências Hipertensivas 2020; SBC; Bula ANVISA."
+},
+{
+  id: "oleo-mineral",
+  nome: "Óleo Mineral",
+  sinonimos: "Parafina líquida",
+  classe: "Laxante lubrificante",
+  apresentacao: "Solução oral (frasco)",
+  cenarios: ["gastro"],
+  tags: ["Constipação"],
+  resumo: "Laxante lubrificante de uso oral. Amolece as fezes e facilita a evacuação na constipação.",
+  mecanismo: "Lubrifica a mucosa e amolece o bolo fecal (não é absorvido), facilitando a passagem. Reduz a absorção de água pelas fezes.",
+  indicacoes: [
+    "<strong>Constipação intestinal</strong> (alívio sintomático)",
+    "Prevenção de esforço evacuatório (pós-IAM, pós-cirurgia anorretal, hemorroidas)",
+    "Fecaloma (adjuvante)"
+  ],
+  doseAdulto: "<strong>15–45 mL VO</strong> ao dia (à noite, longe das refeições). Efeito em 6–8 h.",
+  dosePed: "<strong>≥6 anos:</strong> 1–3 mL/kg/dia VO (máx 90 mL/dia). <strong>Não usar em &lt;1 ano nem em crianças com risco de aspiração.</strong>",
+  doseGest: "Evitar uso prolongado (reduz absorção de vitaminas lipossolúveis). Preferir outros laxantes na gestação.",
+  via: "VO (longe das refeições)",
+  preparo: "Uso oral. Não administrar deitado.",
+  precaucoes: "<strong>Risco de pneumonia lipoídica por aspiração</strong> — contraindicado em disfagia, rebaixamento, crianças pequenas, idoso acamado. Uso prolongado reduz absorção de vitaminas A, D, E, K. Não usar com docusato (aumenta absorção). Pode causar incontinência oleosa anal.",
+  reacoes: "Pneumonia lipoídica (aspiração), prurido/sujidade anal, má absorção de vitaminas lipossolúveis, cólica.",
+  fontes: "Bula ANVISA; Diretrizes de constipação."
+},
+{
+  id: "omeprazol",
+  nome: "Omeprazol",
+  sinonimos: "Losec®",
+  classe: "Inibidor de bomba de prótons (IBP)",
+  apresentacao: "Frasco-ampola 40 mg (pó EV); cápsula 20 e 40 mg",
+  cenarios: ["gastro"],
+  tags: ["HDA", "Úlcera"],
+  resumo: "Inibidor de bomba de prótons. Usado na hemorragia digestiva alta (úlcera péptica) e na profilaxia/tratamento de doença ácido-péptica.",
+  mecanismo: "Inibe irreversivelmente a H+/K+ ATPase (bomba de prótons) das células parietais gástricas → supressão profunda e prolongada da secreção ácida.",
+  indicacoes: [
+    "<strong>Hemorragia digestiva alta</strong> por úlcera péptica (BIC após endoscopia)",
+    "Úlcera péptica gástrica/duodenal",
+    "Doença do refluxo gastroesofágico",
+    "Profilaxia de úlcera de estresse em paciente crítico de risco",
+    "Erradicação de H. pylori (com antibióticos)"
+  ],
+  doseAdulto: "<strong>HDA alto risco:</strong> 80 mg EV em bolus, seguido de BIC 8 mg/h por 72 h (ou 40 mg EV 12/12 h se BIC indisponível).<br><strong>Úlcera/DRGE:</strong> 20–40 mg/dia VO/EV.",
+  dosePed: "<strong>1–2 mg/kg/dia</strong> VO/EV (máx 40 mg/dia). HDA: doses extrapoladas do adulto por peso, uso especializado.",
+  doseGest: "Categoria C. Pode ser usado quando indicado (segurança razoável). Preferir medidas iniciais e pantoprazol tem mais dados, mas omeprazol é aceitável.",
+  via: "EV (diluído), VO",
+  preparo: "EV: reconstituir com diluente próprio. Bolus: diluir em 10 mL e infundir em 5 min. BIC: diluir em SF/SG 5%. <strong>Usar logo após reconstituir</strong> (instável).",
+  precaucoes: "Uso prolongado: hipomagnesemia, deficiência de B12, osteoporose, ↑risco de infecção entérica (C. difficile) e pneumonia. Interage com clopidogrel (reduz ativação — preferir pantoprazol). Pode mascarar sintomas de câncer gástrico.",
+  reacoes: "Cefaleia, diarreia, hipomagnesemia, deficiência de B12 (crônico), nefrite intersticial, ↑risco de C. difficile, rash.",
+  fontes: "SOBED HDA; Diretrizes de úlcera péptica; Bula ANVISA."
+},
+{
+  id: "oxacilina",
+  nome: "Oxacilina",
+  sinonimos: "—",
+  classe: "Antibiótico (penicilina antiestafilocócica)",
+  apresentacao: "Frasco-ampola 500 mg (pó para EV/IM)",
+  cenarios: ["antibiotico"],
+  tags: ["S. aureus (MSSA)", "Endocardite"],
+  resumo: "Penicilina resistente à penicilinase. Antibiótico de escolha para infecções por S. aureus sensível à oxacilina (MSSA).",
+  mecanismo: "Inibe síntese da parede celular (PBPs). Bactericida. Resistente à β-lactamase estafilocócica → eficaz contra MSSA. NÃO cobre MRSA.",
+  indicacoes: [
+    "<strong>Infecções por S. aureus sensível (MSSA)</strong>: pele/partes moles graves, osteomielite, artrite séptica",
+    "<strong>Endocardite por MSSA</strong>",
+    "Bacteremia estafilocócica, pneumonia estafilocócica",
+    "Sepse com foco cutâneo/cateter"
+  ],
+  doseAdulto: "<strong>Infecção grave:</strong> 2 g EV 4/4 h (8–12 g/dia).<br><strong>Endocardite/SNC:</strong> até 12 g/dia.",
+  dosePed: "<strong>100–200 mg/kg/dia</strong> EV dividido 6/6 h (infecções graves/SNC: até 400 mg/kg/dia, máx 12 g/dia).<br><strong>Neonato:</strong> ajuste por idade gestacional.",
+  doseGest: "Categoria B. <strong>Segura na gestação.</strong> Mesmas doses.",
+  via: "EV (preferencial), IM",
+  preparo: "Reconstituir com AD. EV: diluir em SF e infundir em 15–30 min. Veia calibrosa (flebite).",
+  precaucoes: "Alergia a penicilinas. <strong>Hepatotoxicidade</strong> (elevação de transaminases, geralmente reversível). Flebite. Nefrite intersticial. Ajustar em IH grave. Não cobre MRSA (usar vancomicina/daptomicina).",
+  reacoes: "Reação alérgica, flebite, hepatotoxicidade, nefrite intersticial, neutropenia (doses altas prolongadas), diarreia.",
+  fontes: "Manual de Antibioticoterapia CCIH; SBP; Bula ANVISA."
+},
+{
+  id: "paracetamol",
+  nome: "Paracetamol",
+  sinonimos: "Acetaminofeno, Tylenol®",
+  classe: "Analgésico / antipirético",
+  apresentacao: "Comprimido 500/750 mg; solução oral 200 mg/mL; (forma EV 10 mg/mL em alguns serviços)",
+  cenarios: ["dor", "febre"],
+  tags: ["Dor", "Febre"],
+  resumo: "Analgésico e antipirético sem efeito anti-inflamatório relevante. 1ª linha para dor leve/moderada e febre, inclusive em gestantes.",
+  mecanismo: "Inibição central da síntese de prostaglandinas (COX central) e modulação serotoninérgica. Efeito analgésico e antipirético; quase sem ação anti-inflamatória periférica nem antiplaquetária.",
+  indicacoes: [
+    "<strong>Dor leve a moderada</strong>",
+    "<strong>Febre</strong> (1ª linha, inclusive gestante e lactente)",
+    "Analgesia multimodal (com opioide/AINE)",
+    "Cefaleia, dor musculoesquelética"
+  ],
+  doseAdulto: "<strong>VO:</strong> 500–1.000 mg 6/6 h (máx 3–4 g/dia; ≤3 g/dia em hepatopata/etilista).<br><strong>EV (onde disponível):</strong> 1 g 6/6 h (máx 4 g/dia; 15 mg/kg se &lt;50 kg).",
+  dosePed: "<strong>VO:</strong> 10–15 mg/kg/dose 4/4–6/6 h (máx 75 mg/kg/dia ou 4 g/dia).<br><strong>EV:</strong> 15 mg/kg/dose 6/6 h (10 mg/kg se &lt;10 kg).<br>Solução oral 200 mg/mL: 1 gota ≈ 5 mg.",
+  doseGest: "Categoria B. <strong>Analgésico/antipirético de escolha na gestação</strong> (todos os trimestres). Usar a menor dose eficaz pelo menor tempo.",
+  via: "VO, retal, EV (onde disponível)",
+  preparo: "EV: infundir em 15 min. VO/retal: uso direto.",
+  precaucoes: "<strong>Hepatotoxicidade em superdose</strong> (>7,5–10 g agudo no adulto; ou crônico em etilista/desnutrido) — <strong>antídoto: N-acetilcisteína</strong>. Cuidado em hepatopatia, etilismo, desnutrição (reduzir dose máx). Cautela com associações que já contêm paracetamol (somar doses).",
+  reacoes: "Geralmente bem tolerado. Hepatotoxicidade (superdose), reação alérgica rara, rash (incluindo NET/Stevens-Johnson — muito raro), trombocitopenia.",
+  fontes: "OMS Escada Analgésica; SBP; Bula ANVISA."
+},
+{
+  id: "penicilina",
+  nome: "Penicilina G Cristalina",
+  sinonimos: "Penicilina G potássica/sódica, Benzilpenicilina",
+  classe: "Antibiótico β-lactâmico (penicilina natural)",
+  apresentacao: "Frasco-ampola 5.000.000 UI (pó para EV/IM)",
+  cenarios: ["antibiotico"],
+  tags: ["Sífilis (SNC)", "Meningite", "Erisipela"],
+  resumo: "Penicilina natural de uso parenteral. 1ª escolha para estreptococos, sífilis (neurossífilis), meningococo e várias infecções clássicas.",
+  mecanismo: "Inibe síntese da parede celular (PBPs). Bactericida. Espectro: estreptococos, meningococo, Treponema, clostrídios, alguns gram-positivos. Inativada por penicilinase (não cobre S. aureus produtor).",
+  indicacoes: [
+    "<strong>Meningite</strong> (meningocócica, pneumocócica sensível)",
+    "<strong>Neurossífilis</strong>",
+    "Endocardite por estreptococo",
+    "Erisipela/celulite estreptocócica grave",
+    "Pneumonia pneumocócica, fasceíte necrosante (com clinda), tétano, gangrena gasosa, leptospirose"
+  ],
+  doseAdulto: "<strong>Meningite/neurossífilis:</strong> 18–24 milhões UI/dia EV, dividido 4/4 h (3–4 milhões UI por dose) ou em infusão contínua.<br><strong>Infecções graves:</strong> 12–24 milhões UI/dia 4/4–6/6 h.",
+  dosePed: "<strong>Infecção grave/meningite:</strong> 200.000–400.000 UI/kg/dia EV dividido 4/4–6/6 h (máx 24 milhões UI/dia).<br><strong>Neonato:</strong> ajuste por idade.",
+  doseGest: "Categoria B. <strong>Segura e 1ª escolha</strong> (sífilis na gestação: penicilina é o ÚNICO tratamento que trata o feto). Mesmas doses.",
+  via: "EV (preferencial em infecção grave), IM",
+  preparo: "Reconstituir com AD/SF. EV: diluir em SF/SG e infundir em 30 min ou contínua. Atenção ao aporte de K+/Na+ (formulação potássica/sódica) em altas doses.",
+  precaucoes: "<strong>Alergia a penicilinas</strong> (anafilaxia). Reação de Jarisch-Herxheimer no tratamento de sífilis/leptospirose. Convulsão em doses muito altas com IRC (neurotoxicidade). Ajustar em IRC. Sobrecarga de eletrólitos (K+/Na+) em altas doses.",
+  reacoes: "Reação alérgica (do rash à anafilaxia), Jarisch-Herxheimer, convulsão (dose alta/IRC), hipocalemia/sobrecarga de Na, nefrite intersticial, anemia hemolítica.",
+  fontes: "Manual de Antibioticoterapia CCIH; SBP; Protocolo MS Sífilis; Bula ANVISA."
+},
+{
+  id: "prometazina",
+  nome: "Prometazina",
+  sinonimos: "Fenergan®",
+  classe: "Anti-histamínico H1 (fenotiazina)",
+  apresentacao: "Ampola 25 mg/mL (2 mL); comprimido 25 mg",
+  cenarios: ["anafilaxia", "gastro", "agitacao"],
+  tags: ["Antialérgico", "Antiemético", "Sedação"],
+  resumo: "Anti-histamínico de 1ª geração com efeito sedativo e antiemético. Adjuvante em alergia, náusea e em associação com haloperidol na agitação.",
+  mecanismo: "Antagonista H1 potente com forte ação anticolinérgica e antidopaminérgica → efeito antialérgico, antiemético, sedativo e antivertiginoso.",
+  indicacoes: [
+    "<strong>Reação alérgica</strong> (adjuvante; anafilaxia: após adrenalina)",
+    "<strong>Náuseas e vômitos</strong>",
+    "<strong>Adjuvante na agitação</strong> (com haloperidol — reduz SEP e sedа)",
+    "Insônia, sedação leve",
+    "Cinetose, vertigem"
+  ],
+  doseAdulto: "<strong>Alergia/náusea:</strong> 25–50 mg IM ou VO (EV evitar — risco de lesão tecidual grave).<br><strong>Adjuvante agitação:</strong> 25–50 mg IM com haloperidol.",
+  dosePed: "<strong>≥2 anos:</strong> 0,25–0,5 mg/kg/dose IM/VO (máx 25 mg). <strong>CONTRAINDICADA &lt;2 anos</strong> (risco de depressão respiratória fatal — black box).",
+  doseGest: "Categoria C. Pode ser usada para náusea/alergia quando necessário. Evitar próximo ao termo (efeitos no RN).",
+  via: "IM profundo, VO. <strong>EV fortemente desaconselhado</strong> (extravasamento/intra-arterial = necrose/gangrena).",
+  preparo: "IM profundo no glúteo. <strong>Evitar EV</strong>; se imprescindível, muito diluída (≤25 mg/mL) e lenta, em via central, com vigilância (risco de lesão grave de extremidade).",
+  precaucoes: "<strong>Contraindicada &lt;2 anos</strong> (depressão respiratória fatal). <strong>EV: risco de necrose/gangrena</strong> (lesão tecidual grave). Efeitos anticolinérgicos, sedação, hipotensão, SEP, prolongamento QT. Cuidado em idoso, glaucoma, hipertrofia prostática, apneia.",
+  reacoes: "Sedação, boca seca, hipotensão, sintomas extrapiramidais, lesão tecidual grave (EV/intra-arterial), depressão respiratória (criança), prolongamento QT.",
+  fontes: "ANVISA Alerta Prometazina Pediatria; SES-DF Agitação; Bula ANVISA."
+},
+{
+  id: "ranitidina",
+  nome: "Ranitidina",
+  sinonimos: "Antak®",
+  classe: "Antagonista H2 (antissecretor)",
+  apresentacao: "Ampola 25 mg/mL (2 mL = 50 mg); comprimido 150/300 mg",
+  cenarios: ["gastro", "anafilaxia"],
+  tags: ["Antiácido", "Anafilaxia (adjuvante)"],
+  resumo: "Antagonista H2 antissecretor. <strong>Nota:</strong> a maioria das apresentações foi suspensa/recolhida pela ANVISA (contaminação por NDMA) — incluída por constar na lista; verificar disponibilidade atual.",
+  mecanismo: "Antagonista dos receptores H2 das células parietais gástricas → reduz a secreção ácida basal e estimulada. Menos potente que os IBPs.",
+  indicacoes: [
+    "<strong>Adjuvante na anafilaxia</strong> (anti-H2 junto ao anti-H1, após adrenalina)",
+    "Doença ácido-péptica (úlcera, DRGE) — onde IBP indisponível",
+    "Profilaxia de úlcera de estresse",
+    "Profilaxia de aspiração ácida (pré-anestésico)"
+  ],
+  doseAdulto: "<strong>EV:</strong> 50 mg diluído, lento, 8/8 h.<br><strong>VO:</strong> 150 mg 12/12 h ou 300 mg à noite.<br><strong>Anafilaxia (adjuvante):</strong> 50 mg EV.",
+  dosePed: "<strong>EV:</strong> 1 mg/kg/dose 6/6–8/8 h (máx 50 mg/dose).<br><strong>VO:</strong> 4–8 mg/kg/dia dividido 12/12 h.",
+  doseGest: "Categoria B. Era considerada segura; uso atualmente limitado pela retirada do mercado.",
+  via: "EV (diluído, lento), VO",
+  preparo: "EV: diluir 50 mg em 20 mL SF, infundir em ≥5 min (bolus rápido → bradicardia/hipotensão).",
+  precaucoes: "<strong>Atenção: recolhida/suspensa pela ANVISA por contaminação com NDMA (potencial carcinógeno)</strong> — confirmar disponibilidade e preferir IBP/famotidina. Ajustar em IRC. Pode causar confusão em idoso. Bolus rápido EV: bradicardia.",
+  reacoes: "Cefaleia, tontura, confusão (idoso/IRC), bradicardia (EV rápido), elevação de transaminases, trombocitopenia (rara).",
+  fontes: "ANVISA Resolução de suspensão da ranitidina; Bula ANVISA."
+},
+{
+  id: "sais-reidratacao",
+  nome: "Sais de Reidratação Oral (SRO)",
+  sinonimos: "TRO, soro de reidratação oral, fórmula OMS",
+  classe: "Solução de reidratação oral",
+  apresentacao: "Envelope para diluição em 1 litro de água (fórmula osmolaridade reduzida OMS/UNICEF)",
+  cenarios: ["volume", "gastro"],
+  tags: ["Desidratação", "Diarreia"],
+  resumo: "Solução oral de glicose e eletrólitos. 1ª linha na reidratação da desidratação leve a moderada, sobretudo por diarreia.",
+  mecanismo: "Aproveita o cotransporte intestinal de sódio e glicose (SGLT1), que arrasta água — mantém a absorção mesmo na diarreia. Fórmula de osmolaridade reduzida: Na+ 75, glicose 75, K+ 20, citrato 10 mmol/L (245 mOsm/L).",
+  indicacoes: [
+    "<strong>Desidratação leve a moderada</strong> (Plano B da OMS), especialmente por diarreia aguda",
+    "Manutenção da hidratação durante diarreia (Plano A)",
+    "Reposição de perdas em vômitos/diarreia",
+    "Prevenção de desidratação"
+  ],
+  doseAdulto: "<strong>Reposição:</strong> 75 mL/kg em 4 h (desidratação moderada), depois manutenção conforme perdas. Oferecer livremente após cada evacuação líquida.",
+  dosePed: "<strong>Plano B (desidratação moderada):</strong> 75 mL/kg VO em 4 h, em pequenos goles/colher/seringa.<br><strong>Plano A (prevenção):</strong> &lt;1 ano: 50–100 mL após cada evacuação; 1–10 anos: 100–200 mL; &gt;10 anos: à vontade.",
+  doseGest: "Sem restrição. Útil em desidratação por hiperêmese/diarreia.",
+  via: "VO (ou por SNG em desidratação moderada sem vômitos incoercíveis)",
+  preparo: "<strong>Diluir 1 envelope em 1 litro de água tratada/fervida</strong> — não adicionar açúcar, não usar menos água (hiperosmolar = piora diarreia). Usar em até 24 h.",
+  precaucoes: "<strong>Não usar em desidratação grave/choque</strong> (requer reposição EV) nem em rebaixamento de consciência, íleo ou vômitos incoercíveis. Preparo incorreto (pouca água) causa hipernatremia. Não substituir por refrigerante/sucos (hiperosmolares).",
+  reacoes: "Vômito (oferta rápida — dar em pequenos goles), hipernatremia (preparo errado), distensão abdominal.",
+  fontes: "OMS/UNICEF Reidratação Oral; MS Manejo da Diarreia; SBP."
+},
+{
+  id: "salbutamol",
+  nome: "Salbutamol",
+  sinonimos: "Albuterol, Aerolin®",
+  classe: "Broncodilatador β2-agonista de curta ação",
+  apresentacao: "Aerossol 100 mcg/jato; solução para NBZ 5 mg/mL; ampola 0,5 mg/mL (EV/SC, uso restrito)",
+  cenarios: ["bronco", "anafilaxia", "eletrolito"],
+  tags: ["Asma", "Hipercalemia"],
+  resumo: "β2-agonista de curta ação. 1ª linha na crise asmática e broncoespasmo; também adjuvante no manejo da hipercalemia.",
+  mecanismo: "Agonista β2-adrenérgico seletivo → broncodilatação rápida (início 5 min). Ativa a Na+/K+ ATPase → desvia K+ para o intracelular (uso na hipercalemia).",
+  indicacoes: [
+    "<strong>Crise asmática</strong> (broncodilatador de resgate, 1ª linha)",
+    "<strong>Exacerbação de DPOC</strong>",
+    "Broncoespasmo agudo de qualquer causa",
+    "<strong>Hipercalemia</strong> (adjuvante — desvia K+ para dentro da célula)",
+    "Adjuvante na anafilaxia com broncoespasmo (após adrenalina)"
+  ],
+  doseAdulto: "<strong>NBZ:</strong> 2,5–5 mg (10–20 gotas) em 3 mL SF, a cada 20 min × 3 doses na 1ª hora; crise grave: contínua.<br><strong>Aerossol:</strong> 4–8 jatos com espaçador a cada 20 min × 3 doses.<br><strong>Hipercalemia:</strong> 10–20 mg NBZ (dose alta).",
+  dosePed: "<strong>NBZ:</strong> 0,15 mg/kg/dose (mín 2,5 mg / máx 5 mg) em 3 mL SF, a cada 20 min × 3.<br><strong>Aerossol:</strong> 2–4 jatos (crise leve) a 4–8 jatos (grave) com espaçador, a cada 20 min × 3.<br><strong>Hipercalemia:</strong> 0,4 mg/kg NBZ.",
+  doseGest: "Categoria C. <strong>β2-agonistas inalatórios são seguros e indicados na crise asmática gestacional.</strong> Atenção: também tem efeito tocolítico.",
+  via: "Inalatória (NBZ/aerossol com espaçador); EV/SC apenas em casos refratários (uso restrito)",
+  preparo: "NBZ: diluir em 3 mL SF; pode combinar com ipratrópio. Espaçador melhora muito a deposição pulmonar do aerossol.",
+  precaucoes: "Taquicardia, tremor, <strong>hipocalemia</strong> (doses altas/repetidas — monitorar K+ na crise grave), hiperglicemia. Cuidado em cardiopatia, arritmia, hipertireoidismo. Tolerância com uso excessivo.",
+  reacoes: "Tremor, taquicardia, palpitação, cefaleia, hipocalemia, hiperglicemia, agitação, câimbra.",
+  fontes: "GINA 2023; SBPT Asma 2021; AHA Hipercalemia; Bula ANVISA."
+},
+{
+  id: "sulfadiazina-prata",
+  nome: "Sulfadiazina de Prata 1%",
+  sinonimos: "Dermazine®, Prata sulfadiazina",
+  classe: "Antimicrobiano tópico",
+  apresentacao: "Creme 1% (bisnaga/pote)",
+  cenarios: ["outros"],
+  tags: ["Queimadura"],
+  resumo: "Antimicrobiano tópico de uso em queimaduras. Previne e trata infecção da ferida em queimaduras de 2º e 3º graus.",
+  mecanismo: "A prata liberada lentamente atua na parede e membrana celulares bacterianas e no DNA → ação bactericida de amplo espectro (gram±, fungos). Cobertura ampla da superfície queimada.",
+  indicacoes: [
+    "<strong>Queimaduras de 2º e 3º graus</strong> (profilaxia e tratamento de infecção da ferida)",
+    "Úlceras infectadas, feridas crônicas (uso selecionado)"
+  ],
+  doseAdulto: "Aplicar camada de 2–3 mm sobre a ferida limpa, 1–2×/dia, cobrindo toda a área queimada. Trocar curativo conforme protocolo.",
+  dosePed: "Mesma aplicação tópica. <strong>Evitar em RN/lactente &lt;2 meses</strong> e em grandes áreas (risco de absorção, kernicterus pela sulfa).",
+  doseGest: "Categoria B (D próximo ao termo). Evitar em grandes superfícies no fim da gestação (risco de kernicterus neonatal pela sulfa). Áreas pequenas: aceitável.",
+  via: "Tópica",
+  preparo: "Limpar a ferida. Aplicar com técnica asséptica (espátula/luva estéril). Cobrir com curativo.",
+  precaucoes: "Alergia a sulfas. <strong>Evitar em grandes áreas em RN, lactente jovem e gestante a termo</strong> (kernicterus). Pode causar leucopenia transitória (queimaduras extensas), argiria (uso prolongado). Pode retardar epitelização em algumas feridas.",
+  reacoes: "Leucopenia transitória, reação alérgica (sulfa), dor/ardência local, argiria, retardo de epitelização.",
+  fontes: "SBQ Queimaduras; ABA Burn; Bula ANVISA."
+},
+{
+  id: "sulfametoxazol-trimetoprim",
+  nome: "Sulfametoxazol + Trimetoprim",
+  sinonimos: "SMZ-TMP, Cotrimoxazol, Bactrim®",
+  classe: "Antibiótico (sulfonamida + inibidor da di-hidrofolato redutase)",
+  apresentacao: "Ampola 80+16 mg/mL (5 mL); comprimido 400+80 e 800+160 mg; suspensão",
+  cenarios: ["antibiotico"],
+  tags: ["ITU", "PCP"],
+  resumo: "Combinação antibiótica de amplo espectro. Usada em ITU, infecções respiratórias e tratamento/profilaxia de pneumocistose (PCP).",
+  mecanismo: "Bloqueio sequencial da síntese de folato bacteriano: sulfametoxazol inibe a di-hidropteroato sintetase; trimetoprim inibe a di-hidrofolato redutase → sinergia bactericida.",
+  indicacoes: [
+    "<strong>ITU</strong> (cistite, pielonefrite — conforme sensibilidade)",
+    "<strong>Pneumonia por Pneumocystis jirovecii (PCP)</strong> — tratamento e profilaxia",
+    "Infecções por MRSA comunitário (pele)",
+    "Toxoplasmose (alternativa), nocardiose, profilaxia em imunossuprimidos"
+  ],
+  doseAdulto: "<strong>Infecções comuns:</strong> 800+160 mg VO 12/12 h.<br><strong>PCP (tratamento):</strong> 15–20 mg/kg/dia de TMP, EV/VO, dividido 6/6–8/8 h × 21 dias.<br><strong>Profilaxia PCP:</strong> 800+160 mg/dia ou 3×/semana.",
+  dosePed: "<strong>Infecções comuns:</strong> 6–12 mg/kg/dia de TMP, dividido 12/12 h.<br><strong>PCP:</strong> 15–20 mg/kg/dia de TMP dividido 6/6–8/8 h.",
+  doseGest: "Categoria D. <strong>Evitar no 1º trimestre</strong> (antifolato → defeitos de tubo neural) <strong>e próximo ao termo</strong> (kernicterus). Usar só se essencial (ex.: PCP) com suplementação de folato.",
+  via: "EV (diluído), VO",
+  preparo: "EV: <strong>diluir bem</strong> (1 ampola/5 mL em 125 mL SG 5%), infundir em 60–90 min. Grandes volumes em doses de PCP.",
+  precaucoes: "<strong>Contraindicações:</strong> alergia a sulfa, deficiência de G6PD (hemólise), 1º trim/termo gestacional, IRC grave. Hipercalemia (especialmente com IECA/ARA, doses altas). Reações cutâneas graves (Stevens-Johnson/NET). Cuidado em idoso e com varfarina/metotrexato.",
+  reacoes: "Rash (incluindo Stevens-Johnson/NET), náusea, hipercalemia, hemólise (G6PD), mielossupressão, IRA, hepatotoxicidade, hipoglicemia.",
+  fontes: "Manual de Antibioticoterapia CCIH; Diretrizes HIV/PCP MS; Bula ANVISA."
+},
+{
+  id: "sulfato-magnesio",
+  nome: "Sulfato de Magnésio",
+  sinonimos: "MgSO4",
+  classe: "Eletrólito / anticonvulsivante (eclâmpsia)",
+  apresentacao: "Ampola 10% (10 mL = 1 g), 20% (10 mL = 2 g) e 50% (10 mL = 5 g)",
+  cenarios: ["obstetrica", "convulsao", "arritmia", "bronco"],
+  tags: ["Eclâmpsia", "Torsades", "Asma grave"],
+  resumo: "Eletrólito com múltiplos usos críticos. 1ª escolha na prevenção/tratamento da eclâmpsia; também em Torsades de Pointes e asma grave refratária.",
+  mecanismo: "Cofator enzimático e bloqueador de canais de cálcio/NMDA. Estabiliza membranas, reduz excitabilidade neuromuscular e vasodilata. Antiarrítmico (estabiliza miocárdio na Torsades). Broncodilatação leve.",
+  indicacoes: [
+    "<strong>Eclâmpsia (tratamento) e pré-eclâmpsia grave (prevenção)</strong> — 1ª escolha",
+    "<strong>Torsades de Pointes</strong> / arritmia ventricular por QT longo",
+    "<strong>Crise asmática grave refratária</strong> (adjuvante)",
+    "Hipomagnesemia sintomática",
+    "Neuroproteção fetal (prematuridade &lt;32 sem)"
+  ],
+  doseAdulto: "<strong>Eclâmpsia (Zuspan EV):</strong> ataque 4 g EV em 10–20 min (8 mL de MgSO4 50% + 12 mL AD), manutenção 1–2 g/h em BIC. Recorrência: +2 g EV.<br><strong>Pritchard (IM):</strong> 4 g EV + 10 g IM (5 g em cada glúteo), depois 5 g IM 4/4 h.<br><strong>Torsades:</strong> 1–2 g EV em 5–20 min.<br><strong>Asma grave:</strong> 2 g EV em 20 min.",
+  dosePed: "<strong>Asma grave:</strong> 25–50 mg/kg EV (máx 2 g) em 20 min.<br><strong>Torsades:</strong> 25–50 mg/kg EV (máx 2 g).<br><strong>Hipomagnesemia:</strong> 25–50 mg/kg EV.",
+  doseGest: "Categoria D na bula, porém <strong>é o tratamento de escolha na eclâmpsia/pré-eclâmpsia grave</strong> — benefício materno-fetal estabelecido. Também usado para neuroproteção fetal.",
+  via: "EV (diluído, BIC para manutenção), IM (Pritchard)",
+  preparo: "<strong>Ataque (Zuspan):</strong> 8 mL de MgSO4 50% + 12 mL AD → 4 g em 20 mL, EV em 10–20 min. <strong>Manutenção:</strong> 10 mL de 50% (5 g) + SG 5% conforme protocolo, BIC. Antídoto disponível à mão.",
+  precaucoes: "<strong>Toxicidade (monitorar clínica):</strong> abolição do reflexo patelar (Mg ~10 mg/dL) → depressão respiratória → parada (Mg &gt;12). Suspender se: reflexo patelar abolido, FR &lt;14, diurese &lt;100 mL/4 h. <strong>Antídoto: gluconato de cálcio 1 g EV.</strong> Cuidado em IRC (acúmulo). Potencializa BCC e bloqueadores neuromusculares.",
+  reacoes: "Rubor, calor, sonolência, hiporreflexia, hipotensão, bradicardia, depressão respiratória, parada cardíaca (toxicidade), hipocalcemia.",
+  fontes: "Protocolo MS Pré-eclâmpsia/Eclâmpsia 2022; FEBRASGO; AHA ACLS (Torsades); GINA (asma); Bula ANVISA."
+},
+{
+  id: "tiamina",
+  nome: "Tiamina (Vitamina B1)",
+  sinonimos: "Vitamina B1, Benerva®",
+  classe: "Vitamina (hidrossolúvel)",
+  apresentacao: "Ampola 100 mg/mL; comprimido 300 mg",
+  cenarios: ["intoxicacao", "outros"],
+  tags: ["Wernicke", "Alcoolismo"],
+  resumo: "Vitamina B1. Crítica na prevenção e tratamento da encefalopatia de Wernicke, especialmente em alcoolistas e desnutridos.",
+  mecanismo: "Coenzima (pirofosfato de tiamina) essencial ao metabolismo da glicose (piruvato desidrogenase, transcetolase). Sua deficiência causa disfunção neuronal (Wernicke) e cardíaca (beribéri).",
+  indicacoes: [
+    "<strong>Encefalopatia de Wernicke</strong> (tratamento e prevenção)",
+    "<strong>Antes de administrar glicose em alcoolista/desnutrido</strong> (prevenir precipitação de Wernicke)",
+    "Síndrome de abstinência alcoólica",
+    "Beribéri (deficiência de B1)",
+    "Desnutrição grave, hiperêmese gravídica prolongada"
+  ],
+  doseAdulto: "<strong>Profilaxia (alcoolista de risco):</strong> 100–250 mg EV/IM antes ou junto da glicose.<br><strong>Wernicke (tratamento):</strong> 500 mg EV 8/8 h × 2–3 dias, depois 250 mg/dia × 5 dias.<br><strong>Sempre administrar tiamina ANTES da glicose</strong> em paciente de risco.",
+  dosePed: "<strong>Deficiência:</strong> 10–25 mg/dia IM/EV. Beribéri: 10–25 mg/dia. Uso menos comum em urgência pediátrica.",
+  doseGest: "Categoria A (uso fisiológico). <strong>Indicada na hiperêmese gravídica prolongada</strong> (prevenir Wernicke materno antes de soro glicosado). Mesmas doses.",
+  via: "EV (lento/diluído), IM, VO",
+  preparo: "EV: diluir em 100 mL SF/SG 5%, infundir em 15–30 min (reações anafiláticas raras com push rápido). IM: pode ser direta.",
+  precaucoes: "<strong>Regra de ouro: tiamina ANTES (ou junto) da glicose em alcoolista/desnutrido</strong> — glicose isolada pode precipitar Wernicke. Reações anafiláticas raras (mais com EV rápido). Muito segura no geral.",
+  reacoes: "Geralmente bem tolerada. Reação no local, raramente anafilaxia (EV rápido), rubor, prurido.",
+  fontes: "Diretrizes de manejo do alcoolismo; RCEM Wernicke; Bula ANVISA."
+},
+{
+  id: "tramadol",
+  nome: "Tramadol",
+  sinonimos: "Tramal®, Sylador®",
+  classe: "Opioide atípico (agonista μ + inibidor de recaptação)",
+  apresentacao: "Ampola 50 mg/mL (1 e 2 mL); comprimido 50/100 mg; gotas 100 mg/mL",
+  cenarios: ["dor"],
+  tags: ["Dor moderada/intensa"],
+  resumo: "Opioide de potência intermediária com mecanismo duplo. Dor moderada a intensa. Menor depressão respiratória que opioides fortes, mas risco de convulsão e síndrome serotoninérgica.",
+  mecanismo: "Agonista μ-opioide fraco + inibição da recaptação de serotonina e noradrenalina (ação analgésica dupla, inclusive em dor neuropática).",
+  indicacoes: [
+    "<strong>Dor moderada a intensa</strong> aguda (pós-operatório, trauma, cólica)",
+    "Dor crônica (oncológica e não oncológica)",
+    "Dor com componente neuropático"
+  ],
+  doseAdulto: "<strong>EV/IM:</strong> 50–100 mg a cada 6–8 h (EV lento e diluído — bolus rápido causa náusea intensa). Máx 400 mg/dia.<br><strong>VO/gotas:</strong> 50–100 mg 6/6–8/8 h.",
+  dosePed: "<strong>≥2 anos (uso cauteloso):</strong> 1–2 mg/kg/dose 6/6–8/8 h (máx 100 mg/dose, 8 mg/kg/dia ou 400 mg/dia). Evitar em &lt;12 anos quando houver alternativa (risco respiratório).",
+  doseGest: "Categoria C. Evitar (risco de síndrome de abstinência neonatal e convulsão). Próximo ao termo: depressão respiratória neonatal.",
+  via: "EV (lento, diluído), IM, SC, VO",
+  preparo: "EV: diluir em 100 mL SF e infundir em 15–20 min (reduz náuseas/vômitos). Pode ser IM direto.",
+  precaucoes: "<strong>Reduz limiar convulsivo</strong> (cuidado em epilepsia, TCE, doses altas, associação com tricíclicos/ISRS). <strong>Síndrome serotoninérgica</strong> (com ISRS/IMAO/tricíclicos/triptanos). Contraindicado com IMAO. Náusea/vômito frequentes. Antídoto parcial: naloxona (mas pode precipitar convulsão).",
+  reacoes: "Náusea, vômito, tontura, sonolência, sudorese, convulsão, síndrome serotoninérgica, constipação, dependência, depressão respiratória (menor que opioides fortes).",
+  fontes: "OMS Escada Analgésica; SBED; Bula ANVISA."
+},
+{
+  id: "tobramicina-colirio",
+  nome: "Tobramicina Colírio",
+  sinonimos: "Tobrex®",
+  classe: "Antibiótico aminoglicosídeo (oftálmico)",
+  apresentacao: "Solução oftálmica 0,3% (3 mg/mL)",
+  cenarios: ["outros"],
+  tags: ["Conjuntivite bacteriana"],
+  resumo: "Aminoglicosídeo de uso oftálmico tópico. Tratamento de infecções oculares bacterianas superficiais.",
+  mecanismo: "Inibe a síntese proteica bacteriana (subunidade 30S). Bactericida de amplo espectro contra gram-negativos e estafilococos, aplicado topicamente na superfície ocular.",
+  indicacoes: [
+    "<strong>Conjuntivite bacteriana</strong>",
+    "Blefarite, ceratite bacteriana superficial",
+    "Profilaxia de infecção pós trauma/corpo estranho de córnea (com avaliação oftalmológica)"
+  ],
+  doseAdulto: "<strong>Infecção leve/moderada:</strong> 1–2 gotas no olho afetado a cada 4 h.<br><strong>Infecção grave:</strong> 1–2 gotas a cada 1–2 h, reduzindo conforme melhora.",
+  dosePed: "Mesma posologia tópica (uso pediátrico aprovado). Aplicar com a criança contida e olhar para cima.",
+  doseGest: "Categoria B/C (tópico, absorção mínima). Uso oftálmico aceitável quando indicado.",
+  via: "Tópica ocular (colírio)",
+  preparo: "Lavar as mãos. Não encostar o frasco no olho/cílios. Comprimir o canto interno (oclusão do ponto lacrimal) reduz absorção sistêmica.",
+  precaucoes: "Uso prolongado pode causar superinfecção (fungos/resistentes). Suspensão de uso se piora. Avaliação oftalmológica em dor intensa, baixa de visão, fotofobia ou suspeita de comprometimento corneano. Hipersensibilidade a aminoglicosídeos.",
+  reacoes: "Ardência/irritação ocular transitória, hiperemia, prurido, edema palpebral, reação de hipersensibilidade local.",
+  fontes: "SBO Oftalmologia; Bula ANVISA."
+},
+{
+  id: "verapamil",
+  nome: "Verapamil",
+  sinonimos: "Dilacoron®",
+  classe: "Bloqueador de canal de cálcio (não di-hidropiridínico)",
+  apresentacao: "Ampola 2,5 mg/mL (2 mL = 5 mg); comprimido 80 e 120 mg; retard",
+  cenarios: ["arritmia", "has"],
+  tags: ["TSV", "Controle de FC"],
+  resumo: "BCC não di-hidropiridínico com ação no nó AV. Usado em taquicardias supraventriculares e controle de frequência em FA/Flutter.",
+  mecanismo: "Bloqueia canais de cálcio tipo L, com efeito predominante no nó AV e sinusal → reduz condução AV, FC e contratilidade. Vasodilatação coronariana e periférica.",
+  indicacoes: [
+    "<strong>Taquicardia supraventricular paroxística</strong> (após manobra vagal/adenosina, se QRS estreito)",
+    "<strong>Controle de FC em FA/Flutter</strong> (se sem IC com FE reduzida)",
+    "Angina (incluindo vasoespástica)",
+    "HAS (uso crônico)"
+  ],
+  doseAdulto: "<strong>TSV/controle de FC (EV):</strong> 2,5–5 mg EV em 2 min (idoso: em 3 min). Repetir 5–10 mg após 15–30 min se necessário (máx ~20 mg).<br><strong>VO:</strong> 80–120 mg 8/8 h (ou retard 240 mg/dia).",
+  dosePed: "<strong>EV CONTRAINDICADO em &lt;1 ano</strong> (colapso cardiovascular). 1–15 anos: 0,1–0,3 mg/kg EV lento (máx 5 mg) — uso muito cauteloso, com monitorização. VO: 4–8 mg/kg/dia.",
+  doseGest: "Categoria C. Pode ser usado em arritmia materna quando indicado. Atravessa placenta. Monitorar PA e FC.",
+  via: "EV (lento, monitorizado), VO",
+  preparo: "EV: administrar lento (2–3 min) com monitor cardíaco e PA. Ter cálcio à mão (reverte hipotensão).",
+  precaucoes: "<strong>Contraindicações:</strong> IC com FE reduzida (inotrópico negativo), BAV 2º/3º, disfunção do nó sinusal, hipotensão, <strong>FA com pré-excitação (WPW)</strong> — pode acelerar via acessória e gerar FV. <strong>Não associar a β-bloqueador EV</strong> (bradicardia/assistolia). Bradicardia, hipotensão.",
+  reacoes: "Hipotensão, bradicardia, BAV, assistolia (associação com β-bloq), constipação, edema, piora de IC, cefaleia.",
+  fontes: "SBC Arritmias; AHA ACLS; Bula ANVISA."
+},
+{
+  id: "vitamina-k",
+  nome: "Vitamina K (Fitomenadiona)",
+  sinonimos: "Fitomenadiona, Kanakion®",
+  classe: "Vitamina (antídoto de anticoagulante)",
+  apresentacao: "Ampola 10 mg/mL (1 mL); ampola pediátrica 2 mg/0,2 mL",
+  cenarios: ["intoxicacao", "outros"],
+  tags: ["Reversão de varfarina", "RN"],
+  resumo: "Vitamina K1. Antídoto da varfarina e profilaxia da doença hemorrágica do recém-nascido.",
+  mecanismo: "Cofator essencial à carboxilação hepática dos fatores de coagulação II, VII, IX, X (e proteínas C e S). Restaura a síntese desses fatores, revertendo o efeito da varfarina.",
+  indicacoes: [
+    "<strong>Reversão de anticoagulação por varfarina</strong> (INR elevado, sangramento)",
+    "<strong>Profilaxia da doença hemorrágica do recém-nascido</strong> (rotina ao nascer)",
+    "Deficiência de vitamina K (colestase, má absorção, desnutrição)",
+    "Intoxicação por rodenticidas (superwarfarinas)"
+  ],
+  doseAdulto: "<strong>Varfarina — INR alto sem sangramento:</strong> 1–2,5 mg VO.<br><strong>Sangramento grave:</strong> 5–10 mg EV lento (diluído, em 20–30 min) + complexo protrombínico/plasma.<br>EV apenas diluído e lento (risco de anafilaxia).",
+  dosePed: "<strong>Profilaxia ao nascer:</strong> 1 mg IM dose única (RN ≥1 kg; 0,5 mg se &lt;1 kg).<br><strong>Sangramento/deficiência:</strong> 1–5 mg EV/IM conforme gravidade.",
+  doseGest: "Categoria C. Usada quando indicada (reversão de anticoagulação, deficiência). A profilaxia neonatal é padrão ao nascimento.",
+  via: "IM (profilaxia RN), VO, EV (apenas diluído e lento)",
+  preparo: "<strong>EV: SEMPRE diluir</strong> (em SF/SG 5%) e infundir lento (≤1 mg/min, em 20–30 min) — push rápido causa reação anafilactoide (hipotensão, broncoespasmo, óbito). VO/IM preferíveis quando possível.",
+  precaucoes: "<strong>EV rápido = reação anafilactoide grave</strong> (preferir VO/IM; reservar EV diluído para sangramento grave). A reversão da varfarina demora 6–24 h (não é imediata — em sangramento grave usar complexo protrombínico/plasma junto). Doses altas podem causar resistência transitória à re-anticoagulação.",
+  reacoes: "Reação anafilactoide (EV rápido), rubor, hipotensão, dor no local (IM), sudorese, sabor metálico.",
+  fontes: "SBPC Reversão de Anticoagulação; SBP Doença Hemorrágica do RN; Bula ANVISA."
+},
+{
+  id: "propranolol",
+  nome: "Propranolol",
+  sinonimos: "Inderal®",
+  classe: "Betabloqueador não seletivo",
+  apresentacao: "Comprimido 10, 40 e 80 mg; ampola 1 mg/mL (uso restrito)",
+  cenarios: ["arritmia", "has", "outros"],
+  tags: ["Tireotoxicose", "Taquiarritmia", "Profilaxia enxaqueca"],
+  resumo: "Betabloqueador não seletivo (β1 e β2). Útil em tireotoxicose/tempestade tireoidiana, taquiarritmias, profilaxia de enxaqueca e tremor.",
+  mecanismo: "Antagonista β-adrenérgico não seletivo → reduz FC, contratilidade, condução AV e PA. Em altas doses, inibe a conversão periférica de T4 em T3 (útil na tireotoxicose).",
+  indicacoes: [
+    "<strong>Tireotoxicose / tempestade tireoidiana</strong> (controla sintomas adrenérgicos e reduz conversão T4→T3)",
+    "Taquiarritmias supraventriculares, controle de FC",
+    "<strong>Profilaxia de enxaqueca</strong>",
+    "Tremor essencial, ansiedade de desempenho",
+    "HAS, angina, profilaxia de sangramento por varizes (hipertensão portal)"
+  ],
+  doseAdulto: "<strong>Tireotoxicose:</strong> 20–40 mg VO 6/6–8/8 h (até 80–120 mg/dia ou mais na tempestade).<br><strong>Profilaxia enxaqueca:</strong> 40–160 mg/dia.<br><strong>EV (raro, monitorizado):</strong> 1 mg lento, repetir a cada 2 min (máx 5 mg).",
+  dosePed: "<strong>HAS/arritmia:</strong> 1–2 mg/kg/dia VO dividido 6/6–8/8 h (titular). <strong>Tetralogia (crise hipoxêmica):</strong> 0,15–0,25 mg/kg EV lento. Uso especializado.",
+  doseGest: "Categoria C. Pode ser usado quando indicado (ex.: tireotoxicose, arritmia). Risco de restrição de crescimento, bradicardia e hipoglicemia neonatal — monitorar.",
+  via: "VO, EV (lento, monitorizado — uso restrito)",
+  preparo: "VO: uso direto. EV: administrar muito lento (1 mg/min) com monitor cardíaco e PA, reservado para emergência.",
+  precaucoes: "<strong>Contraindicações:</strong> asma/broncoespasmo (não seletivo — broncoconstrição), bradicardia, BAV 2º/3º, IC descompensada, choque, hipotensão. Mascara hipoglicemia (cuidado em diabético). Não suspender abruptamente (rebote). Não usar isolado na tempestade tireoidiana sem tratar a causa.",
+  reacoes: "Bradicardia, hipotensão, broncoespasmo, fadiga, extremidades frias, mascaramento de hipoglicemia, pesadelos, depressão, disfunção sexual.",
+  fontes: "SBC Arritmias; SBEM Tireotoxicose; Bula ANVISA."
 }
+
 ];
 
 // ============================================================
@@ -1421,7 +2783,11 @@ const CATEGORIAS = [
   { id: "anestesia", nome: "Anestesia local" },
   { id: "intoxicacao", nome: "Intoxicação" },
   { id: "ic", nome: "Insuf. Cardíaca" },
-  { id: "diluicao", nome: "Diluentes" }
+  { id: "antibiotico", nome: "Antibióticos" },
+  { id: "obstetrica", nome: "Obstétrico" },
+  { id: "gastro", nome: "Gastro / Náusea" },
+  { id: "diluicao", nome: "Diluentes" },
+  { id: "outros", nome: "Outros" }
 ];
 
 // ============================================================
@@ -2035,6 +3401,275 @@ const CALCULOS = {
       }
     }
   ]
+  ,
+  // ===== NOVOS MEDICAMENTOS (lista norma 2.6) =====
+  paracetamol: [
+    {
+      label: "Analgesia / antitérmico — VO ou EV",
+      fn: kg => {
+        const mgMin = 10 * kg, mgMax = 15 * kg;
+        const gotas = Math.round(mgMin / 5); // solução oral 200 mg/mL → 1 gota ≈ 5 mg
+        return `<span class="num">${fmt(mgMin,0)}–${fmt(mgMax,0)} mg/dose</span> a cada 4–6 h<span class="max">máx 75 mg/kg/dia ou 4 g/dia</span><div class="calc-item-obs">Solução oral 200 mg/mL: ≈ <span class="vol">${gotas} gotas</span> (1 gota ≈ 5 mg). EV: ${fmt(15*kg,0)} mg (15 mg/kg; 10 mg/kg se &lt;10 kg).</div>`;
+      }
+    }
+  ],
+  salbutamol: [
+    {
+      label: "Crise asmática — NBZ",
+      fn: kg => {
+        const mg = max(2.5, min(5, 0.15 * kg));
+        const gotas = Math.round(mg / 0.25); // sol 5 mg/mL → 1 gota ≈ 0,25 mg
+        return `<span class="num">${fmt(mg,2)} mg</span> ≈ <span class="vol">${gotas} gotas</span> (5 mg/mL) em 3 mL SF<span class="max">2,5–5 mg/dose</span><div class="calc-item-obs">A cada 20 min × 3 doses na 1ª hora. Pode associar ipratrópio.</div>`;
+      }
+    },
+    {
+      label: "Hipercalemia — NBZ dose alta",
+      fn: kg => {
+        const mg = min(20, 0.4 * kg);
+        return `<span class="num">${fmt(mg,1)} mg</span> NBZ (dose alta)<span class="max">10–20 mg</span><div class="calc-item-obs">Desvia K+ para o intracelular. Adjuvante (não trata o K+ corporal total).</div>`;
+      }
+    }
+  ],
+  fenoterol: [
+    {
+      label: "Crise asmática — NBZ (pediátrico)",
+      fn: kg => {
+        const gotas = Math.min(10, Math.round(kg / 3)); // 1 gota / 3 kg, máx 10
+        return `<span class="num">${gotas} gotas</span> (5 mg/mL) em 3 mL SF<span class="max">máx 10 gotas</span><div class="calc-item-obs">1 gota a cada 3 kg. A cada 20 min × 3 doses. Pode associar ipratrópio.</div>`;
+      }
+    }
+  ],
+  "sulfato-magnesio": [
+    {
+      label: "Asma grave refratária — EV",
+      fn: kg => {
+        const mg = min(2000, 40 * kg);
+        const mL50 = mg / 500; // 50% = 500 mg/mL
+        return `<span class="num">${fmt(mg,0)} mg</span> = <span class="vol">${fmt(mL50,1)} mL</span> da sol. 50% (500 mg/mL)<span class="max">25–50 mg/kg, máx 2 g</span><div class="calc-item-obs">Diluir e infundir em 20 min. Monitorar PA.</div>`;
+      }
+    },
+    {
+      label: "Torsades / arritmia por QT longo — EV",
+      fn: kg => {
+        const mg = min(2000, 40 * kg);
+        const mL50 = mg / 500;
+        return `<span class="num">${fmt(mg,0)} mg</span> = <span class="vol">${fmt(mL50,1)} mL</span> da sol. 50%<span class="max">25–50 mg/kg, máx 2 g</span><div class="calc-item-obs">EV em 5–20 min (mais rápido se PCR por Torsades).</div>`;
+      }
+    }
+  ],
+  "gluconato-calcio": [
+    {
+      label: "Hipocalcemia / hipercalemia — EV lento",
+      fn: kg => {
+        const mLmin = 0.5 * kg, mLmax = min(20, 1 * kg); // amp 10% = 100 mg/mL
+        return `<span class="num">${fmt(mLmin,1)}–${fmt(mLmax,1)} mL</span> do gluconato 10% (100 mg/mL)<span class="max">0,5–1 mL/kg, máx 20 mL</span><div class="calc-item-obs">EV lento com monitor cardíaco. Não misturar com bicarbonato. Cuidado em digitalizado.</div>`;
+      }
+    }
+  ],
+  "bicarbonato-sodio": [
+    {
+      label: "Acidose grave / hipercalemia / intox. tricíclico — EV",
+      fn: kg => {
+        const mEq = 1 * kg; // 8,4% = 1 mEq/mL
+        return `<span class="num">${fmt(mEq,0)} mEq</span> = <span class="vol">${fmt(mEq,0)} mL</span> da sol. 8,4% (1 mEq/mL)<span class="max">1 mEq/kg em bolus</span><div class="calc-item-obs">Neonato/lactente: diluir 1:1 com AD. Reavaliar gasometria. Não misturar com cálcio/catecolaminas.</div>`;
+      }
+    }
+  ],
+  manitol: [
+    {
+      label: "Hipertensão intracraniana — EV",
+      fn: kg => {
+        const gMin = 0.25 * kg, gMax = 1 * kg;
+        const mLmin = gMin / 0.2, mLmax = gMax / 0.2; // 20% = 0,2 g/mL
+        return `<span class="num">${fmt(gMin,1)}–${fmt(gMax,1)} g</span> = <span class="vol">${fmt(mLmin,0)}–${fmt(mLmax,0)} mL</span> da sol. 20% (0,2 g/mL)<span class="max">0,25–1 g/kg</span><div class="calc-item-obs">Infundir em 15–20 min com equipo com filtro. Alvo osmolaridade &lt;320 mOsm/L.</div>`;
+      }
+    }
+  ],
+  "carvao-ativado": [
+    {
+      label: "Intoxicação — dose única VO/SNG",
+      fn: kg => {
+        const g = min(50, 1 * kg);
+        return `<span class="num">${fmt(g,0)} g</span><span class="max">1 g/kg, máx 50 g</span><div class="calc-item-obs">Diluir a 10% em água/suco. Só por SNG se via aérea protegida. Não adsorve álcoois, metais, cáusticos.</div>`;
+      }
+    }
+  ],
+  flumazenil: [
+    {
+      label: "Reversão de BZD — EV (pediátrico)",
+      fn: kg => {
+        const mg = min(0.2, 0.01 * kg);
+        const mL = mg / 0.1; // 0,1 mg/mL
+        return `<span class="num">${fmt(mg,3)} mg</span> = <span class="vol">${fmt(mL,2)} mL</span> (0,1 mg/mL)<span class="max">0,01 mg/kg, máx 0,2 mg/dose</span><div class="calc-item-obs">Repetir a cada 1 min até máx 0,05 mg/kg ou 1 mg. Cuidado: risco de convulsão.</div>`;
+      }
+    }
+  ],
+  tramadol: [
+    {
+      label: "Dor moderada/intensa — EV/IM (≥2 anos)",
+      fn: kg => {
+        const mgMin = 1 * kg, mgMax = min(100, 2 * kg);
+        const mLmin = mgMin / 50, mLmax = mgMax / 50; // 50 mg/mL
+        return `<span class="num">${fmt(mgMin,1)}–${fmt(mgMax,1)} mg</span> = <span class="vol">${fmt(mLmin,2)}–${fmt(mLmax,2)} mL</span> (50 mg/mL)<span class="max">1–2 mg/kg, máx 100 mg/dose</span><div class="calc-item-obs">EV diluído em 100 mL SF, em 15–20 min (reduz náusea). Máx 8 mg/kg/dia ou 400 mg/dia.</div>`;
+      }
+    }
+  ],
+  metoclopramida: [
+    {
+      label: "Náusea/vômito — EV/VO (pediátrico)",
+      fn: kg => {
+        const mg = min(10, 0.15 * kg);
+        const mL = mg / 5; // 5 mg/mL
+        return `<span class="num">${fmt(mg,2)} mg</span> = <span class="vol">${fmt(mL,2)} mL</span> (5 mg/mL)<span class="max">0,15 mg/kg, máx 10 mg</span><div class="calc-item-obs">EV diluído e lento. Máx 0,5 mg/kg/dia. Atenção: risco de sintomas extrapiramidais.</div>`;
+      }
+    }
+  ],
+  prometazina: [
+    {
+      label: "Alergia/náusea — IM (≥2 anos)",
+      fn: kg => {
+        const mg = min(25, 0.5 * kg);
+        const mL = mg / 25; // 25 mg/mL
+        return `<span class="num">${fmt(mg,1)} mg</span> = <span class="vol">${fmt(mL,2)} mL</span> (25 mg/mL) IM<span class="max">0,25–0,5 mg/kg, máx 25 mg</span><div class="calc-item-obs">CONTRAINDICADA &lt;2 anos. Evitar EV (necrose). IM profundo.</div>`;
+      }
+    }
+  ],
+  biperideno: [
+    {
+      label: "Distonia aguda — IM/EV lento",
+      fn: kg => {
+        const mg = min(2, 0.04 * kg);
+        const mL = mg / 5; // 5 mg/mL
+        return `<span class="num">${fmt(mg,2)} mg</span> = <span class="vol">${fmt(mL,2)} mL</span> (5 mg/mL)<span class="max">0,04 mg/kg, máx 2 mg</span><div class="calc-item-obs">Pode repetir após 30 min. EV lento (≤2 mg/min).</div>`;
+      }
+    }
+  ],
+  hidralazina: [
+    {
+      label: "Crise hipertensiva — EV (pediátrico)",
+      fn: kg => {
+        const mgMin = 0.1 * kg, mgMax = min(20, 0.2 * kg);
+        return `<span class="num">${fmt(mgMin,2)}–${fmt(mgMax,2)} mg</span><span class="max">0,1–0,2 mg/kg, máx 20 mg</span><div class="calc-item-obs">Diluir 1 amp (20 mg) em 19 mL AD → 1 mg/mL. Repetir a cada 4–6 h. Monitorar PA.</div>`;
+      }
+    }
+  ],
+  verapamil: [
+    {
+      label: "TSV — EV lento (1–15 anos)",
+      fn: kg => {
+        const mgMin = 0.1 * kg, mgMax = min(5, 0.3 * kg);
+        const mLmin = mgMin / 2.5, mLmax = mgMax / 2.5; // 2,5 mg/mL
+        return `<span class="num">${fmt(mgMin,2)}–${fmt(mgMax,2)} mg</span> = <span class="vol">${fmt(mLmin,2)}–${fmt(mLmax,2)} mL</span> (2,5 mg/mL)<span class="max">0,1–0,3 mg/kg, máx 5 mg</span><div class="calc-item-obs"><strong>CONTRAINDICADO &lt;1 ano.</strong> EV lento, monitor. Ter cálcio à mão.</div>`;
+      }
+    }
+  ],
+  propranolol: [
+    {
+      label: "HAS / arritmia — VO (manutenção pediátrica)",
+      fn: kg => {
+        const mgMin = 1 * kg, mgMax = 2 * kg;
+        return `<span class="num">${fmt(mgMin,1)}–${fmt(mgMax,1)} mg/dia</span> VO dividido 6/6–8/8 h<span class="max">1–2 mg/kg/dia</span><div class="calc-item-obs">Titular conforme resposta. Contraindicado em asma/broncoespasmo.</div>`;
+      }
+    }
+  ],
+  ampicilina: [
+    {
+      label: "Infecção grave / meningite — EV",
+      fn: kg => {
+        const diaMin = 100 * kg, diaMax = 400 * kg;
+        const dose6 = diaMin / 4;
+        return `<span class="num">${fmt(diaMin,0)}–${fmt(diaMax,0)} mg/dia</span> dividido 6/6 h<span class="max">100–400 mg/kg/dia</span><div class="calc-item-obs">≈ ${fmt(dose6,0)} mg/dose 6/6 h (na dose mínima). Meningite/sepse: doses altas.</div>`;
+      }
+    }
+  ],
+  penicilina: [
+    {
+      label: "Infecção grave / meningite — EV",
+      fn: kg => {
+        const diaMin = 200000 * kg, diaMax = 400000 * kg;
+        const dose4 = diaMin / 6;
+        return `<span class="num">${fmt(diaMin/1000,0)} mil–${fmt(diaMax/1000,0)} mil UI/dia</span> dividido 4/4–6/6 h<span class="max">200.000–400.000 UI/kg/dia</span><div class="calc-item-obs">≈ ${fmt(dose4/1000,0)} mil UI/dose 6/6 h (na dose mínima). Máx 24 milhões UI/dia.</div>`;
+      }
+    }
+  ],
+  oxacilina: [
+    {
+      label: "Infecção por MSSA — EV",
+      fn: kg => {
+        const diaMin = 100 * kg, diaMax = 200 * kg;
+        const dose6 = diaMin / 4;
+        return `<span class="num">${fmt(diaMin,0)}–${fmt(diaMax,0)} mg/dia</span> dividido 6/6 h<span class="max">100–200 mg/kg/dia (SNC até 400)</span><div class="calc-item-obs">≈ ${fmt(dose6,0)} mg/dose 6/6 h (na dose mínima). Máx 12 g/dia.</div>`;
+      }
+    }
+  ],
+  gentamicina: [
+    {
+      label: "Dose única diária — EV",
+      fn: kg => {
+        const mgMin = 5 * kg, mgMax = 7.5 * kg;
+        const mLmin = mgMin / 40, mLmax = mgMax / 40; // 40 mg/mL
+        return `<span class="num">${fmt(mgMin,0)}–${fmt(mgMax,0)} mg/dia</span> = <span class="vol">${fmt(mLmin,2)}–${fmt(mLmax,2)} mL</span> (40 mg/mL)<span class="max">5–7,5 mg/kg/dia</span><div class="calc-item-obs">Diluir em 50–100 mL SF, em 30 min. Monitorar função renal e níveis.</div>`;
+      }
+    }
+  ],
+  cefalotina: [
+    {
+      label: "Infecção — EV",
+      fn: kg => {
+        const diaMin = 80 * kg, diaMax = 160 * kg;
+        const dose6 = diaMin / 4;
+        return `<span class="num">${fmt(diaMin,0)}–${fmt(diaMax,0)} mg/dia</span> dividido 6/6 h<span class="max">80–160 mg/kg/dia</span><div class="calc-item-obs">≈ ${fmt(dose6,0)} mg/dose 6/6 h (na dose mínima). Máx 12 g/dia.</div>`;
+      }
+    }
+  ],
+  cefalexina: [
+    {
+      label: "Infecção de pele / ITU — VO",
+      fn: kg => {
+        const diaMin = 25 * kg, diaMax = 50 * kg;
+        const dose6 = diaMin / 4;
+        return `<span class="num">${fmt(diaMin,0)}–${fmt(diaMax,0)} mg/dia</span> dividido 6/6 h<span class="max">25–50 mg/kg/dia</span><div class="calc-item-obs">≈ ${fmt(dose6,0)} mg/dose 6/6 h (na dose mínima). Máx 4 g/dia.</div>`;
+      }
+    }
+  ],
+  cloranfenicol: [
+    {
+      label: "Meningite / infecção grave — EV",
+      fn: kg => {
+        const diaMin = 75 * kg, diaMax = min(4000, 100 * kg);
+        const dose6 = diaMin / 4;
+        return `<span class="num">${fmt(diaMin,0)}–${fmt(diaMax,0)} mg/dia</span> dividido 6/6 h<span class="max">75–100 mg/kg/dia, máx 4 g/dia</span><div class="calc-item-obs">≈ ${fmt(dose6,0)} mg/dose. Monitorar hemograma. RN: evitar (bebê cinzento).</div>`;
+      }
+    }
+  ],
+  "sulfametoxazol-trimetoprim": [
+    {
+      label: "PCP (tratamento) — base TMP, EV/VO",
+      fn: kg => {
+        const tmpMin = 15 * kg, tmpMax = 20 * kg;
+        return `<span class="num">${fmt(tmpMin,0)}–${fmt(tmpMax,0)} mg/dia de TMP</span> dividido 6/6–8/8 h<span class="max">15–20 mg/kg/dia de TMP</span><div class="calc-item-obs">Infecções comuns: 6–12 mg/kg/dia de TMP 12/12 h. Diluir bem para EV.</div>`;
+      }
+    }
+  ],
+  digoxina: [
+    {
+      label: "Manutenção — VO/EV",
+      fn: kg => {
+        const mcgMin = 8 * kg, mcgMax = 10 * kg;
+        return `<span class="num">${fmt(mcgMin,0)}–${fmt(mcgMax,0)} mcg/dia</span> dividido 12/12 h<span class="max">8–10 mcg/kg/dia</span><div class="calc-item-obs">Digitalização varia com idade. Verificar K+ e função renal. Janela estreita.</div>`;
+      }
+    }
+  ],
+  "sais-reidratacao": [
+    {
+      label: "Reidratação (Plano B) — VO",
+      fn: kg => {
+        const mL = 75 * kg;
+        return `<span class="num">${fmt(mL,0)} mL em 4 h</span><span class="max">75 mL/kg</span><div class="calc-item-obs">Em pequenos goles/colher/seringa. Depois manter conforme perdas. 1 envelope em 1 L de água.</div>`;
+      }
+    }
+  ]
+
 };
 // Aliases (medicamentos com nome alternativo apontam para a mesma calculadora)
 CALCULOS.epinefrina = CALCULOS.adrenalina;
@@ -2224,7 +3859,39 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     document.getElementById("search").focus();
   }
+  if ((e.key === "t" || e.key === "T") && document.activeElement.tagName !== "INPUT") {
+    e.preventDefault();
+    alternarTema();
+  }
 });
+
+// ============================================================
+// TEMA CLARO / ESCURO — persistido em localStorage
+// ============================================================
+function aplicarTema(tema) {
+  if (tema === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+}
+function alternarTema() {
+  const atual = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  const novo = atual === "light" ? "dark" : "light";
+  aplicarTema(novo);
+  localStorage.setItem("farmaco-theme", novo);
+}
+document.getElementById("theme-toggle").addEventListener("click", alternarTema);
+
+// Aplicar tema salvo (ou preferência do sistema) no carregamento
+(function initTema() {
+  const salvo = localStorage.getItem("farmaco-theme");
+  if (salvo === "light" || salvo === "dark") {
+    aplicarTema(salvo);
+  } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+    aplicarTema("light");
+  }
+})();
 
 // ============================================================
 // INIT
